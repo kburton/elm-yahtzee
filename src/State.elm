@@ -1,6 +1,7 @@
 module State exposing (init, subscriptions, update)
 
 import Dice.State
+import Game.State
 import Types
 
 
@@ -10,12 +11,17 @@ init _ =
         ( diceModel, diceCmd ) =
             Dice.State.init ()
 
+        ( gameModel, gameCmd ) =
+            Game.State.init ()
+
         cmds =
             Cmd.batch
                 [ Cmd.map Types.DiceMsg diceCmd
+                , Cmd.map Types.GameMsg gameCmd
                 ]
     in
     ( { dice = diceModel
+      , game = gameModel
       }
     , cmds
     )
@@ -30,6 +36,13 @@ update msg model =
                     Dice.State.update diceMsg model.dice
             in
             ( { model | dice = diceModel }, Cmd.map Types.DiceMsg diceCmd )
+
+        Types.GameMsg gameMsg ->
+            let
+                ( gameModel, gameCmd ) =
+                    Game.State.update gameMsg model.game
+            in
+            ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
 
 
 subscriptions : Types.Model -> Sub Types.Msg

@@ -9,7 +9,7 @@ type alias Model =
 
 
 type Msg
-    = RollAll
+    = Roll
     | SetFlips Index Int
     | Flip Index
     | NewFace Index Face

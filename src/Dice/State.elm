@@ -38,7 +38,7 @@ update msg model =
             Random.generate (Types.NewFace index) (Random.int 1 6)
     in
     case msg of
-        Types.RollAll ->
+        Types.Roll ->
             ( model
             , Cmd.batch <| List.map (\( i, _ ) -> roll i) <| Types.activeDice model
             )
