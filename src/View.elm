@@ -1,7 +1,5 @@
 module View exposing (view)
 
-import Dice.Types
-import Dice.View
 import Game.Types
 import Game.View
 import Html exposing (Html, button, div, h1, h2, text)
@@ -17,7 +15,7 @@ view model =
         , h2 [] [ text <| "Turn " ++ String.fromInt model.game.turn ++ " of " ++ String.fromInt Game.Types.maxTurns ]
         , text (Game.View.rollDisplay model.game)
         , viewControls model
-        , Html.map Types.DiceMsg (Dice.View.dice model.dice)
+        , Html.map Types.GameMsg (Game.View.dice model.game)
         , Html.map Types.GameMsg (Game.View.scoreboard model.game)
         ]
 
