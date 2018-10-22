@@ -35,12 +35,12 @@ scoreboard model =
         , scoreboardRowMaybeInt model.games "Fours" .fours (Types.calcUpper 4 model)
         , scoreboardRowMaybeInt model.games "Fives" .fives (Types.calcUpper 5 model)
         , scoreboardRowMaybeInt model.games "Sixes" .sixes (Types.calcUpper 6 model)
-        , scoreboardRowMaybeInt model.games "3 of a kind" .threeOfKind 0
-        , scoreboardRowMaybeInt model.games "4 of a kind" .fourOfKind 0
-        , scoreboardRowMaybeInt model.games "Full house" .fullHouse 0
+        , scoreboardRowMaybeInt model.games "3 of a kind" .threeOfKind (Types.calcNOfKind 3 model)
+        , scoreboardRowMaybeInt model.games "4 of a kind" .fourOfKind (Types.calcNOfKind 4 model)
+        , scoreboardRowMaybeInt model.games "Full house" .fullHouse (Types.calcFullHouse model)
         , scoreboardRowMaybeInt model.games "Sm straight" .smallStraight 0
         , scoreboardRowMaybeInt model.games "Lg straight" .largeStraight 0
-        , scoreboardRowMaybeInt model.games "Yahtzee" .yahtzee 0
+        , scoreboardRowMaybeInt model.games "Yahtzee" .yahtzee (Types.calcYahtzee model)
         , scoreboardRowMaybeInt model.games "Chance" .chance 0
         , scoreboardRowInt model.games "Yahtzee bonus" .yahtzeeBonusCount
         ]

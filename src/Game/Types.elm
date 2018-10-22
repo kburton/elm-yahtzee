@@ -1,6 +1,7 @@
-module Game.Types exposing (Die, Face, Index, Model, Msg(..), Scoreboard, activeDice, calcUpper, maxRolls, maxRollsReached, maxTurns, newScoreboard, rollingDice)
+module Game.Types exposing (Die, Face, Index, Model, Msg(..), Scoreboard, activeDice, calcFullHouse, calcNOfKind, calcUpper, calcYahtzee, maxRolls, maxRollsReached, maxTurns, newScoreboard, rollingDice)
 
 import Array exposing (Array)
+import Dict exposing (Dict)
 
 
 type alias Model =
@@ -82,6 +83,59 @@ rollingDice model =
     Array.toList <| Array.filter (\( i, f ) -> f > 0) <| Array.indexedMap (\i d -> ( i, d.flipsLeft )) model.dice
 
 
+getFaces : Model -> List Int
+getFaces model =
+    List.map .face <| Array.toList model.dice
+
+
+getCounts : Model -> Dict Face Int
+getCounts model =
+    List.foldl
+        (\val acc -> Dict.update val (\cur -> Just (Maybe.withDefault 0 cur + 1)) acc)
+        Dict.empty
+        (getFaces model)
+
+
 calcUpper : Face -> Model -> Int
 calcUpper face model =
     face * (Array.length <| Array.filter (\d -> d.face == face) model.dice)
+
+
+calcNOfKind : Int -> Model -> Int
+calcNOfKind n model =
+    let
+        matches =
+            List.filter (\count -> count >= n) <| Dict.values <| getCounts model
+    in
+    if List.length matches == 0 then
+        0
+
+    else
+        List.sum <| getFaces model
+
+
+calcFullHouse : Model -> Int
+calcFullHouse model =
+    let
+        scores =
+            List.sort <| Dict.values <| getCounts model
+    in
+    case scores of
+        a :: b :: rest ->
+            if a == 2 && b == 3 then
+                25
+
+            else
+                0
+
+        _ ->
+            0
+
+
+calcYahtzee : Model -> Int
+calcYahtzee model =
+    if calcNOfKind 5 model == 0 then
+        0
+
+    else
+        50
