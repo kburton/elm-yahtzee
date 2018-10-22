@@ -2,7 +2,7 @@ module Dice.View exposing (dice)
 
 import Array
 import Dice.Types as Types
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt

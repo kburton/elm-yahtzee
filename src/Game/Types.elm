@@ -1,4 +1,4 @@
-module Game.Types exposing (Model, Msg(..), Scoreboard, maxRolls, maxRollsReached, newScoreboard)
+module Game.Types exposing (Model, Msg(..), Scoreboard, maxRolls, maxRollsReached, maxTurns, newScoreboard)
 
 
 type alias Model =
@@ -38,6 +38,11 @@ maxRolls =
 maxRollsReached : Model -> Bool
 maxRollsReached model =
     model.roll > maxRolls
+
+
+maxTurns : Int
+maxTurns =
+    13
 
 
 newScoreboard : Scoreboard

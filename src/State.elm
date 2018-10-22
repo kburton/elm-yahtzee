@@ -17,7 +17,7 @@ init _ =
         cmds =
             Cmd.batch
                 [ Cmd.map Types.DiceMsg diceCmd
-                , Cmd.map Types.GameMsg gameCmd
+                , gameCmd
                 ]
     in
     ( { dice = diceModel
@@ -38,11 +38,7 @@ update msg model =
             ( { model | dice = diceModel }, Cmd.map Types.DiceMsg diceCmd )
 
         Types.GameMsg gameMsg ->
-            let
-                ( gameModel, gameCmd ) =
-                    Game.State.update gameMsg model.game
-            in
-            ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
+            Game.State.update gameMsg model
 
 
 subscriptions : Types.Model -> Sub Types.Msg

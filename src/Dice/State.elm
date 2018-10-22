@@ -31,18 +31,10 @@ update msg model =
         toggleLock index =
             (\d -> { model | dice = Array.set index { d | locked = not d.locked } model.dice }) (getDie index)
 
-        roll index =
-            Random.generate (Types.SetFlips index) (Random.int 8 25)
-
         flip index =
             Random.generate (Types.NewFace index) (Random.int 1 6)
     in
     case msg of
-        Types.Roll ->
-            ( model
-            , Cmd.batch <| List.map (\( i, _ ) -> roll i) <| Types.activeDice model
-            )
-
         Types.SetFlips index flips ->
             ( updateFlips index flips
             , Cmd.none

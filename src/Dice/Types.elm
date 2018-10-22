@@ -9,8 +9,7 @@ type alias Model =
 
 
 type Msg
-    = Roll
-    | SetFlips Index Int
+    = SetFlips Index Int
     | Flip Index
     | NewFace Index Face
     | ToggleLock Index
