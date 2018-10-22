@@ -33,7 +33,7 @@ update msg model =
         Types.DiceMsg diceMsg ->
             let
                 ( diceModel, diceCmd ) =
-                    Dice.State.update diceMsg model.dice
+                    Dice.State.update diceMsg model
             in
             ( { model | dice = diceModel }, Cmd.map Types.DiceMsg diceCmd )
 

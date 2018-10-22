@@ -1,65 +1,69 @@
 module Dice.State exposing (init, subscriptions, update)
 
 import Array
-import Dice.Types as Types
+import Dice.Types
 import Random
 import Time
+import Types
 
 
-init : () -> ( Types.Model, Cmd Types.Msg )
+init : () -> ( Dice.Types.Model, Cmd Dice.Types.Msg )
 init _ =
-    ( Types.Model <| Array.repeat 5 (Types.Die 1 0 False)
+    ( Dice.Types.Model <| Array.repeat 5 (Dice.Types.Die 1 0 False)
     , Cmd.none
     )
 
 
-update : Types.Msg -> Types.Model -> ( Types.Model, Cmd Types.Msg )
+update : Dice.Types.Msg -> Types.Model -> ( Dice.Types.Model, Cmd Dice.Types.Msg )
 update msg model =
     let
+        diceModel =
+            model.dice
+
         getDie index =
-            Maybe.withDefault (Types.Die 1 0 False) (Array.get index model.dice)
+            Maybe.withDefault (Dice.Types.Die 1 0 False) (Array.get index diceModel.dice)
 
         updateFace index face =
-            (\d -> { model | dice = Array.set index { d | face = face } model.dice }) (getDie index)
+            (\d -> { diceModel | dice = Array.set index { d | face = face } diceModel.dice }) (getDie index)
 
         updateFlips index flips =
-            (\d -> { model | dice = Array.set index { d | flipsLeft = flips } model.dice }) (getDie index)
+            (\d -> { diceModel | dice = Array.set index { d | flipsLeft = flips } diceModel.dice }) (getDie index)
 
         decrementFlips index =
-            (\d -> { model | dice = Array.set index { d | flipsLeft = d.flipsLeft - 1 } model.dice }) (getDie index)
+            (\d -> { diceModel | dice = Array.set index { d | flipsLeft = d.flipsLeft - 1 } diceModel.dice }) (getDie index)
 
         toggleLock index =
-            (\d -> { model | dice = Array.set index { d | locked = not d.locked } model.dice }) (getDie index)
+            (\d -> { diceModel | dice = Array.set index { d | locked = not d.locked } diceModel.dice }) (getDie index)
 
         flip index =
-            Random.generate (Types.NewFace index) (Random.int 1 6)
+            Random.generate (Dice.Types.NewFace index) (Random.int 1 6)
     in
     case msg of
-        Types.SetFlips index flips ->
+        Dice.Types.SetFlips index flips ->
             ( updateFlips index flips
             , Cmd.none
             )
 
-        Types.Flip index ->
+        Dice.Types.Flip index ->
             ( decrementFlips index
             , flip index
             )
 
-        Types.NewFace index newFace ->
+        Dice.Types.NewFace index newFace ->
             ( updateFace index newFace
             , Cmd.none
             )
 
-        Types.ToggleLock index ->
-            ( if (getDie index).flipsLeft == 0 then
+        Dice.Types.ToggleLock index ->
+            ( if (getDie index).flipsLeft == 0 && model.game.roll > 1 then
                 toggleLock index
 
               else
-                model
+                diceModel
             , Cmd.none
             )
 
 
-subscriptions : Types.Model -> Sub Types.Msg
+subscriptions : Dice.Types.Model -> Sub Dice.Types.Msg
 subscriptions model =
-    Sub.batch <| List.map (\( i, f ) -> Time.every (200 / toFloat f) (\t -> Types.Flip i)) (Types.rollingDice model)
+    Sub.batch <| List.map (\( i, f ) -> Time.every (200 / toFloat f) (\t -> Dice.Types.Flip i)) (Dice.Types.rollingDice model)
