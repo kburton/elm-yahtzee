@@ -1,4 +1,4 @@
-module Game.Types exposing (Die, Face, Index, Model, Msg(..), Scoreboard, activeDice, calcFullHouse, calcNOfKind, calcUpper, calcYahtzee, maxRolls, maxRollsReached, maxTurns, newScoreboard, rollingDice)
+module Game.Types exposing (Die, Face, Index, Model, Msg(..), Scoreboard, activeDice, calcChance, calcFullHouse, calcLargeStraight, calcNOfKind, calcSmallStraight, calcUpper, calcYahtzee, maxRolls, maxRollsReached, maxTurns, newScoreboard, rollingDice)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -132,6 +132,39 @@ calcFullHouse model =
             0
 
 
+calcSmallStraight : Model -> Int
+calcSmallStraight model =
+    let
+        counts =
+            getCounts model
+    in
+    if
+        List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4 ]
+            || List.all (\f -> Dict.member f counts) [ 2, 3, 4, 5 ]
+            || List.all (\f -> Dict.member f counts) [ 3, 4, 5, 6 ]
+    then
+        30
+
+    else
+        0
+
+
+calcLargeStraight : Model -> Int
+calcLargeStraight model =
+    let
+        counts =
+            getCounts model
+    in
+    if
+        List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4, 5 ]
+            || List.all (\f -> Dict.member f counts) [ 2, 3, 4, 5, 6 ]
+    then
+        40
+
+    else
+        0
+
+
 calcYahtzee : Model -> Int
 calcYahtzee model =
     if calcNOfKind 5 model == 0 then
@@ -139,3 +172,8 @@ calcYahtzee model =
 
     else
         50
+
+
+calcChance : Model -> Int
+calcChance model =
+    List.sum <| getFaces model
