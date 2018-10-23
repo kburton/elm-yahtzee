@@ -1,8 +1,11 @@
 module Game.View exposing (dice, rollDisplay, scoreboard)
 
 import Array
+import Dict exposing (Dict)
 import Game.Types as Types
-import Html exposing (Html, div, table, td, text, th, tr)
+import Html exposing (Html, a, div, table, td, text, th, tr)
+import Html.Attributes exposing (href, style)
+import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
@@ -29,52 +32,46 @@ scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     table
         []
-        [ scoreboardRowMaybeInt model.games "Aces" .ones (Types.calcUpper 1 model)
-        , scoreboardRowMaybeInt model.games "Twos" .twos (Types.calcUpper 2 model)
-        , scoreboardRowMaybeInt model.games "Threes" .threes (Types.calcUpper 3 model)
-        , scoreboardRowMaybeInt model.games "Fours" .fours (Types.calcUpper 4 model)
-        , scoreboardRowMaybeInt model.games "Fives" .fives (Types.calcUpper 5 model)
-        , scoreboardRowMaybeInt model.games "Sixes" .sixes (Types.calcUpper 6 model)
-        , scoreboardRowMaybeInt model.games "3 of a kind" .threeOfKind (Types.calcNOfKind 3 model)
-        , scoreboardRowMaybeInt model.games "4 of a kind" .fourOfKind (Types.calcNOfKind 4 model)
-        , scoreboardRowMaybeInt model.games "Full house" .fullHouse (Types.calcFullHouse model)
-        , scoreboardRowMaybeInt model.games "Sm straight" .smallStraight (Types.calcSmallStraight model)
-        , scoreboardRowMaybeInt model.games "Lg straight" .largeStraight (Types.calcLargeStraight model)
-        , scoreboardRowMaybeInt model.games "Yahtzee" .yahtzee (Types.calcYahtzee model)
-        , scoreboardRowMaybeInt model.games "Chance" .chance (Types.calcChance model)
-        , scoreboardRowInt model.games "Yahtzee bonus" .yahtzeeBonusCount
+        [ scoreboardRow model Types.Ones "Aces"
+        , scoreboardRow model Types.Twos "Twos"
+        , scoreboardRow model Types.Threes "Threes"
+        , scoreboardRow model Types.Fours "Fours"
+        , scoreboardRow model Types.Fives "Fives"
+        , scoreboardRow model Types.Sixes "Sixes"
+        , scoreboardRow model Types.ThreeOfKind "3 of a kind"
+        , scoreboardRow model Types.FourOfKind "4 of a kind"
+        , scoreboardRow model Types.FullHouse "Full house"
+        , scoreboardRow model Types.SmallStraight "Sm straight"
+        , scoreboardRow model Types.LargeStraight "Lg straight"
+        , scoreboardRow model Types.Yahtzee "Yahtzee"
+        , scoreboardRow model Types.Chance "Chance"
         ]
 
 
-scoreboardRowMaybeInt : List Types.Scoreboard -> String -> (Types.Scoreboard -> Maybe Int) -> Int -> Html msg
-scoreboardRowMaybeInt games label field poss =
+scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
+scoreboardRow model key label =
     tr
         []
         ([ th [] [ text label ]
          ]
             ++ List.map
-                (\g ->
+                (\game ->
                     td []
-                        [ text <|
-                            case field g of
-                                Nothing ->
-                                    String.fromInt poss
+                        [ case Types.getScore key game of
+                            Nothing ->
+                                if (List.isEmpty <| Types.rollingDice model) && model.roll > 1 then
+                                    a
+                                        [ style "color" "green", style "cursor" "pointer", onClick (Types.Score key) ]
+                                        [ text <| String.fromInt <| Types.calcScore key model ]
 
-                                Just n ->
-                                    String.fromInt n
+                                else
+                                    text ""
+
+                            Just n ->
+                                text <| String.fromInt n
                         ]
                 )
-                games
-        )
-
-
-scoreboardRowInt : List Types.Scoreboard -> String -> (Types.Scoreboard -> Int) -> Html msg
-scoreboardRowInt games label field =
-    tr
-        []
-        ([ th [] [ text label ]
-         ]
-            ++ List.map (\g -> td [] [ text (String.fromInt (field g)) ]) games
+                model.games
         )
 
 

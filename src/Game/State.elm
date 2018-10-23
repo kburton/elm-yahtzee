@@ -1,6 +1,7 @@
 module Game.State exposing (init, subscriptions, update)
 
 import Array
+import Dict
 import Game.Types as Types
 import Random
 import Time
@@ -8,10 +9,10 @@ import Time
 
 init : () -> ( Types.Model, Cmd Types.Msg )
 init _ =
-    ( { games = [ Types.newScoreboard ]
+    ( { games = [ Dict.empty ]
       , turn = 1
       , roll = 1
-      , dice = Array.repeat 5 (Types.Die 1 0 False)
+      , dice = Types.defaultDice
       }
     , Cmd.none
     )
@@ -74,6 +75,21 @@ update msg model =
                 model
             , Cmd.none
             )
+
+        Types.Score key ->
+            case model.games of
+                currentScoreboard :: finishedScoreboards ->
+                    ( { model
+                        | turn = model.turn + 1
+                        , roll = 1
+                        , games = Types.setScore key (Types.calcScore key model) currentScoreboard :: finishedScoreboards
+                        , dice = Types.defaultDice
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 subscriptions : Types.Model -> Sub Types.Msg

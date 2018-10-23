@@ -1,11 +1,11 @@
-module Game.Types exposing (Die, Face, Index, Model, Msg(..), Scoreboard, activeDice, calcChance, calcFullHouse, calcLargeStraight, calcNOfKind, calcSmallStraight, calcUpper, calcYahtzee, maxRolls, maxRollsReached, maxTurns, newScoreboard, rollingDice)
+module Game.Types exposing (Die, Face, Index, Model, Msg(..), ScoreKey(..), activeDice, calcScore, defaultDice, getScore, maxRolls, maxRollsReached, maxTurns, rollingDice, setScore)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
 
 
 type alias Model =
-    { games : List Scoreboard
+    { games : List (Dict Int Int)
     , turn : Int
     , roll : Int
     , dice : Array Die
@@ -18,24 +18,23 @@ type Msg
     | Flip Index
     | NewFace Index Face
     | ToggleLock Index
+    | Score ScoreKey
 
 
-type alias Scoreboard =
-    { ones : Maybe Int
-    , twos : Maybe Int
-    , threes : Maybe Int
-    , fours : Maybe Int
-    , fives : Maybe Int
-    , sixes : Maybe Int
-    , threeOfKind : Maybe Int
-    , fourOfKind : Maybe Int
-    , fullHouse : Maybe Int
-    , smallStraight : Maybe Int
-    , largeStraight : Maybe Int
-    , yahtzee : Maybe Int
-    , chance : Maybe Int
-    , yahtzeeBonusCount : Int
-    }
+type ScoreKey
+    = Ones
+    | Twos
+    | Threes
+    | Fours
+    | Fives
+    | Sixes
+    | ThreeOfKind
+    | FourOfKind
+    | FullHouse
+    | SmallStraight
+    | LargeStraight
+    | Yahtzee
+    | Chance
 
 
 type alias Index =
@@ -53,11 +52,6 @@ type alias Die =
     }
 
 
-newScoreboard : Scoreboard
-newScoreboard =
-    Scoreboard Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing 0
-
-
 maxRolls : Int
 maxRolls =
     3
@@ -71,6 +65,11 @@ maxRollsReached model =
 maxTurns : Int
 maxTurns =
     13
+
+
+defaultDice : Array Die
+defaultDice =
+    Array.repeat 5 (Die 1 0 False)
 
 
 activeDice : Model -> List ( Index, Die )
@@ -94,6 +93,102 @@ getCounts model =
         (\val acc -> Dict.update val (\cur -> Just (Maybe.withDefault 0 cur + 1)) acc)
         Dict.empty
         (getFaces model)
+
+
+getScore : ScoreKey -> Dict Int Int -> Maybe Int
+getScore key game =
+    Dict.get (scoreKey key) game
+
+
+setScore : ScoreKey -> Int -> Dict Int Int -> Dict Int Int
+setScore key score game =
+    Dict.insert (scoreKey key) score game
+
+
+scoreKey : ScoreKey -> Int
+scoreKey key =
+    case key of
+        Ones ->
+            1
+
+        Twos ->
+            2
+
+        Threes ->
+            3
+
+        Fours ->
+            4
+
+        Fives ->
+            5
+
+        Sixes ->
+            6
+
+        ThreeOfKind ->
+            7
+
+        FourOfKind ->
+            8
+
+        FullHouse ->
+            9
+
+        SmallStraight ->
+            10
+
+        LargeStraight ->
+            11
+
+        Yahtzee ->
+            12
+
+        Chance ->
+            13
+
+
+calcScore : ScoreKey -> Model -> Int
+calcScore key model =
+    case key of
+        Ones ->
+            calcUpper 1 model
+
+        Twos ->
+            calcUpper 2 model
+
+        Threes ->
+            calcUpper 3 model
+
+        Fours ->
+            calcUpper 4 model
+
+        Fives ->
+            calcUpper 5 model
+
+        Sixes ->
+            calcUpper 6 model
+
+        ThreeOfKind ->
+            calcNOfKind 3 model
+
+        FourOfKind ->
+            calcNOfKind 4 model
+
+        FullHouse ->
+            calcFullHouse model
+
+        SmallStraight ->
+            calcSmallStraight model
+
+        LargeStraight ->
+            calcLargeStraight model
+
+        Yahtzee ->
+            calcYahtzee model
+
+        Chance ->
+            calcChance model
 
 
 calcUpper : Face -> Model -> Int
