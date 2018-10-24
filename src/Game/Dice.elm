@@ -60,6 +60,9 @@ calcScore key dice =
         Chance ->
             calcChance dice
 
+        YahtzeeBonusCount ->
+            0
+
 
 calcUpper : Face -> Dice -> Int
 calcUpper face dice =

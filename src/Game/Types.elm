@@ -36,6 +36,7 @@ type ScoreKey
     | LargeStraight
     | Yahtzee
     | Chance
+    | YahtzeeBonusCount
 
 
 type alias Scoreboard =

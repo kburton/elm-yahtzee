@@ -49,6 +49,7 @@ scoreboard model =
         , scoreboardRow model Types.LargeStraight "Lg straight"
         , scoreboardRow model Types.Yahtzee "Yahtzee"
         , scoreboardRow model Types.Chance "Chance"
+        , yahtzeeBonusCountRow model "Yahtzee bonus"
         ]
 
 
@@ -79,7 +80,7 @@ scoreboardRow model key label =
         )
 
 
-derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html Types.Msg
+derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html msg
 derivedRow model fn label =
     tr
         []
@@ -89,6 +90,22 @@ derivedRow model fn label =
                 (\game ->
                     td []
                         [ text <| String.fromInt <| fn game
+                        ]
+                )
+                model.games
+        )
+
+
+yahtzeeBonusCountRow : Types.Model -> String -> Html msg
+yahtzeeBonusCountRow model label =
+    tr
+        []
+        ([ th [] [ text label ]
+         ]
+            ++ List.map
+                (\game ->
+                    td []
+                        [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x"
                         ]
                 )
                 model.games

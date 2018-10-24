@@ -9,9 +9,17 @@ getScore key scoreboard =
     Dict.get (scoreKey key) scoreboard
 
 
-setScore : ScoreKey -> Int -> Scoreboard -> Scoreboard
-setScore key score scoreboard =
-    Dict.insert (scoreKey key) score scoreboard
+setScore : ScoreKey -> Int -> Bool -> Scoreboard -> Scoreboard
+setScore key score incYahtzeeBonus scoreboard =
+    let
+        newScoreboard =
+            Dict.insert (scoreKey key) score scoreboard
+    in
+    if incYahtzeeBonus then
+        Dict.update (scoreKey YahtzeeBonusCount) (\v -> Just (Maybe.withDefault 0 v + 1)) newScoreboard
+
+    else
+        newScoreboard
 
 
 scoreKey : ScoreKey -> Int
@@ -55,6 +63,9 @@ scoreKey key =
 
         Chance ->
             13
+
+        YahtzeeBonusCount ->
+            14
 
 
 calcUpperBonus : Scoreboard -> Int
