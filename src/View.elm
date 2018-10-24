@@ -10,19 +10,24 @@ import Types
 
 view : Types.Model -> Html Types.Msg
 view model =
-    div []
-        [ h1 [] [ text <| "Game " ++ String.fromInt (List.length model.game.games) ]
-        , viewTurns model
-        , text (Game.View.rollDisplay model.game)
-        , viewControls model
-        , Html.map Types.GameMsg (Game.View.dice model.game)
+    div
+        []
+        [ div
+            [ style "float" "left" ]
+            [ h1 [] [ text <| "Game " ++ String.fromInt (List.length model.game.games) ]
+            , viewTurns model
+            , text (Game.View.rollDisplay model.game)
+            , viewControls model
+            , Html.map Types.GameMsg (Game.View.dice model.game)
+            ]
         , Html.map Types.GameMsg (Game.View.scoreboard model.game)
         ]
 
 
 viewControls : Types.Model -> Html Types.Msg
 viewControls model =
-    div [ style "margin-bottom" "1rem" ]
+    div
+        [ style "margin-bottom" "1rem" ]
         [ button
             [ onClick (Types.GameMsg Game.Types.Roll)
             , disabled (Game.Types.maxRollsReached model.game)
