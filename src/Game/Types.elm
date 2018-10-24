@@ -1,4 +1,4 @@
-module Game.Types exposing (Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, activeDice, defaultDice, maxRolls, maxRollsReached, maxTurns, rollingDice)
+module Game.Types exposing (Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, activeDice, defaultDice, maxRolls, maxRollsReached, maxTurns, maxTurnsReached, rollingDice)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -75,6 +75,11 @@ maxRollsReached model =
 maxTurns : Int
 maxTurns =
     13
+
+
+maxTurnsReached : Model -> Bool
+maxTurnsReached model =
+    model.turn > maxTurns
 
 
 defaultDice : Array Die

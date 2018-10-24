@@ -35,7 +35,7 @@ viewControls model =
 
 viewTurns : Types.Model -> Html Types.Msg
 viewTurns model =
-    if model.game.turn > Game.Types.maxTurns then
+    if Game.Types.maxTurnsReached model.game then
         div
             []
             [ h2 [] [ text "Game complete" ]

@@ -46,7 +46,7 @@ update msg model =
     in
     case msg of
         Types.Roll ->
-            if Types.maxRollsReached model then
+            if Types.maxRollsReached model || Types.maxTurnsReached model then
                 ( model, Cmd.none )
 
             else

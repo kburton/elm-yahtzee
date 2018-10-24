@@ -40,8 +40,9 @@ scoreboard model =
         , scoreboardRow model Types.Fours "Fours"
         , scoreboardRow model Types.Fives "Fives"
         , scoreboardRow model Types.Sixes "Sixes"
-        , derivedRow model Scoreboard.calcUpperTotal "Upper total"
-        , derivedRow model Scoreboard.calcUpperBonus "Upper bonus"
+        , derivedRow model Scoreboard.upperTotal "Upper score"
+        , derivedRow model Scoreboard.upperBonus "Upper bonus"
+        , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
         , scoreboardRow model Types.ThreeOfKind "3 of a kind"
         , scoreboardRow model Types.FourOfKind "4 of a kind"
         , scoreboardRow model Types.FullHouse "Full house"
@@ -50,6 +51,9 @@ scoreboard model =
         , scoreboardRow model Types.Yahtzee "Yahtzee"
         , scoreboardRow model Types.Chance "Chance"
         , yahtzeeBonusCountRow model "Yahtzee bonus"
+        , derivedRow model Scoreboard.lowerTotalWithBonus "Lower total"
+        , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
+        , derivedRow model Scoreboard.grandTotal "Grand total"
         ]
 
 

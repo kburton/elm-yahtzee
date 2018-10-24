@@ -1,4 +1,4 @@
-module Game.Scoreboard exposing (calcUpperBonus, calcUpperTotal, calcUpperTotalWithBonus, getScore, setScore)
+module Game.Scoreboard exposing (getScore, grandTotal, lowerTotalWithBonus, setScore, upperBonus, upperTotal, upperTotalWithBonus)
 
 import Dict
 import Game.Types exposing (ScoreKey(..), Scoreboard)
@@ -68,17 +68,17 @@ scoreKey key =
             14
 
 
-calcUpperBonus : Scoreboard -> Int
-calcUpperBonus scoreboard =
-    if calcUpperTotal scoreboard >= 63 then
+upperBonus : Scoreboard -> Int
+upperBonus scoreboard =
+    if upperTotal scoreboard >= 63 then
         35
 
     else
         0
 
 
-calcUpperTotal : Scoreboard -> Int
-calcUpperTotal scoreboard =
+upperTotal : Scoreboard -> Int
+upperTotal scoreboard =
     let
         score =
             \key -> Maybe.withDefault 0 (getScore key scoreboard)
@@ -86,6 +86,32 @@ calcUpperTotal scoreboard =
     score Ones + score Twos + score Threes + score Fours + score Fives + score Sixes
 
 
-calcUpperTotalWithBonus : Scoreboard -> Int
-calcUpperTotalWithBonus scoreboard =
-    calcUpperTotal scoreboard + calcUpperBonus scoreboard
+upperTotalWithBonus : Scoreboard -> Int
+upperTotalWithBonus scoreboard =
+    upperTotal scoreboard + upperBonus scoreboard
+
+
+yahtzeeBonus : Scoreboard -> Int
+yahtzeeBonus scoreboard =
+    100 * Maybe.withDefault 0 (getScore YahtzeeBonusCount scoreboard)
+
+
+lowerTotalWithBonus : Scoreboard -> Int
+lowerTotalWithBonus scoreboard =
+    let
+        score =
+            \key -> Maybe.withDefault 0 (getScore key scoreboard)
+    in
+    score ThreeOfKind
+        + score FourOfKind
+        + score FullHouse
+        + score SmallStraight
+        + score LargeStraight
+        + score Yahtzee
+        + score Chance
+        + yahtzeeBonus scoreboard
+
+
+grandTotal : Scoreboard -> Int
+grandTotal scoreboard =
+    upperTotalWithBonus scoreboard + lowerTotalWithBonus scoreboard
