@@ -1,4 +1,4 @@
-module Game.Scoreboard exposing (calcUpperBonus, getScore, setScore)
+module Game.Scoreboard exposing (calcUpperBonus, calcUpperTotal, calcUpperTotalWithBonus, getScore, setScore)
 
 import Dict
 import Game.Types exposing (ScoreKey(..), Scoreboard)
@@ -59,12 +59,22 @@ scoreKey key =
 
 calcUpperBonus : Scoreboard -> Int
 calcUpperBonus scoreboard =
-    let
-        score =
-            \key -> Maybe.withDefault 0 (getScore key scoreboard)
-    in
-    if score Ones + score Twos + score Threes + score Fours + score Fives + score Sixes >= 63 then
+    if calcUpperTotal scoreboard >= 63 then
         35
 
     else
         0
+
+
+calcUpperTotal : Scoreboard -> Int
+calcUpperTotal scoreboard =
+    let
+        score =
+            \key -> Maybe.withDefault 0 (getScore key scoreboard)
+    in
+    score Ones + score Twos + score Threes + score Fours + score Fives + score Sixes
+
+
+calcUpperTotalWithBonus : Scoreboard -> Int
+calcUpperTotalWithBonus scoreboard =
+    calcUpperTotal scoreboard + calcUpperBonus scoreboard

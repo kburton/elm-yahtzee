@@ -40,6 +40,7 @@ scoreboard model =
         , scoreboardRow model Types.Fours "Fours"
         , scoreboardRow model Types.Fives "Fives"
         , scoreboardRow model Types.Sixes "Sixes"
+        , derivedRow model Scoreboard.calcUpperTotal "Upper total"
         , derivedRow model Scoreboard.calcUpperBonus "Upper bonus"
         , scoreboardRow model Types.ThreeOfKind "3 of a kind"
         , scoreboardRow model Types.FourOfKind "4 of a kind"
