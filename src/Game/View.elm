@@ -33,8 +33,9 @@ rollDisplay model =
 scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     table
-        []
-        [ scoreboardRow model Types.Ones "Aces"
+        [ style "text-align" "center" ]
+        [ headerRow model
+        , scoreboardRow model Types.Ones "Aces"
         , scoreboardRow model Types.Twos "Twos"
         , scoreboardRow model Types.Threes "Threes"
         , scoreboardRow model Types.Fours "Fours"
@@ -55,6 +56,22 @@ scoreboard model =
         , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
         , derivedRow model Scoreboard.grandTotal "Grand total"
         ]
+
+
+headerRow : Types.Model -> Html Types.Msg
+headerRow model =
+    tr
+        []
+        ([ th [] []
+         ]
+            ++ List.map
+                (\n ->
+                    th []
+                        [ text <| "Game " ++ String.fromInt n
+                        ]
+                )
+                (List.reverse <| List.range 1 <| List.length model.games)
+        )
 
 
 scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
