@@ -2,6 +2,8 @@ module Game.View exposing (dice, rollDisplay, scoreboard)
 
 import Array
 import Dict exposing (Dict)
+import Game.Dice as Dice
+import Game.Scoreboard as Scoreboard
 import Game.Types as Types
 import Html exposing (Html, a, div, table, td, text, th, tr)
 import Html.Attributes exposing (href, style)
@@ -38,6 +40,7 @@ scoreboard model =
         , scoreboardRow model Types.Fours "Fours"
         , scoreboardRow model Types.Fives "Fives"
         , scoreboardRow model Types.Sixes "Sixes"
+        , derivedRow model Scoreboard.calcUpperBonus "Upper bonus"
         , scoreboardRow model Types.ThreeOfKind "3 of a kind"
         , scoreboardRow model Types.FourOfKind "4 of a kind"
         , scoreboardRow model Types.FullHouse "Full house"
@@ -57,12 +60,12 @@ scoreboardRow model key label =
             ++ List.map
                 (\game ->
                     td []
-                        [ case Types.getScore key game of
+                        [ case Scoreboard.getScore key game of
                             Nothing ->
                                 if (List.isEmpty <| Types.rollingDice model) && model.roll > 1 then
                                     a
                                         [ style "color" "green", style "cursor" "pointer", onClick (Types.Score key) ]
-                                        [ text <| String.fromInt <| Types.calcScore key model ]
+                                        [ text <| String.fromInt <| Dice.calcScore key model.dice ]
 
                                 else
                                     text ""
@@ -75,10 +78,26 @@ scoreboardRow model key label =
         )
 
 
+derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html Types.Msg
+derivedRow model fn label =
+    tr
+        []
+        ([ th [] [ text label ]
+         ]
+            ++ List.map
+                (\game ->
+                    td []
+                        [ text <| String.fromInt <| fn game
+                        ]
+                )
+                model.games
+        )
+
+
 dice : Types.Model -> Html Types.Msg
 dice model =
     div []
-        (Array.toList <| Array.indexedMap (\i d -> die i d) model.dice)
+        (Array.toList <| Array.indexedMap die model.dice)
 
 
 type alias ViewDieAttributes =

@@ -12,7 +12,7 @@ view : Types.Model -> Html Types.Msg
 view model =
     div []
         [ h1 [] [ text <| "Game " ++ String.fromInt (List.length model.game.games) ]
-        , h2 [] [ text <| "Turn " ++ String.fromInt model.game.turn ++ " of " ++ String.fromInt Game.Types.maxTurns ]
+        , viewTurns model
         , text (Game.View.rollDisplay model.game)
         , viewControls model
         , Html.map Types.GameMsg (Game.View.dice model.game)
@@ -31,3 +31,16 @@ viewControls model =
             ]
             [ text "Roll" ]
         ]
+
+
+viewTurns : Types.Model -> Html Types.Msg
+viewTurns model =
+    if model.game.turn > Game.Types.maxTurns then
+        div
+            []
+            [ h2 [] [ text "Game complete" ]
+            , button [ onClick (Types.GameMsg Game.Types.NewGame) ] [ text "New Game" ]
+            ]
+
+    else
+        h2 [] [ text <| "Turn " ++ String.fromInt model.game.turn ++ " of " ++ String.fromInt Game.Types.maxTurns ]
