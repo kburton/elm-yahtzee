@@ -2,7 +2,8 @@ module Game.Dice exposing (calcScore)
 
 import Array
 import Dict exposing (Dict)
-import Game.Types exposing (Dice, Face, ScoreKey(..))
+import Game.Scoreboard
+import Game.Types exposing (Dice, Face, ScoreKey(..), Scoreboard)
 
 
 getFaces : Dice -> List Int
@@ -18,8 +19,47 @@ getCounts dice =
         (getFaces dice)
 
 
-calcScore : ScoreKey -> Dice -> Int
-calcScore key dice =
+calcScore : ScoreKey -> Dice -> Scoreboard -> Int
+calcScore key dice scoreboard =
+    let
+        isScored scoreKey =
+            Game.Scoreboard.getScore scoreKey scoreboard /= Nothing
+
+        yahtzeeScore =
+            calcYahtzee dice
+
+        isYahtzee =
+            yahtzeeScore > 0
+
+        yahtzeeScored =
+            isScored Yahtzee
+
+        upperSectionUsed =
+            case getFaces dice of
+                1 :: rest ->
+                    isScored Ones
+
+                2 :: rest ->
+                    isScored Twos
+
+                3 :: rest ->
+                    isScored Threes
+
+                4 :: rest ->
+                    isScored Fours
+
+                5 :: rest ->
+                    isScored Fives
+
+                6 :: rest ->
+                    isScored Sixes
+
+                _ ->
+                    False
+
+        yahtzeeWildcard =
+            isYahtzee && yahtzeeScored && upperSectionUsed
+    in
     case key of
         Ones ->
             calcUpper 1 dice
@@ -46,13 +86,13 @@ calcScore key dice =
             calcNOfKind 4 dice
 
         FullHouse ->
-            calcFullHouse dice
+            calcFullHouse dice yahtzeeWildcard
 
         SmallStraight ->
-            calcSmallStraight dice
+            calcSmallStraight dice yahtzeeWildcard
 
         LargeStraight ->
-            calcLargeStraight dice
+            calcLargeStraight dice yahtzeeWildcard
 
         Yahtzee ->
             calcYahtzee dice
@@ -82,28 +122,33 @@ calcNOfKind n dice =
         List.sum <| getFaces dice
 
 
-calcFullHouse : Dice -> Int
-calcFullHouse dice =
+calcFullHouse : Dice -> Bool -> Int
+calcFullHouse dice yahtzeeWildcard =
     let
         scores =
             List.sort <| Dict.values <| getCounts dice
     in
-    case scores of
-        2 :: 3 :: rest ->
-            25
+    if yahtzeeWildcard then
+        25
 
-        _ ->
-            0
+    else
+        case scores of
+            2 :: 3 :: rest ->
+                25
+
+            _ ->
+                0
 
 
-calcSmallStraight : Dice -> Int
-calcSmallStraight dice =
+calcSmallStraight : Dice -> Bool -> Int
+calcSmallStraight dice yahtzeeWildcard =
     let
         counts =
             getCounts dice
     in
     if
-        List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4 ]
+        yahtzeeWildcard
+            || List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4 ]
             || List.all (\f -> Dict.member f counts) [ 2, 3, 4, 5 ]
             || List.all (\f -> Dict.member f counts) [ 3, 4, 5, 6 ]
     then
@@ -113,14 +158,15 @@ calcSmallStraight dice =
         0
 
 
-calcLargeStraight : Dice -> Int
-calcLargeStraight dice =
+calcLargeStraight : Dice -> Bool -> Int
+calcLargeStraight dice yahtzeeWildcard =
     let
         counts =
             getCounts dice
     in
     if
-        List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4, 5 ]
+        yahtzeeWildcard
+            || List.all (\f -> Dict.member f counts) [ 1, 2, 3, 4, 5 ]
             || List.all (\f -> Dict.member f counts) [ 2, 3, 4, 5, 6 ]
     then
         40

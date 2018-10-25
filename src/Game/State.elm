@@ -83,7 +83,7 @@ update msg model =
                 currentScoreboard :: finishedScoreboards ->
                     let
                         isYahtzee =
-                            Dice.calcScore Types.Yahtzee model.dice > 0
+                            Dice.calcScore Types.Yahtzee model.dice currentScoreboard > 0
 
                         incYahtzeeBonus =
                             isYahtzee && Maybe.withDefault 0 (Scoreboard.getScore Types.Yahtzee currentScoreboard) > 0
@@ -91,7 +91,7 @@ update msg model =
                     ( { model
                         | turn = model.turn + 1
                         , roll = 1
-                        , games = Scoreboard.setScore key (Dice.calcScore key model.dice) incYahtzeeBonus currentScoreboard :: finishedScoreboards
+                        , games = Scoreboard.setScore key (Dice.calcScore key model.dice currentScoreboard) incYahtzeeBonus currentScoreboard :: finishedScoreboards
                         , dice = Types.defaultDice
                       }
                     , Cmd.none

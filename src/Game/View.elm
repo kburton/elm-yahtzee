@@ -88,7 +88,7 @@ scoreboardRow model key label =
                                 if (List.isEmpty <| Types.rollingDice model) && model.roll > 1 then
                                     a
                                         [ style "color" "green", style "cursor" "pointer", onClick (Types.Score key) ]
-                                        [ text <| String.fromInt <| Dice.calcScore key model.dice ]
+                                        [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
 
                                 else
                                     text ""
