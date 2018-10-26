@@ -1,4 +1,4 @@
-module Game.View exposing (dice, rollDisplay, scoreboard)
+module Game.View exposing (dice, scoreboard)
 
 import Array
 import Dict exposing (Dict)
@@ -11,23 +11,6 @@ import Html.Events exposing (onClick)
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
-
-
-rollDisplay : Types.Model -> String
-rollDisplay model =
-    if model.roll >= Types.maxRolls then
-        "Final roll"
-
-    else
-        case model.roll of
-            1 ->
-                "First roll"
-
-            2 ->
-                "Second roll"
-
-            n ->
-                "Roll" ++ String.fromInt n
 
 
 scoreboard : Types.Model -> Html Types.Msg
@@ -85,7 +68,7 @@ scoreboardRow model key label =
                     td []
                         [ case Scoreboard.getScore key game of
                             Nothing ->
-                                if (List.isEmpty <| Types.rollingDice model) && model.roll > 1 then
+                                if not (Dice.areRolling model.dice) && model.roll > 1 then
                                     a
                                         [ style "color" "green", style "cursor" "pointer", onClick (Types.Score key) ]
                                         [ text <| String.fromInt <| Dice.calcScore key model.dice game ]

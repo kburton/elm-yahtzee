@@ -1,4 +1,4 @@
-module Game.Types exposing (Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, activeDice, defaultDice, maxRolls, maxRollsReached, maxTurns, maxTurnsReached, rollingDice)
+module Game.Types exposing (Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -82,16 +82,11 @@ maxTurnsReached model =
     model.turn > maxTurns
 
 
-defaultDice : Array Die
-defaultDice =
-    Array.repeat 5 (Die 1 0 False)
+currentGame : Model -> Scoreboard
+currentGame model =
+    case model.games of
+        scoreboard :: rest ->
+            scoreboard
 
-
-activeDice : Model -> List ( Index, Die )
-activeDice model =
-    Array.toList <| Array.filter (\( i, d ) -> not d.locked) <| Array.indexedMap (\i d -> ( i, d )) model.dice
-
-
-rollingDice : Model -> List ( Index, Int )
-rollingDice model =
-    Array.toList <| Array.filter (\( i, f ) -> f > 0) <| Array.indexedMap (\i d -> ( i, d.flipsLeft )) model.dice
+        _ ->
+            Dict.empty

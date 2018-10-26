@@ -14,7 +14,7 @@ init _ =
     ( { games = [ Dict.empty ]
       , turn = 1
       , roll = 1
-      , dice = Types.defaultDice
+      , dice = Dice.default
       }
     , Cmd.none
     )
@@ -51,7 +51,7 @@ update msg model =
 
             else
                 ( { model | roll = model.roll + 1 }
-                , Cmd.batch <| List.map (\( i, _ ) -> roll i) <| Types.activeDice model
+                , Cmd.batch <| List.map (\( i, _ ) -> roll i) <| Dice.active model.dice
                 )
 
         Types.SetFlips index flips ->
@@ -92,7 +92,7 @@ update msg model =
                         | turn = model.turn + 1
                         , roll = 1
                         , games = Scoreboard.setScore key (Dice.calcScore key model.dice currentScoreboard) incYahtzeeBonus currentScoreboard :: finishedScoreboards
-                        , dice = Types.defaultDice
+                        , dice = Dice.default
                       }
                     , Cmd.none
                     )
@@ -105,7 +105,7 @@ update msg model =
                 | turn = 1
                 , roll = 1
                 , games = Dict.empty :: model.games
-                , dice = Types.defaultDice
+                , dice = Dice.default
               }
             , Cmd.none
             )
@@ -113,4 +113,4 @@ update msg model =
 
 subscriptions : Types.Model -> Sub Types.Msg
 subscriptions model =
-    Sub.batch <| List.map (\( i, f ) -> Time.every (200 / toFloat f) (\t -> Types.Flip i)) (Types.rollingDice model)
+    Sub.batch <| List.map (\( i, f ) -> Time.every (200 / toFloat f) (\t -> Types.Flip i)) (Dice.rolling model.dice)

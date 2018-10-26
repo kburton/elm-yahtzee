@@ -1,9 +1,29 @@
-module Game.Dice exposing (calcScore)
+module Game.Dice exposing (active, areRolling, calcScore, default, rolling)
 
 import Array
 import Dict exposing (Dict)
 import Game.Scoreboard
-import Game.Types exposing (Dice, Face, ScoreKey(..), Scoreboard)
+import Game.Types exposing (Dice, Die, Face, Index, ScoreKey(..), Scoreboard)
+
+
+default : Dice
+default =
+    Array.repeat 5 (Die 1 0 False)
+
+
+active : Dice -> List ( Index, Die )
+active dice =
+    Array.toList <| Array.filter (\( i, d ) -> not d.locked) <| Array.indexedMap (\i d -> ( i, d )) dice
+
+
+rolling : Dice -> List ( Index, Int )
+rolling dice =
+    Array.toList <| Array.filter (\( i, f ) -> f > 0) <| Array.indexedMap (\i d -> ( i, d.flipsLeft )) dice
+
+
+areRolling : Dice -> Bool
+areRolling dice =
+    not <| Array.isEmpty <| Array.filter (\d -> d.flipsLeft > 0) dice
 
 
 getFaces : Dice -> List Int

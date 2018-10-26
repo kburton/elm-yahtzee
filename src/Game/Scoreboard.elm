@@ -1,7 +1,8 @@
-module Game.Scoreboard exposing (getScore, grandTotal, lowerTotalWithBonus, setScore, upperBonus, upperTotal, upperTotalWithBonus)
+module Game.Scoreboard exposing (gameIsOver, getScore, grandTotal, isComplete, lowerTotalWithBonus, setScore, upperBonus, upperTotal, upperTotalWithBonus)
 
 import Dict
 import Game.Types exposing (ScoreKey(..), Scoreboard)
+import Set exposing (Set)
 
 
 getScore : ScoreKey -> Scoreboard -> Maybe Int
@@ -20,6 +21,16 @@ setScore key score incYahtzeeBonus scoreboard =
 
     else
         newScoreboard
+
+
+isComplete : Scoreboard -> Bool
+isComplete scoreboard =
+    Set.isEmpty <| Set.diff (Set.fromList <| List.range 1 13) (Set.fromList <| Dict.keys scoreboard)
+
+
+gameIsOver : Scoreboard -> Bool
+gameIsOver =
+    isComplete
 
 
 scoreKey : ScoreKey -> Int
