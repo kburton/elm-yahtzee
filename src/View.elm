@@ -4,24 +4,42 @@ import Game.Dice
 import Game.Scoreboard
 import Game.Types
 import Game.View
-import Html exposing (Html, button, div, h1, h2, span, text)
-import Html.Attributes exposing (disabled, style)
-import Html.Events exposing (onClick)
+import Html
+import Html.Styled exposing (Html, button, div, h1, h2, span, text)
+import Html.Styled.Attributes exposing (css, disabled, style)
+import Html.Styled.Events exposing (onClick)
+import Styles
 import Types
 
 
 view : Types.Model -> Html Types.Msg
 view model =
+    let
+        ( messageHtml, messageAction ) =
+            viewMessage model
+    in
     div
-        []
+        [ css Styles.containerStyle ]
         [ div
-            [ style "float" "left" ]
-            [ h1 [] [ text <| "Game " ++ String.fromInt (List.length model.game.games) ]
-            , viewControls model
-            , Html.map Types.GameMsg (Game.View.dice model.game)
+            [ css Styles.mainPaneStyle ]
+            [ div
+                [ css Styles.wrapperPaneStyle ]
+                [ div
+                    [ css Styles.dicePaneStyle ]
+                    [ div
+                        [ css Styles.diceContainerStyle ]
+                        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
+                    ]
+                , div
+                    [ css Styles.scoreboardPaneStyle ]
+                    [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
+                ]
             ]
-        , Html.map Types.GameMsg (Game.View.scoreboard model.game)
-        , viewMessage model
+        , div
+            [ css Styles.messagePaneStyle
+            , onClick messageAction
+            ]
+            [ messageHtml ]
         ]
 
 
@@ -39,33 +57,31 @@ viewControls model =
         ]
 
 
-viewMessage : Types.Model -> Html Types.Msg
+viewMessage : Types.Model -> ( Html msg, Types.Msg )
 viewMessage model =
     let
         scoreboard =
             Game.Types.currentGame model.game
     in
     if Game.Dice.areRolling model.game.dice then
-        text ""
+        ( text "\u{00A0}", Types.NoOp )
 
     else if Game.Scoreboard.gameIsOver scoreboard then
-        span
-            []
-            [ text <| "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points. "
-            , button [ onClick (Types.GameMsg Game.Types.NewGame) ] [ text "Play again" ]
-            ]
+        ( text <| "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points. Play again?"
+        , Types.GameMsg Game.Types.NewGame
+        )
 
     else if model.game.roll == 1 then
-        text "First roll"
+        ( text "First roll", Types.GameMsg Game.Types.Roll )
 
     else if model.game.roll == 2 then
-        text "Rolled once"
+        ( text "Second roll", Types.GameMsg Game.Types.Roll )
 
     else if model.game.roll == 3 then
-        text "Rolled twice"
+        ( text "Final roll", Types.GameMsg Game.Types.Roll )
 
     else if Game.Types.maxRollsReached model.game then
-        text "Choose a score slot"
+        ( text "Choose a score slot", Types.NoOp )
 
     else
-        text ""
+        ( text "\u{00A0}", Types.NoOp )

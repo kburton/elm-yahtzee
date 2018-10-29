@@ -31,6 +31,9 @@ update msg model =
             in
             ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
 
+        Types.NoOp ->
+            ( model, Cmd.none )
+
 
 subscriptions : Types.Model -> Sub Types.Msg
 subscriptions model =

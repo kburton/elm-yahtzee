@@ -10,3 +10,4 @@ type alias Model =
 
 type Msg
     = GameMsg Game.Types.Msg
+    | NoOp

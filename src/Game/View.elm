@@ -4,19 +4,21 @@ import Array
 import Dict exposing (Dict)
 import Game.Dice as Dice
 import Game.Scoreboard as Scoreboard
+import Game.Styles as Styles
 import Game.Types as Types
-import Html exposing (Html, a, div, table, td, text, th, tr)
-import Html.Attributes exposing (href, style)
-import Html.Events exposing (onClick)
-import Svg
-import Svg.Attributes as SvgAtt
-import Svg.Events as SvgEvt
+import Html
+import Html.Styled exposing (Html, a, div, table, td, text, th, tr)
+import Html.Styled.Attributes exposing (css, href, style)
+import Html.Styled.Events exposing (onClick)
+import Svg.Styled as Svg
+import Svg.Styled.Attributes as SvgAtt
+import Svg.Styled.Events as SvgEvt
 
 
 scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     table
-        [ style "text-align" "center" ]
+        [ css Styles.tableStyle ]
         [ headerRow model
         , scoreboardRow model Types.Ones "Aces"
         , scoreboardRow model Types.Twos "Twos"
@@ -49,7 +51,7 @@ headerRow model =
          ]
             ++ List.map
                 (\n ->
-                    th []
+                    th [ css Styles.cellStyle ]
                         [ text <| "Game " ++ String.fromInt n
                         ]
                 )
@@ -61,24 +63,29 @@ scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
 scoreboardRow model key label =
     tr
         []
-        ([ th [] [ text label ]
+        ([ th [ css Styles.cellStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
-                    td []
-                        [ case Scoreboard.getScore key game of
-                            Nothing ->
-                                if not (Dice.areRolling model.dice) && model.roll > 1 then
-                                    a
-                                        [ style "color" "green", style "cursor" "pointer", onClick (Types.Score key) ]
+                    case Scoreboard.getScore key game of
+                        Nothing ->
+                            if not (Dice.areRolling model.dice) && model.roll > 1 then
+                                td
+                                    [ css Styles.tdStyleClickable, onClick (Types.Score key) ]
+                                    [ a
+                                        []
                                         [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
+                                    ]
 
-                                else
-                                    text ""
+                            else
+                                td
+                                    [ css Styles.tdStyle ]
+                                    [ text "" ]
 
-                            Just n ->
-                                text <| String.fromInt n
-                        ]
+                        Just n ->
+                            td
+                                [ css Styles.tdStyle ]
+                                [ text <| String.fromInt n ]
                 )
                 model.games
         )
@@ -87,12 +94,13 @@ scoreboardRow model key label =
 derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html msg
 derivedRow model fn label =
     tr
-        []
-        ([ th [] [ text label ]
+        [ css Styles.derivedRowStyle
+        ]
+        ([ th [ css Styles.cellStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
-                    td []
+                    td [ css Styles.tdStyle ]
                         [ text <| String.fromInt <| fn game
                         ]
                 )
@@ -103,12 +111,13 @@ derivedRow model fn label =
 yahtzeeBonusCountRow : Types.Model -> String -> Html msg
 yahtzeeBonusCountRow model label =
     tr
-        []
-        ([ th [] [ text label ]
+        [ css Styles.derivedRowStyle
+        ]
+        ([ th [ css Styles.cellStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
-                    td []
+                    td [ css Styles.tdStyle ]
                         [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x"
                         ]
                 )
@@ -116,10 +125,9 @@ yahtzeeBonusCountRow model label =
         )
 
 
-dice : Types.Model -> Html Types.Msg
+dice : Types.Model -> List (Html Types.Msg)
 dice model =
-    div []
-        (Array.toList <| Array.indexedMap die model.dice)
+    Array.toList <| Array.indexedMap die model.dice
 
 
 type alias ViewDieAttributes =
@@ -140,26 +148,28 @@ die index dieModel =
                 False ->
                     ViewDieAttributes "#005500" "#00CC00" (Types.ToggleLock index)
     in
-    Svg.svg
-        [ SvgAtt.width "120"
-        , SvgAtt.height "120"
-        , SvgAtt.viewBox "0 0 120 120"
-        , SvgAtt.style "float: left; display: block; margin: 0 1rem 1rem 0;"
+    div
+        [ css Styles.dieStyle
         ]
-        ([ Svg.rect
-            [ SvgAtt.x "0"
-            , SvgAtt.y "0"
-            , SvgAtt.width "120"
-            , SvgAtt.height "120"
-            , SvgAtt.rx "25"
-            , SvgAtt.ry "25"
-            , SvgAtt.fill attributes.dieColor
-            , SvgEvt.onClick attributes.msg
+        [ Svg.svg
+            [ SvgAtt.viewBox "0 0 120 120"
+            , SvgAtt.style "height: 100%;"
             ]
-            []
-         ]
-            ++ spots attributes.spotColor dieModel.face
-        )
+            ([ Svg.rect
+                [ SvgAtt.x "0"
+                , SvgAtt.y "0"
+                , SvgAtt.width "120"
+                , SvgAtt.height "120"
+                , SvgAtt.rx "25"
+                , SvgAtt.ry "25"
+                , SvgAtt.fill attributes.dieColor
+                , SvgEvt.onClick attributes.msg
+                ]
+                []
+             ]
+                ++ spots attributes.spotColor dieModel.face
+            )
+        ]
 
 
 spots : String -> Types.Face -> List (Svg.Svg Types.Msg)
