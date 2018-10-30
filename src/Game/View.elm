@@ -19,8 +19,7 @@ scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     table
         [ css Styles.tableStyle ]
-        [ headerRow model
-        , scoreboardRow model Types.Ones "Aces"
+        [ scoreboardRow model Types.Ones "Aces"
         , scoreboardRow model Types.Twos "Twos"
         , scoreboardRow model Types.Threes "Threes"
         , scoreboardRow model Types.Fours "Fours"
@@ -41,22 +40,6 @@ scoreboard model =
         , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
         , derivedRow model Scoreboard.grandTotal "Grand total"
         ]
-
-
-headerRow : Types.Model -> Html Types.Msg
-headerRow model =
-    tr
-        []
-        ([ th [] []
-         ]
-            ++ List.map
-                (\n ->
-                    th [ css Styles.cellStyle ]
-                        [ text <| "Game " ++ String.fromInt n
-                        ]
-                )
-                (List.reverse <| List.range 1 <| List.length model.games)
-        )
 
 
 scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
@@ -150,6 +133,7 @@ die index dieModel =
     in
     div
         [ css Styles.dieStyle
+        , onClick attributes.msg
         ]
         [ Svg.svg
             [ SvgAtt.viewBox "0 0 120 120"
@@ -163,7 +147,6 @@ die index dieModel =
                 , SvgAtt.rx "25"
                 , SvgAtt.ry "25"
                 , SvgAtt.fill attributes.dieColor
-                , SvgEvt.onClick attributes.msg
                 ]
                 []
              ]

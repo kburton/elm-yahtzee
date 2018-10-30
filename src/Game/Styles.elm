@@ -7,6 +7,8 @@ tableStyle : List Css.Style
 tableStyle =
     [ borderCollapse collapse
     , textAlign left
+    , fontSize (vh 3.2)
+    , backgroundColor (hex "FFFFFF")
     ]
 
 
@@ -16,6 +18,7 @@ cellStyle =
     , borderWidth (px 1)
     , borderColor (hex "AAAAAA")
     , borderStyle solid
+    , minWidth (rem 3)
     ]
 
 
@@ -39,6 +42,7 @@ tdStyleClickable =
 derivedRowStyle : List Css.Style
 derivedRowStyle =
     [ backgroundColor (hex "DDDDDD")
+    , display none
     ]
 
 
@@ -49,4 +53,17 @@ dieStyle =
     , cursor pointer
     , lastOfType
         [ marginBottom zero ]
+    ]
+        ++ noTouchHighlight
+
+
+noTouchHighlight : List Css.Style
+noTouchHighlight =
+    [ property "-webkit-touch-callout" "none"
+    , property "-webkit-user-select" "none"
+    , property "-khtml-user-select" "none"
+    , property "-moz-user-select" "none"
+    , property "-ms-user-select" "none"
+    , property "user-select" "none"
+    , property "-webkit-tap-highlight-color" "transparent"
     ]
