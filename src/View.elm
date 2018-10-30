@@ -21,20 +21,11 @@ view model =
     div
         [ css Styles.containerStyle ]
         [ div
-            [ css Styles.mainPaneStyle ]
-            [ div
-                [ css Styles.wrapperPaneStyle ]
-                [ div
-                    [ css Styles.dicePaneStyle ]
-                    [ div
-                        [ css Styles.diceContainerStyle ]
-                        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
-                    ]
-                , div
-                    [ css Styles.scoreboardPaneStyle ]
-                    [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
-                ]
-            ]
+            [ css Styles.scoreboardPaneStyle ]
+            [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
+        , div
+            [ css Styles.dicePaneStyle ]
+            (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
         , div
             [ css Styles.messagePaneStyle
             , onClick messageAction

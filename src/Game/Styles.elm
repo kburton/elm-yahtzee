@@ -7,7 +7,6 @@ tableStyle : List Css.Style
 tableStyle =
     [ borderCollapse collapse
     , textAlign left
-    , fontSize (vh 3.2)
     , backgroundColor (hex "FFFFFF")
     ]
 
@@ -48,11 +47,8 @@ derivedRowStyle =
 
 dieStyle : List Css.Style
 dieStyle =
-    [ marginBottom (rem 1)
-    , height (pct 20)
-    , cursor pointer
-    , lastOfType
-        [ marginBottom zero ]
+    [ cursor pointer
+    , width (vw 18)
     ]
         ++ noTouchHighlight
 
