@@ -35,6 +35,7 @@ diceContainerStyle =
     [ displayFlex
     , flexDirection column
     , height (pct 100)
+    , minWidth (vh 18)
     ]
 
 
@@ -58,6 +59,7 @@ wrapperPaneStyle =
     [ position absolute
     , displayFlex
     , justifyContent center
+    , alignItems center
     , top zero
     , right zero
     , bottom zero
