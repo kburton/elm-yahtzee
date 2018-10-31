@@ -17,6 +17,7 @@ scoreboardPaneStyle : List Css.Style
 scoreboardPaneStyle =
     [ flexShrink zero
     , flexGrow (num 1)
+    , position relative
     ]
 
 

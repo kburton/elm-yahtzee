@@ -1,34 +1,64 @@
-module Game.Styles exposing (cellStyle, derivedRowStyle, dieStyle, tableStyle, tdStyle, tdStyleClickable)
+module Game.Styles exposing (derivedRowStyle, dieStyle, rowStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardStyle)
 
 import Css exposing (..)
 
 
-tableStyle : List Css.Style
-tableStyle =
-    [ borderCollapse collapse
-    , textAlign left
+scoreboardStyle : List Css.Style
+scoreboardStyle =
+    [ displayFlex
+    , flexDirection column
     , backgroundColor (hex "FFFFFF")
+    , position absolute
+    , top zero
+    , right zero
+    , bottom zero
+    , left zero
     ]
 
 
-cellStyle : List Css.Style
-cellStyle =
-    [ padding2 (rem 0.25) (rem 0.5)
-    , borderWidth (px 1)
-    , borderColor (hex "AAAAAA")
-    , borderStyle solid
-    , minWidth (rem 3)
+rowStyle : List Css.Style
+rowStyle =
+    [ flexGrow (num 1)
+    , displayFlex
+    , alignItems center
+    , justifyContent spaceBetween
+    , borderBottomColor (hex "BBBBBB")
+    , borderBottomWidth (px 1)
+    , borderBottomStyle solid
     ]
 
 
-tdStyle : List Css.Style
-tdStyle =
-    cellStyle ++ [ textAlign center ]
+derivedRowStyle : List Css.Style
+derivedRowStyle =
+    rowStyle
+        ++ [ backgroundColor (hex "DDDDDD")
+           , display none
+           ]
 
 
-tdStyleClickable : List Css.Style
-tdStyleClickable =
-    tdStyle
+scoreLabelStyle : List Css.Style
+scoreLabelStyle =
+    [ padding2 zero (rem 1)
+    ]
+
+
+scoreValueStyle : List Css.Style
+scoreValueStyle =
+    [ padding2 zero (rem 1)
+    , alignSelf stretch
+    , displayFlex
+    , alignItems center
+    , justifyContent center
+    , minWidth (rem 6)
+    , borderLeftColor (hex "BBBBBB")
+    , borderLeftWidth (px 1)
+    , borderLeftStyle solid
+    ]
+
+
+scoreValueClickableStyle : List Css.Style
+scoreValueClickableStyle =
+    scoreValueStyle
         ++ [ backgroundColor (hex "CCFFCC")
            , color (hex "006600")
            , cursor pointer
@@ -36,13 +66,6 @@ tdStyleClickable =
                 [ backgroundColor (hex "EEFFEE")
                 ]
            ]
-
-
-derivedRowStyle : List Css.Style
-derivedRowStyle =
-    [ backgroundColor (hex "DDDDDD")
-    , display none
-    ]
 
 
 dieStyle : List Css.Style

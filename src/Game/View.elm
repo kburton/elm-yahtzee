@@ -17,8 +17,8 @@ import Svg.Styled.Events as SvgEvt
 
 scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
-    table
-        [ css Styles.tableStyle ]
+    div
+        [ css Styles.scoreboardStyle ]
         [ scoreboardRow model Types.Ones "Aces"
         , scoreboardRow model Types.Twos "Twos"
         , scoreboardRow model Types.Threes "Threes"
@@ -44,30 +44,30 @@ scoreboard model =
 
 scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
 scoreboardRow model key label =
-    tr
-        []
-        ([ th [ css Styles.cellStyle ] [ text label ]
+    div
+        [ css Styles.rowStyle ]
+        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
                     case Scoreboard.getScore key game of
                         Nothing ->
                             if not (Dice.areRolling model.dice) && model.roll > 1 then
-                                td
-                                    [ css Styles.tdStyleClickable, onClick (Types.Score key) ]
+                                div
+                                    [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
                                     [ a
                                         []
                                         [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
                                     ]
 
                             else
-                                td
-                                    [ css Styles.tdStyle ]
+                                div
+                                    [ css Styles.scoreValueStyle ]
                                     [ text "" ]
 
                         Just n ->
-                            td
-                                [ css Styles.tdStyle ]
+                            div
+                                [ css Styles.scoreValueStyle ]
                                 [ text <| String.fromInt n ]
                 )
                 model.games
@@ -76,14 +76,14 @@ scoreboardRow model key label =
 
 derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html msg
 derivedRow model fn label =
-    tr
+    div
         [ css Styles.derivedRowStyle
         ]
-        ([ th [ css Styles.cellStyle ] [ text label ]
+        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
-                    td [ css Styles.tdStyle ]
+                    div [ css Styles.scoreValueStyle ]
                         [ text <| String.fromInt <| fn game
                         ]
                 )
@@ -93,14 +93,14 @@ derivedRow model fn label =
 
 yahtzeeBonusCountRow : Types.Model -> String -> Html msg
 yahtzeeBonusCountRow model label =
-    tr
+    div
         [ css Styles.derivedRowStyle
         ]
-        ([ th [ css Styles.cellStyle ] [ text label ]
+        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
          ]
             ++ List.map
                 (\game ->
-                    td [ css Styles.tdStyle ]
+                    div [ css Styles.scoreValueStyle ]
                         [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x"
                         ]
                 )
