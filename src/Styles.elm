@@ -34,7 +34,11 @@ dicePaneStyle =
 
 messagePaneStyle : List Css.Style
 messagePaneStyle =
-    [ padding2 (rem 1.5) (rem 1)
+    [ displayFlex
+    , alignItems center
+    , justifyContent center
+    , padding2 zero (rem 1)
+    , minHeight (em 3.6)
     , backgroundColor (hex "CCCCFF")
     , textAlign center
     , cursor pointer
