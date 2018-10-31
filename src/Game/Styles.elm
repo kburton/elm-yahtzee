@@ -13,6 +13,9 @@ scoreboardStyle =
     , right zero
     , bottom zero
     , left zero
+    , borderTopColor (hex "BBBBBB")
+    , borderTopWidth (px 1)
+    , borderTopStyle solid
     ]
 
 

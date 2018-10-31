@@ -44,68 +44,63 @@ scoreboard model =
 
 scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
 scoreboardRow model key label =
-    div
-        [ css Styles.rowStyle ]
-        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
-         ]
-            ++ List.map
-                (\game ->
-                    case Scoreboard.getScore key game of
-                        Nothing ->
-                            if not (Dice.areRolling model.dice) && model.roll > 1 then
-                                div
-                                    [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
-                                    [ a
-                                        []
-                                        [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
-                                    ]
+    case model.games of
+        game :: rest ->
+            div
+                [ css Styles.rowStyle ]
+                [ div [ css Styles.scoreLabelStyle ] [ text label ]
+                , case Scoreboard.getScore key game of
+                    Nothing ->
+                        if not (Dice.areRolling model.dice) && model.roll > 1 then
+                            div
+                                [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
+                                [ a [] [ text <| String.fromInt <| Dice.calcScore key model.dice game ] ]
 
-                            else
-                                div
-                                    [ css Styles.scoreValueStyle ]
-                                    [ text "" ]
-
-                        Just n ->
+                        else
                             div
                                 [ css Styles.scoreValueStyle ]
-                                [ text <| String.fromInt n ]
-                )
-                model.games
-        )
+                                [ text "" ]
+
+                    Just n ->
+                        div
+                            [ css Styles.scoreValueStyle ]
+                            [ text <| String.fromInt n ]
+                ]
+
+        _ ->
+            div [] []
 
 
 derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html msg
 derivedRow model fn label =
-    div
-        [ css Styles.derivedRowStyle
-        ]
-        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
-         ]
-            ++ List.map
-                (\game ->
-                    div [ css Styles.scoreValueStyle ]
-                        [ text <| String.fromInt <| fn game
-                        ]
-                )
-                model.games
-        )
+    case model.games of
+        game :: rest ->
+            div
+                [ css Styles.derivedRowStyle ]
+                [ div [ css Styles.scoreLabelStyle ] [ text label ]
+                , div [ css Styles.scoreValueStyle ] [ text <| String.fromInt <| fn game ]
+                ]
+
+        _ ->
+            div [] []
 
 
 yahtzeeBonusCountRow : Types.Model -> String -> Html msg
 yahtzeeBonusCountRow model label =
-    div
-        [ css Styles.derivedRowStyle
-        ]
-        ([ div [ css Styles.scoreLabelStyle ] [ text label ]
-         ]
-            ++ List.map
-                (\game ->
-                    div [ css Styles.scoreValueStyle ]
-                        [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x"
-                        ]
-                )
-                model.games
-        )
+    case model.games of
+        game :: rest ->
+            div
+                [ css Styles.derivedRowStyle ]
+                [ div
+                    [ css Styles.scoreLabelStyle ]
+                    [ text label ]
+                , div
+                    [ css Styles.scoreValueStyle ]
+                    [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x" ]
+                ]
+
+        _ ->
+            div [] []
 
 
 dice : Types.Model -> List (Html Types.Msg)
