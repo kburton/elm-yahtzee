@@ -9,6 +9,7 @@ type alias Model =
     , turn : Int
     , roll : Int
     , dice : Dice
+    , tutorialMode : Bool
     }
 
 

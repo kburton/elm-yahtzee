@@ -1,4 +1,4 @@
-module Game.Scoreboard exposing (gameIsOver, getScore, grandTotal, isComplete, lowerTotalWithBonus, setScore, upperBonus, upperTotal, upperTotalWithBonus)
+module Game.Scoreboard exposing (gameIsOver, getScore, grandTotal, isComplete, lowerTotalWithBonus, setScore, upperBonus, upperTotal, upperTotalWithBonus, yahtzeeBonus)
 
 import Dict
 import Game.Types exposing (ScoreKey(..), Scoreboard)

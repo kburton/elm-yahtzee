@@ -28,18 +28,36 @@ dicePaneStyle =
     , displayFlex
     , property "justify-content" "space-evenly"
     , padding2 (vw 2) zero
-    , backgroundColor (hex "#EEEEEE")
+    , backgroundColor (hex "EEEEEE")
     ]
 
 
-messagePaneStyle : List Css.Style
-messagePaneStyle =
+messagePaneStyle : Bool -> List Css.Style
+messagePaneStyle tutorialMode =
     [ displayFlex
+    , position relative
     , alignItems center
     , justifyContent center
     , padding2 zero (rem 1)
-    , minHeight (em 3.6)
+    , minHeight (vw 20)
     , backgroundColor (hex "CCCCFF")
     , textAlign center
     , cursor pointer
     ]
+        ++ (if tutorialMode then
+                [ fontSize (vh 2.2)
+                , before
+                    [ property "content" "'TUTORIAL'"
+                    , position absolute
+                    , bottom zero
+                    , right zero
+                    , fontSize (vh 1.6)
+                    , fontWeight bold
+                    , color (hex "999999")
+                    , padding (em 0.2)
+                    ]
+                ]
+
+            else
+                [ fontSize inherit ]
+           )

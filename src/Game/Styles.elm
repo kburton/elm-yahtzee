@@ -1,4 +1,4 @@
-module Game.Styles exposing (derivedRowStyle, dieStyle, rowStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardStyle)
+module Game.Styles exposing (dieStyle, rowStyle, scoreBonusStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardStyle)
 
 import Css exposing (..)
 
@@ -31,17 +31,10 @@ rowStyle =
     ]
 
 
-derivedRowStyle : List Css.Style
-derivedRowStyle =
-    rowStyle
-        ++ [ backgroundColor (hex "DDDDDD")
-           , display none
-           ]
-
-
 scoreLabelStyle : List Css.Style
 scoreLabelStyle =
-    [ padding2 zero (rem 1)
+    [ flexGrow (num 1)
+    , padding2 zero (rem 1)
     ]
 
 
@@ -69,6 +62,15 @@ scoreValueClickableStyle =
                 [ backgroundColor (hex "EEFFEE")
                 ]
            ]
+
+
+scoreBonusStyle : List Css.Style
+scoreBonusStyle =
+    [ fontSize (em 0.8)
+    , fontWeight bold
+    , paddingRight (rem 0.5)
+    , color (hex "009900")
+    ]
 
 
 dieStyle : List Css.Style

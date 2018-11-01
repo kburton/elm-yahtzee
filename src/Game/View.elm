@@ -24,21 +24,14 @@ scoreboard model =
         , scoreboardRow model Types.Threes "Threes"
         , scoreboardRow model Types.Fours "Fours"
         , scoreboardRow model Types.Fives "Fives"
-        , scoreboardRow model Types.Sixes "Sixes"
-        , derivedRow model Scoreboard.upperTotal "Upper score"
-        , derivedRow model Scoreboard.upperBonus "Upper bonus"
-        , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
+        , scoreboardBonusRow model Types.Sixes Scoreboard.upperBonus "Sixes"
         , scoreboardRow model Types.ThreeOfKind "3 of a kind"
         , scoreboardRow model Types.FourOfKind "4 of a kind"
         , scoreboardRow model Types.FullHouse "Full house"
         , scoreboardRow model Types.SmallStraight "Sm straight"
         , scoreboardRow model Types.LargeStraight "Lg straight"
-        , scoreboardRow model Types.Yahtzee "Yahtzee"
+        , scoreboardBonusRow model Types.Yahtzee Scoreboard.yahtzeeBonus "Yahtzee"
         , scoreboardRow model Types.Chance "Chance"
-        , yahtzeeBonusCountRow model "Yahtzee bonus"
-        , derivedRow model Scoreboard.lowerTotalWithBonus "Lower total"
-        , derivedRow model Scoreboard.upperTotalWithBonus "Upper total"
-        , derivedRow model Scoreboard.grandTotal "Grand total"
         ]
 
 
@@ -48,59 +41,65 @@ scoreboardRow model key label =
         game :: rest ->
             div
                 [ css Styles.rowStyle ]
-                [ div [ css Styles.scoreLabelStyle ] [ text label ]
-                , case Scoreboard.getScore key game of
-                    Nothing ->
-                        if not (Dice.areRolling model.dice) && model.roll > 1 then
-                            div
-                                [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
-                                [ a [] [ text <| String.fromInt <| Dice.calcScore key model.dice game ] ]
-
-                        else
-                            div
-                                [ css Styles.scoreValueStyle ]
-                                [ text "" ]
-
-                    Just n ->
-                        div
-                            [ css Styles.scoreValueStyle ]
-                            [ text <| String.fromInt n ]
+                [ scoreLabel label
+                , scoreValue model key game
                 ]
 
         _ ->
             div [] []
 
 
-derivedRow : Types.Model -> (Types.Scoreboard -> Int) -> String -> Html msg
-derivedRow model fn label =
+scoreboardBonusRow : Types.Model -> Types.ScoreKey -> (Types.Scoreboard -> Int) -> String -> Html Types.Msg
+scoreboardBonusRow model key bonusFn label =
     case model.games of
         game :: rest ->
-            div
-                [ css Styles.derivedRowStyle ]
-                [ div [ css Styles.scoreLabelStyle ] [ text label ]
-                , div [ css Styles.scoreValueStyle ] [ text <| String.fromInt <| fn game ]
-                ]
+            let
+                bonus =
+                    bonusFn game
+            in
+            if bonus == 0 then
+                scoreboardRow model key label
+
+            else
+                div
+                    [ css Styles.rowStyle ]
+                    [ scoreLabel label
+                    , scoreBonus bonus
+                    , scoreValue model key game
+                    ]
 
         _ ->
             div [] []
 
 
-yahtzeeBonusCountRow : Types.Model -> String -> Html msg
-yahtzeeBonusCountRow model label =
-    case model.games of
-        game :: rest ->
-            div
-                [ css Styles.derivedRowStyle ]
-                [ div
-                    [ css Styles.scoreLabelStyle ]
-                    [ text label ]
-                , div
+scoreLabel : String -> Html Types.Msg
+scoreLabel label =
+    div [ css Styles.scoreLabelStyle ] [ text label ]
+
+
+scoreBonus : Int -> Html Types.Msg
+scoreBonus bonus =
+    div [ css Styles.scoreBonusStyle ] [ text <| "BONUS " ++ String.fromInt bonus ]
+
+
+scoreValue : Types.Model -> Types.ScoreKey -> Types.Scoreboard -> Html Types.Msg
+scoreValue model key game =
+    case Scoreboard.getScore key game of
+        Nothing ->
+            if not (Dice.areRolling model.dice) && model.roll > 1 then
+                div
+                    [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
+                    [ a [] [ text <| String.fromInt <| Dice.calcScore key model.dice game ] ]
+
+            else
+                div
                     [ css Styles.scoreValueStyle ]
-                    [ text <| String.repeat (Maybe.withDefault 0 <| Scoreboard.getScore Types.YahtzeeBonusCount game) "x" ]
-                ]
+                    [ text "" ]
 
-        _ ->
-            div [] []
+        Just n ->
+            div
+                [ css Styles.scoreValueStyle ]
+                [ text <| String.fromInt n ]
 
 
 dice : Types.Model -> List (Html Types.Msg)

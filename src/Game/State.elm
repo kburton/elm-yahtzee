@@ -15,6 +15,7 @@ init _ =
       , turn = 1
       , roll = 1
       , dice = Dice.default
+      , tutorialMode = True
       }
     , Cmd.none
     )
@@ -93,6 +94,7 @@ update msg model =
                         , roll = 1
                         , games = Scoreboard.setScore key (Dice.calcScore key model.dice currentScoreboard) incYahtzeeBonus currentScoreboard :: finishedScoreboards
                         , dice = Dice.default
+                        , tutorialMode = model.tutorialMode && model.turn < 2
                       }
                     , Cmd.none
                     )
@@ -106,6 +108,7 @@ update msg model =
                 , roll = 1
                 , games = Dict.empty :: model.games
                 , dice = Dice.default
+                , tutorialMode = False
               }
             , Cmd.none
             )
