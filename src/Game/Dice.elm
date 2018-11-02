@@ -1,4 +1,4 @@
-module Game.Dice exposing (active, areRolling, calcScore, default, rolling)
+module Game.Dice exposing (active, areRolling, calcScore, default, isYahtzeeWildcard, rolling)
 
 import Array
 import Dict exposing (Dict)
@@ -42,43 +42,8 @@ getCounts dice =
 calcScore : ScoreKey -> Dice -> Scoreboard -> Int
 calcScore key dice scoreboard =
     let
-        isScored scoreKey =
-            Game.Scoreboard.getScore scoreKey scoreboard /= Nothing
-
-        yahtzeeScore =
-            calcYahtzee dice
-
-        isYahtzee =
-            yahtzeeScore > 0
-
-        yahtzeeScored =
-            isScored Yahtzee
-
-        upperSectionUsed =
-            case getFaces dice of
-                1 :: rest ->
-                    isScored Ones
-
-                2 :: rest ->
-                    isScored Twos
-
-                3 :: rest ->
-                    isScored Threes
-
-                4 :: rest ->
-                    isScored Fours
-
-                5 :: rest ->
-                    isScored Fives
-
-                6 :: rest ->
-                    isScored Sixes
-
-                _ ->
-                    False
-
         yahtzeeWildcard =
-            isYahtzee && yahtzeeScored && upperSectionUsed
+            isYahtzeeWildcard dice scoreboard
     in
     case key of
         Ones ->
@@ -122,6 +87,50 @@ calcScore key dice scoreboard =
 
         YahtzeeBonusCount ->
             0
+
+
+isYahtzeeWildcard : Dice -> Scoreboard -> Bool
+isYahtzeeWildcard dice scoreboard =
+    let
+        isScored key =
+            Game.Scoreboard.getScore key scoreboard /= Nothing
+
+        yahtzeeScore =
+            calcYahtzee dice
+
+        isYahtzee =
+            yahtzeeScore > 0
+
+        yahtzeeScored =
+            isScored Yahtzee
+
+        upperSectionUsed =
+            case getFaces dice of
+                1 :: rest ->
+                    isScored Ones
+
+                2 :: rest ->
+                    isScored Twos
+
+                3 :: rest ->
+                    isScored Threes
+
+                4 :: rest ->
+                    isScored Fours
+
+                5 :: rest ->
+                    isScored Fives
+
+                6 :: rest ->
+                    isScored Sixes
+
+                _ ->
+                    False
+
+        yahtzeeWildcard =
+            isYahtzee && yahtzeeScored && upperSectionUsed
+    in
+    yahtzeeWildcard
 
 
 calcUpper : Face -> Dice -> Int

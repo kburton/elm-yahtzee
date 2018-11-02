@@ -19,29 +19,30 @@ scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     div
         [ css Styles.scoreboardStyle ]
-        [ scoreboardRow model Types.Ones "Aces"
-        , scoreboardRow model Types.Twos "Twos"
-        , scoreboardRow model Types.Threes "Threes"
-        , scoreboardRow model Types.Fours "Fours"
-        , scoreboardRow model Types.Fives "Fives"
-        , scoreboardBonusRow model Types.Sixes Scoreboard.upperBonus "Sixes"
-        , scoreboardRow model Types.ThreeOfKind "3 of a kind"
-        , scoreboardRow model Types.FourOfKind "4 of a kind"
-        , scoreboardRow model Types.FullHouse "Full house"
-        , scoreboardRow model Types.SmallStraight "Sm straight"
-        , scoreboardRow model Types.LargeStraight "Lg straight"
-        , scoreboardBonusRow model Types.Yahtzee Scoreboard.yahtzeeBonus "Yahtzee"
-        , scoreboardRow model Types.Chance "Chance"
+        [ scoreboardRow model Types.Ones "Aces" "Sum of ones"
+        , scoreboardRow model Types.Twos "Twos" "Sum of twos"
+        , scoreboardRow model Types.Threes "Threes" "Sum of threes"
+        , scoreboardRow model Types.Fours "Fours" "Sum of fours"
+        , scoreboardRow model Types.Fives "Fives" "Sum of fives"
+        , scoreboardBonusRow model Types.Sixes Scoreboard.upperBonus "Sixes" "Sum of sixes"
+        , scoreboardRow model Types.ThreeOfKind "3 of a kind" "Sum of all dice"
+        , scoreboardRow model Types.FourOfKind "4 of a kind" "Sum of all dice"
+        , scoreboardRow model Types.FullHouse "Full house" "25 points"
+        , scoreboardRow model Types.SmallStraight "Sm straight" "30 points"
+        , scoreboardRow model Types.LargeStraight "Lg straight" "40 points"
+        , scoreboardBonusRow model Types.Yahtzee Scoreboard.yahtzeeBonus "Yahtzee" "50 points"
+        , scoreboardRow model Types.Chance "Chance" "Sum of all dice"
         ]
 
 
-scoreboardRow : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
-scoreboardRow model key label =
+scoreboardRow : Types.Model -> Types.ScoreKey -> String -> String -> Html Types.Msg
+scoreboardRow model key label info =
     case model.games of
         game :: rest ->
             div
                 [ css Styles.rowStyle ]
                 [ scoreLabel label
+                , scoreInfo info
                 , scoreValue model key game
                 ]
 
@@ -49,8 +50,8 @@ scoreboardRow model key label =
             div [] []
 
 
-scoreboardBonusRow : Types.Model -> Types.ScoreKey -> (Types.Scoreboard -> Int) -> String -> Html Types.Msg
-scoreboardBonusRow model key bonusFn label =
+scoreboardBonusRow : Types.Model -> Types.ScoreKey -> (Types.Scoreboard -> Int) -> String -> String -> Html Types.Msg
+scoreboardBonusRow model key bonusFn label info =
     case model.games of
         game :: rest ->
             let
@@ -58,7 +59,7 @@ scoreboardBonusRow model key bonusFn label =
                     bonusFn game
             in
             if bonus == 0 then
-                scoreboardRow model key label
+                scoreboardRow model key label info
 
             else
                 div
@@ -75,6 +76,11 @@ scoreboardBonusRow model key bonusFn label =
 scoreLabel : String -> Html Types.Msg
 scoreLabel label =
     div [ css Styles.scoreLabelStyle ] [ text label ]
+
+
+scoreInfo : String -> Html Types.Msg
+scoreInfo info =
+    div [ css Styles.scoreInfoStyle ] [ text info ]
 
 
 scoreBonus : Int -> Html Types.Msg

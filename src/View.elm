@@ -14,10 +14,6 @@ import Types
 
 view : Types.Model -> Html Types.Msg
 view model =
-    let
-        ( messageHtml, messageAction ) =
-            viewMessage model
-    in
     div
         [ css Styles.containerStyle ]
         [ div
@@ -28,9 +24,9 @@ view model =
             (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
         , div
             [ css <| Styles.messagePaneStyle model.game.tutorialMode
-            , onClick messageAction
+            , onClick <| messageAction model
             ]
-            [ messageHtml ]
+            [ messageHtml model ]
         ]
 
 
@@ -48,83 +44,92 @@ viewControls model =
         ]
 
 
-viewMessage : Types.Model -> ( Html msg, Types.Msg )
-viewMessage model =
+messageHtml : Types.Model -> Html msg
+messageHtml model =
     let
         scoreboard =
             Game.Types.currentGame model.game
     in
     if Game.Dice.areRolling model.game.dice then
-        ( text "", Types.NoOp )
+        text ""
 
     else if Game.Scoreboard.gameIsOver scoreboard then
-        ( textToDivs [ "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points.", " Play again?" ]
-        , Types.GameMsg Game.Types.NewGame
-        )
+        textToDivs [ "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points.", " Play again?" ]
+
+    else if Game.Dice.isYahtzeeWildcard model.game.dice scoreboard then
+        text "Yahtzee wildcard!"
 
     else if model.game.roll == 1 then
         if model.game.tutorialMode && model.game.turn == 1 then
-            ( textToDivs
-                [ "Welcome to Elm Yahtzee!", "Tap here to roll the dice." ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "Welcome to Elm Yahtzee!", "Tap here to roll the dice." ]
 
         else if model.game.tutorialMode && model.game.turn == 2 then
-            ( textToDivs
-                [ "That’s it! Roll the dice to start your second turn.", "The game continues until all score slots are filled." ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "That’s it! Roll the dice to start your second turn.", "The game continues until all score slots are filled." ]
 
         else
-            ( text "First roll", Types.GameMsg Game.Types.Roll )
+            text "First roll"
 
     else if model.game.roll == 2 then
         if model.game.tutorialMode && model.game.turn == 1 then
-            ( textToDivs
-                [ "Look at the dice - which score will you aim for?", "You can lock any dice by tapping them.", "Roll again when you’re ready." ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "Look at the dice - which score will you aim for?", "You can lock any dice by tapping them.", "Roll again when you’re ready." ]
 
         else if model.game.tutorialMode && model.game.turn == 2 then
-            ( textToDivs
-                [ "You can tap the score slot name in the scoreboard for details about how the scoring works.", "Tap for your second roll." ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "You can tap the score slot name in the scoreboard for details about how the scoring works.", "Tap for your second roll." ]
 
         else
-            ( text "Second roll", Types.GameMsg Game.Types.Roll )
+            text "Second roll"
 
     else if model.game.roll == 3 then
         if model.game.tutorialMode && model.game.turn == 1 then
-            ( textToDivs
-                [ "Did that roll help?", "You can still lock and unlock any dice.", "This is your last roll, make it count!" ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "Did that roll help?", "You can still lock and unlock any dice.", "This is your last roll, make it count!" ]
 
         else if model.game.tutorialMode && model.game.turn == 2 then
-            ( textToDivs
-                [ "This is your final roll." ]
-            , Types.GameMsg Game.Types.Roll
-            )
+            textToDivs [ "This is your final roll." ]
 
         else
-            ( text "Final roll", Types.GameMsg Game.Types.Roll )
+            text "Final roll"
 
     else if Game.Types.maxRollsReached model.game then
         if model.game.tutorialMode && model.game.turn == 1 then
-            ( text "Tap a score slot to choose a score for this turn.", Types.NoOp )
+            text "Tap a score slot to choose a score for this turn."
 
         else if model.game.tutorialMode && model.game.turn == 2 then
-            ( textToDivs
-                [ "Okay, I think you can take it from here. Good luck!", "Choose the score slot for your second turn." ]
-            , Types.NoOp
-            )
+            textToDivs [ "Okay, I think you can take it from here. Good luck!", "Choose the score slot for your second turn." ]
 
         else
-            ( text "Choose a score slot", Types.NoOp )
+            text "Choose a score slot"
 
     else
-        ( text "", Types.NoOp )
+        text ""
+
+
+messageAction : Types.Model -> Types.Msg
+messageAction model =
+    let
+        scoreboard =
+            Game.Types.currentGame model.game
+    in
+    if Game.Dice.areRolling model.game.dice then
+        Types.NoOp
+
+    else if Game.Scoreboard.gameIsOver scoreboard then
+        Types.GameMsg Game.Types.NewGame
+
+    else if not <| Game.Types.maxRollsReached model.game then
+        Types.GameMsg Game.Types.Roll
+
+    else
+        Types.NoOp
+
+
+overridableHtml : Html msg -> Maybe (Html msg) -> Html msg
+overridableHtml html override =
+    case override of
+        Nothing ->
+            html
+
+        Just ovr ->
+            ovr
 
 
 textToDivs : List String -> Html msg
