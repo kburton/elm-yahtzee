@@ -56,7 +56,7 @@ messageHtml model =
     else if Game.Scoreboard.gameIsOver scoreboard then
         textToDivs [ "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points.", " Play again?" ]
 
-    else if Game.Dice.isYahtzeeWildcard model.game.dice scoreboard then
+    else if Game.Dice.isYahtzeeWildcard model.game.dice scoreboard && model.game.roll > 1 then
         text "Yahtzee wildcard!"
 
     else if model.game.roll == 1 then
