@@ -34,13 +34,13 @@ rowStyle =
 scoreLabelStyle : List Css.Style
 scoreLabelStyle =
     [ flexGrow (num 1)
-    , padding2 zero (rem 1)
+    , padding2 zero (em 0.5)
     ]
 
 
 scoreValueStyle : List Css.Style
 scoreValueStyle =
-    [ padding2 zero (rem 1)
+    [ padding2 zero (em 0.5)
     , alignSelf stretch
     , displayFlex
     , alignItems center
@@ -68,7 +68,7 @@ scoreBonusStyle : List Css.Style
 scoreBonusStyle =
     [ fontSize (em 0.8)
     , fontWeight bold
-    , paddingRight (rem 0.5)
+    , paddingRight (em 0.5)
     , color (hex "009900")
     ]
 
@@ -76,7 +76,7 @@ scoreBonusStyle =
 scoreInfoStyle : List Css.Style
 scoreInfoStyle =
     [ fontSize (em 0.8)
-    , paddingRight (rem 0.5)
+    , paddingRight (em 0.5)
     , color (hex "999999")
     ]
 

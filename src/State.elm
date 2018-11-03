@@ -16,6 +16,7 @@ init _ =
                 ]
     in
     ( { game = gameModel
+      , menuOpen = False
       }
     , cmds
     )
@@ -30,6 +31,9 @@ update msg model =
                     Game.State.update gameMsg model.game
             in
             ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
+
+        Types.ToggleMenu ->
+            ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         Types.NoOp ->
             ( model, Cmd.none )

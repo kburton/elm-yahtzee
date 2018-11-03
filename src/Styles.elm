@@ -1,4 +1,4 @@
-module Styles exposing (containerStyle, dicePaneStyle, globalStyle, messagePaneStyle, scoreboardPaneStyle)
+module Styles exposing (containerStyle, dicePaneStyle, globalStyle, menuBarStyle, messagePaneStyle, scoreboardPaneStyle)
 
 import Css exposing (..)
 import Css.Global as Global
@@ -31,6 +31,20 @@ containerStyle =
     ]
 
 
+menuBarStyle : List Css.Style
+menuBarStyle =
+    [ flexShrink zero
+    , displayFlex
+    , justifyContent spaceBetween
+    , alignItems center
+    , backgroundColor (hex "333333")
+    , color (hex "FFFFFF")
+    , fontWeight bold
+    , padding (em 0.5)
+    , height (em 2)
+    ]
+
+
 scoreboardPaneStyle : List Css.Style
 scoreboardPaneStyle =
     [ flexShrink zero
@@ -56,7 +70,7 @@ messagePaneStyle tutorialMode =
     , position relative
     , alignItems center
     , justifyContent center
-    , padding2 zero (rem 1)
+    , padding2 zero (em 0.5)
     , minHeight (vw 20)
     , backgroundColor (hex "CCCCFF")
     , textAlign center

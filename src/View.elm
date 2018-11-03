@@ -9,6 +9,9 @@ import Html.Styled exposing (Html, button, div, h1, h2, span, text)
 import Html.Styled.Attributes exposing (css, disabled, style)
 import Html.Styled.Events exposing (onClick)
 import Styles
+import Svg.Styled as Svg
+import Svg.Styled.Attributes as SvgAtt
+import Svg.Styled.Events as SvgEvt
 import Types
 
 
@@ -16,33 +19,84 @@ view : Types.Model -> Html Types.Msg
 view model =
     div
         [ css Styles.containerStyle ]
-        [ Styles.globalStyle
-        , div
-            [ css Styles.scoreboardPaneStyle ]
-            [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
-        , div
-            [ css Styles.dicePaneStyle ]
-            (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
-        , div
-            [ css <| Styles.messagePaneStyle model.game.tutorialMode
-            , onClick <| messageAction model
-            ]
-            [ messageHtml model ]
-        ]
+        ([ Styles.globalStyle
+         , menuBar
+            (if model.menuOpen then
+                "Menu"
+
+             else
+                "Elm Yahtzee"
+            )
+         ]
+            ++ (if model.menuOpen then
+                    [ menu ]
+
+                else
+                    [ div
+                        [ css Styles.scoreboardPaneStyle ]
+                        [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
+                    , div
+                        [ css Styles.dicePaneStyle ]
+                        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
+                    , div
+                        [ css <| Styles.messagePaneStyle model.game.tutorialMode
+                        , onClick <| messageAction model
+                        ]
+                        [ messageHtml model ]
+                    ]
+               )
+        )
 
 
-viewControls : Types.Model -> Html Types.Msg
-viewControls model =
+menuBar : String -> Html Types.Msg
+menuBar title =
     div
-        [ style "margin-bottom" "1rem" ]
-        [ button
-            [ onClick (Types.GameMsg Game.Types.Roll)
-            , disabled (Game.Types.maxRollsReached model.game)
-            , style "font-size" "2rem"
-            , style "margin-right" "1rem"
-            ]
-            [ text "Roll" ]
+        [ css Styles.menuBarStyle ]
+        [ text title
+        , menuButton
         ]
+
+
+menuButton : Html Types.Msg
+menuButton =
+    Svg.svg
+        [ SvgAtt.viewBox "0 0 32 24"
+        , SvgAtt.style "fill: currentColor; height: 100%;"
+        , SvgEvt.onClick Types.ToggleMenu
+        ]
+        [ Svg.rect
+            [ SvgAtt.x "0"
+            , SvgAtt.y "0"
+            , SvgAtt.width "32"
+            , SvgAtt.height "4"
+            , SvgAtt.rx "2"
+            , SvgAtt.ry "2"
+            ]
+            []
+        , Svg.rect
+            [ SvgAtt.x "0"
+            , SvgAtt.y "10"
+            , SvgAtt.width "32"
+            , SvgAtt.height "4"
+            , SvgAtt.rx "2"
+            , SvgAtt.ry "2"
+            ]
+            []
+        , Svg.rect
+            [ SvgAtt.x "0"
+            , SvgAtt.y "20"
+            , SvgAtt.width "32"
+            , SvgAtt.height "4"
+            , SvgAtt.rx "2"
+            , SvgAtt.ry "2"
+            ]
+            []
+        ]
+
+
+menu : Html Types.Msg
+menu =
+    div [] []
 
 
 messageHtml : Types.Model -> Html msg
