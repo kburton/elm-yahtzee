@@ -7,12 +7,13 @@ import Game.Scoreboard as Scoreboard
 import Game.Styles as Styles
 import Game.Types as Types
 import Html
-import Html.Styled exposing (Html, a, div, table, td, text, th, tr)
+import Html.Styled exposing (Html, a, div, h1, p, table, td, text, th, tr)
 import Html.Styled.Attributes exposing (css, href, style)
 import Html.Styled.Events exposing (onClick)
 import Svg.Styled as Svg
 import Svg.Styled.Attributes as SvgAtt
 import Svg.Styled.Events as SvgEvt
+import Types as RootTypes
 
 
 scoreboard : Types.Model -> Html Types.Msg
@@ -24,14 +25,14 @@ scoreboard model =
         , scoreboardRow model Types.Threes "Threes" "Sum of threes"
         , scoreboardRow model Types.Fours "Fours" "Sum of fours"
         , scoreboardRow model Types.Fives "Fives" "Sum of fives"
-        , scoreboardBonusRow model Types.Sixes Scoreboard.upperBonus "Sixes" "Sum of sixes"
+        , scoreboardBonusRow model Types.Sixes Types.UpperSectionBonus Scoreboard.upperBonus "Sixes" "Sum of sixes"
         , scoreboardDivider
         , scoreboardRow model Types.ThreeOfKind "3 of a kind" "Sum of all dice"
         , scoreboardRow model Types.FourOfKind "4 of a kind" "Sum of all dice"
         , scoreboardRow model Types.FullHouse "Full house" "25 points"
         , scoreboardRow model Types.SmallStraight "Sm straight" "30 points"
         , scoreboardRow model Types.LargeStraight "Lg straight" "40 points"
-        , scoreboardBonusRow model Types.Yahtzee Scoreboard.yahtzeeBonus "Yahtzee" "50 points"
+        , scoreboardBonusRow model Types.Yahtzee Types.YahtzeeBonus Scoreboard.yahtzeeBonus "Yahtzee" "50 points"
         , scoreboardRow model Types.Chance "Chance" "Sum of all dice"
         ]
 
@@ -42,8 +43,8 @@ scoreboardRow model key label info =
         game :: rest ->
             div
                 [ css Styles.rowStyle ]
-                [ scoreLabel label
-                , scoreInfo info
+                [ scoreLabel key label
+                , scoreInfo key info
                 , scoreValue model key game
                 ]
 
@@ -51,8 +52,8 @@ scoreboardRow model key label info =
             div [] []
 
 
-scoreboardBonusRow : Types.Model -> Types.ScoreKey -> (Types.Scoreboard -> Int) -> String -> String -> Html Types.Msg
-scoreboardBonusRow model key bonusFn label info =
+scoreboardBonusRow : Types.Model -> Types.ScoreKey -> Types.Bonus -> (Types.Scoreboard -> Int) -> String -> String -> Html Types.Msg
+scoreboardBonusRow model key bonusType bonusFn label info =
     case model.games of
         game :: rest ->
             let
@@ -65,8 +66,8 @@ scoreboardBonusRow model key bonusFn label info =
             else
                 div
                     [ css Styles.rowStyle ]
-                    [ scoreLabel label
-                    , scoreBonus bonus
+                    [ scoreLabel key label
+                    , scoreBonus bonusType bonus
                     , scoreValue model key game
                     ]
 
@@ -79,20 +80,32 @@ scoreboardDivider =
     div [ css Styles.scoreboardDividerStyle ] []
 
 
-scoreLabel : String -> Html Types.Msg
-scoreLabel label =
-    div [ css Styles.scoreLabelStyle ] [ text label ]
+scoreLabel : Types.ScoreKey -> String -> Html Types.Msg
+scoreLabel key label =
+    let
+        ( helpHeader, helpContent ) =
+            help key
+    in
+    div [ css Styles.scoreLabelStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text label ]
 
 
-scoreInfo : String -> Html Types.Msg
-scoreInfo info =
-    div [ css Styles.scoreInfoStyle ] [ text info ]
+scoreInfo : Types.ScoreKey -> String -> Html Types.Msg
+scoreInfo key info =
+    let
+        ( helpHeader, helpContent ) =
+            help key
+    in
+    div [ css Styles.scoreInfoStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
 
 
-scoreBonus : Int -> Html Types.Msg
-scoreBonus bonus =
+scoreBonus : Types.Bonus -> Int -> Html Types.Msg
+scoreBonus bonusType bonus =
+    let
+        ( helpHeader, helpContent ) =
+            helpBonuses bonusType
+    in
     div
-        [ css Styles.scoreBonusStyle ]
+        [ css Styles.scoreBonusStyle, onClick <| Types.ShowHelp helpHeader helpContent ]
         [ text <| "Bonus " ++ String.fromInt bonus ]
 
 
@@ -118,52 +131,74 @@ scoreValue model key game =
 
 dice : Types.Model -> List (Html Types.Msg)
 dice model =
-    Array.toList <| Array.indexedMap die model.dice
+    Array.toList <| Array.indexedMap clickableDie model.dice
 
 
 type alias ViewDieAttributes =
     { dieColor : String
     , spotColor : String
+    , face : Types.Face
     , msg : Types.Msg
     }
 
 
-die : Types.Index -> Types.Die -> Html Types.Msg
-die index dieModel =
+clickableDie : Types.Index -> Types.Die -> Html Types.Msg
+clickableDie index dieModel =
     let
         attributes =
             case dieModel.locked of
                 True ->
-                    ViewDieAttributes "#440000" "#990000" (Types.ToggleLock index)
+                    ViewDieAttributes "#440000" "#990000" dieModel.face (Types.ToggleLock index)
 
                 False ->
-                    ViewDieAttributes "#005500" "#00CC00" (Types.ToggleLock index)
+                    ViewDieAttributes "#005500" "#00CC00" dieModel.face (Types.ToggleLock index)
     in
+    die attributes
+
+
+exampleDice : List Int -> List (Html msg)
+exampleDice faces =
+    List.map exampleDie faces
+
+
+exampleDie : Types.Face -> Html msg
+exampleDie face =
+    div
+        [ css Styles.exampleDieStyle ]
+        [ dieSvg "#444444" "#999999" face ]
+
+
+die : ViewDieAttributes -> Html Types.Msg
+die attributes =
     div
         [ css Styles.dieStyle
         , onClick attributes.msg
         ]
-        [ Svg.svg
-            [ SvgAtt.viewBox "0 0 120 120"
-            , SvgAtt.style "height: 100%;"
-            ]
-            ([ Svg.rect
-                [ SvgAtt.x "0"
-                , SvgAtt.y "0"
-                , SvgAtt.width "120"
-                , SvgAtt.height "120"
-                , SvgAtt.rx "25"
-                , SvgAtt.ry "25"
-                , SvgAtt.fill attributes.dieColor
-                ]
-                []
-             ]
-                ++ spots attributes.spotColor dieModel.face
-            )
+        [ dieSvg attributes.dieColor attributes.spotColor attributes.face ]
+
+
+dieSvg : String -> String -> Types.Face -> Html msg
+dieSvg dieColor spotColor face =
+    Svg.svg
+        [ SvgAtt.viewBox "0 0 120 120"
+        , SvgAtt.style "height: 100%;"
         ]
+        ([ Svg.rect
+            [ SvgAtt.x "0"
+            , SvgAtt.y "0"
+            , SvgAtt.width "120"
+            , SvgAtt.height "120"
+            , SvgAtt.rx "25"
+            , SvgAtt.ry "25"
+            , SvgAtt.fill dieColor
+            ]
+            []
+         ]
+            ++ spots spotColor face
+        )
 
 
-spots : String -> Types.Face -> List (Svg.Svg Types.Msg)
+spots : String -> Types.Face -> List (Svg.Svg msg)
 spots color face =
     let
         smSpot =
@@ -243,3 +278,260 @@ spot c r v h =
         , SvgAtt.pointerEvents "none"
         ]
         []
+
+
+helpBonuses : Types.Bonus -> ( String, List ( String, Html Types.Msg ) )
+helpBonuses bonusType =
+    case bonusType of
+        Types.UpperSectionBonus ->
+            ( "Help | Bonus"
+            , [ ( "Summary"
+                , helpTopSectionBonusContent
+                )
+              ]
+            )
+
+        Types.YahtzeeBonus ->
+            ( "Help | Yahtzee bonus"
+            , [ ( "Summary"
+                , helpYahtzeeBonusContent
+                )
+              ]
+            )
+
+
+help : Types.ScoreKey -> ( String, List ( String, Html Types.Msg ) )
+help key =
+    case key of
+        Types.Ones ->
+            helpEntry
+                "Help | Aces"
+                (text "Sum of ones.")
+                [ ( [ 1, 2, 3, 4, 5 ], 1 )
+                , ( [ 1, 1, 1, 4, 5 ], 3 )
+                , ( [ 1, 1, 1, 1, 1 ], 5 )
+                , ( [ 2, 3, 4, 5, 6 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.Twos ->
+            helpEntry
+                "Help | Twos"
+                (text "Sum of twos.")
+                [ ( [ 1, 2, 3, 4, 5 ], 2 )
+                , ( [ 2, 2, 3, 4, 5 ], 4 )
+                , ( [ 2, 2, 2, 2, 2 ], 10 )
+                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.Threes ->
+            helpEntry
+                "Help | Threes"
+                (text "Sum of threes.")
+                [ ( [ 1, 2, 3, 4, 5 ], 3 )
+                , ( [ 3, 3, 3, 4, 5 ], 9 )
+                , ( [ 3, 3, 3, 3, 3 ], 15 )
+                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.Fours ->
+            helpEntry
+                "Help | Fours"
+                (text "Sum of fours.")
+                [ ( [ 1, 2, 3, 4, 5 ], 4 )
+                , ( [ 4, 4, 4, 2, 5 ], 12 )
+                , ( [ 4, 4, 4, 4, 4 ], 20 )
+                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.Fives ->
+            helpEntry
+                "Help | Fives"
+                (text "Sum of fives.")
+                [ ( [ 1, 2, 3, 4, 5 ], 5 )
+                , ( [ 5, 5, 4, 6, 6 ], 10 )
+                , ( [ 5, 5, 5, 5, 5 ], 25 )
+                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.Sixes ->
+            helpEntry
+                "Help | Sixes"
+                (text "Sum of sixes.")
+                [ ( [ 2, 3, 4, 5, 6 ], 6 )
+                , ( [ 6, 6, 6, 2, 1 ], 18 )
+                , ( [ 6, 6, 6, 6, 6 ], 30 )
+                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                ]
+                [ helpTopSectionBonus ]
+
+        Types.ThreeOfKind ->
+            helpEntry
+                "Help | Three of a kind"
+                (text "Roll three or more dice of the same value to score the sum total of all five dice.")
+                [ ( [ 1, 2, 1, 2, 1 ], 7 )
+                , ( [ 2, 2, 2, 2, 3 ], 11 )
+                , ( [ 2, 2, 2, 2, 2 ], 10 )
+                , ( [ 5, 5, 5, 4, 2 ], 21 )
+                , ( [ 4, 4, 5, 6, 6 ], 0 )
+                ]
+                []
+
+        Types.FourOfKind ->
+            helpEntry
+                "Help | Four of a kind"
+                (text "Roll four or more dice of the same value to score the sum total of all five dice.")
+                [ ( [ 1, 2, 1, 1, 1 ], 6 )
+                , ( [ 2, 2, 2, 2, 3 ], 11 )
+                , ( [ 2, 2, 2, 2, 2 ], 10 )
+                , ( [ 5, 5, 5, 4, 2 ], 0 )
+                , ( [ 4, 4, 5, 6, 6 ], 0 )
+                ]
+                []
+
+        Types.FullHouse ->
+            helpEntry
+                "Help | Full house"
+                (text "Roll three dice of one value and two dice of another value to score 25 points.")
+                [ ( [ 1, 1, 2, 2, 2 ], 25 )
+                , ( [ 6, 3, 6, 3, 6 ], 25 )
+                , ( [ 2, 2, 2, 2, 3 ], 0 )
+                , ( [ 2, 2, 2, 2, 2 ], 0 )
+                , ( [ 4, 4, 4, 6, 5 ], 0 )
+                ]
+                [ helpYahtzeeWildcardPoints 25 ]
+
+        Types.SmallStraight ->
+            helpEntry
+                "Help | Small straight"
+                (text "Roll four consecutive numbers to score 30 points.")
+                [ ( [ 1, 2, 3, 4, 4 ], 30 )
+                , ( [ 2, 3, 4, 5, 3 ], 30 )
+                , ( [ 3, 4, 5, 6, 3 ], 30 )
+                , ( [ 4, 2, 1, 3, 1 ], 30 )
+                , ( [ 1, 2, 3, 5, 6 ], 0 )
+                , ( [ 1, 1, 1, 2, 3 ], 0 )
+                ]
+                [ helpYahtzeeWildcardPoints 30 ]
+
+        Types.LargeStraight ->
+            helpEntry
+                "Help | Large straight"
+                (text "Roll five consecutive numbers to score 40 points.")
+                [ ( [ 1, 2, 3, 4, 5 ], 40 )
+                , ( [ 2, 3, 4, 5, 6 ], 40 )
+                , ( [ 3, 4, 5, 6, 2 ], 40 )
+                , ( [ 1, 2, 3, 4, 6 ], 0 )
+                , ( [ 1, 2, 3, 5, 6 ], 0 )
+                , ( [ 1, 2, 3, 4, 4 ], 0 )
+                ]
+                [ helpYahtzeeWildcardPoints 40 ]
+
+        Types.Yahtzee ->
+            helpEntry
+                "Help | Yahtzee"
+                (text "Roll the same value on all five dice to score 50 points.")
+                [ ( [ 1, 1, 1, 1, 1 ], 50 )
+                , ( [ 2, 2, 2, 2, 2 ], 50 )
+                , ( [ 1, 1, 1, 1, 2 ], 0 )
+                , ( [ 1, 2, 3, 4, 5 ], 0 )
+                ]
+                [ helpYahtzeeBonus, helpYahtzeeWildcard ]
+
+        Types.Chance ->
+            helpEntry
+                "Help | Chance"
+                (text "Score the sum total of all five dice.")
+                [ ( [ 1, 1, 1, 1, 1 ], 5 )
+                , ( [ 1, 2, 3, 4, 5 ], 15 )
+                , ( [ 6, 6, 6, 6, 6 ], 30 )
+                , ( [ 1, 2, 2, 2, 2 ], 9 )
+                ]
+                []
+
+        Types.YahtzeeBonusCount ->
+            ( "Help", [] )
+
+
+helpEntry : String -> Html Types.Msg -> List ( List Int, Int ) -> List ( String, Html Types.Msg ) -> ( String, List ( String, Html Types.Msg ) )
+helpEntry header summary examples extra =
+    ( header
+    , [ ( "Summary"
+        , summary
+        )
+      , ( "Examples"
+        , div
+            []
+            (List.map (\( faces, points ) -> example faces points) examples)
+        )
+      ]
+        ++ extra
+    )
+
+
+helpTopSectionBonus : ( String, Html msg )
+helpTopSectionBonus =
+    ( "Bonus"
+    , helpTopSectionBonusContent
+    )
+
+
+helpTopSectionBonusContent : Html msg
+helpTopSectionBonusContent =
+    text <|
+        "If you score 63 or more in the top section of the scoreboard, you will gain a 35 point bonus. "
+            ++ "This can be achieved by rolling three of each number for every slot in the section."
+
+
+helpYahtzeeBonus : ( String, Html msg )
+helpYahtzeeBonus =
+    ( "Yahtzee bonus"
+    , helpYahtzeeBonusContent
+    )
+
+
+helpYahtzeeBonusContent : Html msg
+helpYahtzeeBonusContent =
+    text <|
+        "If you roll a Yahtzee and score it in the Yahtzee score slot, every subsequent Yahtzee will automatically "
+            ++ "score 100 bonus points. You do not get a bonus if you have scored a zero in the Yahtzee slot."
+
+
+helpYahtzeeWildcard : ( String, Html msg )
+helpYahtzeeWildcard =
+    ( "Yahtzee wildcard"
+    , text <|
+        "If the Yahtzee slot is unavailable when you roll a Yahtzee and the corresponding slot in the upper section of "
+            ++ "the scoreboard has already been filled, you may score any available lower section slot. "
+            ++ "You will get the points specified in that slot."
+    )
+
+
+helpYahtzeeWildcardPoints : Int -> ( String, Html msg )
+helpYahtzeeWildcardPoints points =
+    ( "Yahtzee wildcard"
+    , text <|
+        "If you roll a Yahtzee after the Yahtzee score slot has already been filled and the corresponding slot in the "
+            ++ "upper section of the scoreboard has also been filled, you may score the "
+            ++ String.fromInt points
+            ++ " points in this slot as a Yahtzee wildcard. You may do this even if the Yahtzee slot was filled with zero."
+    )
+
+
+example : List Int -> Int -> Html msg
+example faces points =
+    let
+        pointWord =
+            if points == 1 then
+                " point"
+
+            else
+                " points"
+    in
+    div
+        [ css Styles.exampleDiceStyle ]
+        (exampleDice faces ++ [ div [ css Styles.exampleScoreStyle ] [ text <| "= " ++ String.fromInt points ++ pointWord ] ])

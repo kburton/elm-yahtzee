@@ -1,7 +1,8 @@
-module Game.Types exposing (Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
+module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
+import Html.Styled exposing (Html)
 
 
 type alias Model =
@@ -20,6 +21,7 @@ type Msg
     | NewFace Index Face
     | ToggleLock Index
     | Score ScoreKey
+    | ShowHelp String (List ( String, Html Msg ))
     | NewGame
 
 
@@ -38,6 +40,11 @@ type ScoreKey
     | Yahtzee
     | Chance
     | YahtzeeBonusCount
+
+
+type Bonus
+    = UpperSectionBonus
+    | YahtzeeBonus
 
 
 type alias Scoreboard =

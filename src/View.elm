@@ -19,33 +19,49 @@ view : Types.Model -> Html Types.Msg
 view model =
     div
         [ css Styles.containerStyle ]
-        ([ Styles.globalStyle
-         , menuBar
-            (if model.menuOpen then
-                "Menu"
+        ([ Styles.globalStyle ]
+            ++ (case model.modal of
+                    Just ( header, content ) ->
+                        modal header content
 
-             else
-                "Elm Yahtzee"
-            )
-         ]
-            ++ (if model.menuOpen then
-                    [ menu ]
-
-                else
-                    [ div
-                        [ css Styles.scoreboardPaneStyle ]
-                        [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
-                    , div
-                        [ css Styles.dicePaneStyle ]
-                        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
-                    , div
-                        [ css <| Styles.messagePaneStyle model.game.tutorialMode
-                        , onClick <| messageAction model
-                        ]
-                        [ messageHtml model ]
-                    ]
+                    Nothing ->
+                        menuGameWrapper model
                )
         )
+
+
+menuGameWrapper : Types.Model -> List (Html Types.Msg)
+menuGameWrapper model =
+    [ menuBar
+        (if model.menuOpen then
+            "Menu"
+
+         else
+            "Elm Yahtzee"
+        )
+    ]
+        ++ (if model.menuOpen then
+                [ menu ]
+
+            else
+                game model
+           )
+
+
+game : Types.Model -> List (Html Types.Msg)
+game model =
+    [ div
+        [ css Styles.scoreboardPaneStyle ]
+        [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
+    , div
+        [ css Styles.dicePaneStyle ]
+        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
+    , div
+        [ css <| Styles.messagePaneStyle model.game.tutorialMode
+        , onClick <| messageAction model
+        ]
+        [ messageHtml model ]
+    ]
 
 
 menuBar : String -> Html Types.Msg
@@ -97,6 +113,40 @@ menuButton =
 menu : Html Types.Msg
 menu =
     div [] []
+
+
+modal : String -> List ( String, Html Types.Msg ) -> List (Html Types.Msg)
+modal header sections =
+    [ div
+        [ css Styles.modalHeaderStyle ]
+        [ div [] [ text header ]
+        , modalCloseButton
+        ]
+    , div
+        [ css Styles.modalBodyStyle ]
+        (List.map
+            (\( h, c ) ->
+                div
+                    [ css Styles.modalSectionStyle ]
+                    [ div [ css Styles.modalSectionHeaderStyle ] [ text h ]
+                    , div [] [ c ]
+                    ]
+            )
+            sections
+        )
+    ]
+
+
+modalCloseButton : Html Types.Msg
+modalCloseButton =
+    Svg.svg
+        [ SvgAtt.viewBox "0 0 12 12"
+        , SvgAtt.style "stroke: currentColor; height: 100%;"
+        , SvgEvt.onClick Types.CloseModal
+        ]
+        [ Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "11", SvgAtt.x2 "11", SvgAtt.y2 "1", SvgAtt.strokeWidth "2" ] []
+        , Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "1", SvgAtt.x2 "11", SvgAtt.y2 "11", SvgAtt.strokeWidth "2" ] []
+        ]
 
 
 messageHtml : Types.Model -> Html msg

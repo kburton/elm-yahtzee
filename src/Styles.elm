@@ -1,4 +1,4 @@
-module Styles exposing (containerStyle, dicePaneStyle, globalStyle, menuBarStyle, messagePaneStyle, scoreboardPaneStyle)
+module Styles exposing (containerStyle, dicePaneStyle, globalStyle, menuBarStyle, messagePaneStyle, modalBodyStyle, modalHeaderStyle, modalSectionHeaderStyle, modalSectionStyle, scoreboardPaneStyle)
 
 import Css exposing (..)
 import Css.Global as Global
@@ -43,6 +43,32 @@ menuBarStyle =
     , fontWeight bold
     , padding (em 0.5)
     , height (em 2)
+    ]
+
+
+modalHeaderStyle : List Css.Style
+modalHeaderStyle =
+    menuBarStyle
+
+
+modalSectionStyle : List Css.Style
+modalSectionStyle =
+    [ marginBottom (em 1)
+    , lastOfType [ marginBottom zero ]
+    ]
+
+
+modalSectionHeaderStyle : List Css.Style
+modalSectionHeaderStyle =
+    [ fontSize (em 1.1)
+    , fontWeight bold
+    , marginBottom (em 0.25)
+    ]
+
+
+modalBodyStyle : List Css.Style
+modalBodyStyle =
+    [ padding2 (em 1) (em 0.5)
     ]
 
 

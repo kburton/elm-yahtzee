@@ -113,6 +113,9 @@ update msg model =
             , Cmd.none
             )
 
+        Types.ShowHelp _ _ ->
+            ( model, Cmd.none )
+
 
 subscriptions : Types.Model -> Sub Types.Msg
 subscriptions model =
