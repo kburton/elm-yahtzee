@@ -7,7 +7,9 @@ scoreboardStyle : List Css.Style
 scoreboardStyle =
     [ displayFlex
     , flexDirection column
-    , backgroundColor (hex "FFFFFF")
+    , backgroundColor (hex "EEEEEE")
+    , backgroundImage (url "paper.jpg")
+    , backgroundRepeat repeat
     , position absolute
     , top zero
     , right zero
@@ -53,7 +55,7 @@ scoreValueStyle =
     , justifyContent center
     , minWidth (em 4)
     , borderLeftColor (hex "BBBBBB")
-    , borderLeftWidth (px 2)
+    , borderLeftWidth (px 1)
     , borderLeftStyle solid
     ]
 
@@ -61,7 +63,7 @@ scoreValueStyle =
 scoreValueClickableStyle : List Css.Style
 scoreValueClickableStyle =
     scoreValueStyle
-        ++ [ backgroundColor (hex "CCFFCC")
+        ++ [ backgroundColor (hex "AAFFAA55")
            , color (hex "006600")
            , cursor pointer
            , hover
