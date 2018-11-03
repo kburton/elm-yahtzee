@@ -25,6 +25,7 @@ scoreboard model =
         , scoreboardRow model Types.Fours "Fours" "Sum of fours"
         , scoreboardRow model Types.Fives "Fives" "Sum of fives"
         , scoreboardBonusRow model Types.Sixes Scoreboard.upperBonus "Sixes" "Sum of sixes"
+        , scoreboardDivider
         , scoreboardRow model Types.ThreeOfKind "3 of a kind" "Sum of all dice"
         , scoreboardRow model Types.FourOfKind "4 of a kind" "Sum of all dice"
         , scoreboardRow model Types.FullHouse "Full house" "25 points"
@@ -71,6 +72,11 @@ scoreboardBonusRow model key bonusFn label info =
 
         _ ->
             div [] []
+
+
+scoreboardDivider : Html msg
+scoreboardDivider =
+    div [ css Styles.scoreboardDividerStyle ] []
 
 
 scoreLabel : String -> Html Types.Msg

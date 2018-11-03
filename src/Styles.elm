@@ -15,6 +15,7 @@ globalStyle =
             ([ margin zero
              , padding zero
              , height (pct 100)
+             , color (hex "333333")
              ]
                 ++ Utils.disableUserSelect
             )
@@ -71,7 +72,7 @@ messagePaneStyle tutorialMode =
     , alignItems center
     , justifyContent center
     , padding2 zero (em 0.5)
-    , minHeight (vw 20)
+    , minHeight (vw 18)
     , backgroundColor (hex "CCCCFF")
     , textAlign center
     , cursor pointer

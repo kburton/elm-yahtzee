@@ -1,4 +1,4 @@
-module Game.Styles exposing (dieStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardStyle)
+module Game.Styles exposing (dieStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardDividerStyle, scoreboardStyle)
 
 import Css exposing (..)
 
@@ -25,6 +25,15 @@ rowStyle =
     , displayFlex
     , alignItems center
     , justifyContent spaceBetween
+    , borderBottomColor (hex "BBBBBB")
+    , borderBottomWidth (px 1)
+    , borderBottomStyle solid
+    ]
+
+
+scoreboardDividerStyle : List Css.Style
+scoreboardDividerStyle =
+    [ height (px 3)
     , borderBottomColor (hex "BBBBBB")
     , borderBottomWidth (px 1)
     , borderBottomStyle solid
