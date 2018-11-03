@@ -13,9 +13,6 @@ scoreboardStyle =
     , right zero
     , bottom zero
     , left zero
-    , borderTopColor (hex "BBBBBB")
-    , borderTopWidth (px 1)
-    , borderTopStyle solid
     ]
 
 
@@ -56,7 +53,7 @@ scoreValueStyle =
     , justifyContent center
     , minWidth (em 4)
     , borderLeftColor (hex "BBBBBB")
-    , borderLeftWidth (px 1)
+    , borderLeftWidth (px 2)
     , borderLeftStyle solid
     ]
 

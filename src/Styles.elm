@@ -57,10 +57,10 @@ scoreboardPaneStyle =
 dicePaneStyle : List Css.Style
 dicePaneStyle =
     [ flexShrink zero
-    , height (vw 22)
+    , height (vw 21)
     , displayFlex
     , property "justify-content" "space-evenly"
-    , padding2 (vw 2) zero
+    , padding2 (vw 1.5) zero
     , backgroundColor (hex "EEEEEE")
     ]
 
@@ -78,7 +78,7 @@ messagePaneStyle tutorialMode =
     , cursor pointer
     ]
         ++ (if tutorialMode then
-                [ fontSize (vh 2.2)
+                [ fontSize (vh 2.3)
                 , before
                     [ property "content" "'TUTORIAL'"
                     , position absolute
