@@ -48,15 +48,18 @@ scoreLabelStyle =
 
 scoreValueStyle : List Css.Style
 scoreValueStyle =
-    [ padding2 zero (em 0.5)
-    , alignSelf stretch
+    [ alignSelf stretch
     , displayFlex
     , alignItems center
     , justifyContent center
-    , minWidth (em 4)
+    , width (em 4)
     , borderLeftColor (hex "BBBBBB")
     , borderLeftWidth (px 1)
     , borderLeftStyle solid
+    , fontFamilies [ "Kalam", "cursive" ]
+    , fontWeight bold
+    , paddingTop (em 0.2)
+    , color (hex "0000FF")
     ]
 
 
@@ -74,10 +77,10 @@ scoreValueClickableStyle =
 
 scoreBonusStyle : List Css.Style
 scoreBonusStyle =
-    [ fontSize (em 0.8)
+    [ fontFamilies [ "Kalam", "cursive" ]
     , fontWeight bold
-    , paddingRight (em 0.5)
-    , color (hex "009900")
+    , padding4 (em 0.2) (em 0.5) zero (em 0.5)
+    , color (hex "0000FF")
     ]
 
 

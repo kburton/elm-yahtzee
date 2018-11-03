@@ -71,14 +71,14 @@ messagePaneStyle tutorialMode =
     , position relative
     , alignItems center
     , justifyContent center
-    , padding2 zero (em 0.5)
+    , padding2 zero zero
     , minHeight (vw 18)
     , backgroundColor (hex "CCCCFF")
     , textAlign center
     , cursor pointer
     ]
         ++ (if tutorialMode then
-                [ fontSize (vh 2.3)
+                [ fontSize (vh 2.2)
                 , before
                     [ property "content" "'TUTORIAL'"
                     , position absolute

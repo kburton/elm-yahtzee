@@ -126,7 +126,7 @@ messageHtml model =
 
     else if model.game.roll == 2 then
         if model.game.tutorialMode && model.game.turn == 1 then
-            textToDivs [ "Look at the dice - which score will you aim for?", "You can lock any dice by tapping them.", "Roll again when you’re ready." ]
+            textToDivs [ "Look at the dice - which score will you go for?", "You can lock any dice by tapping them.", "Roll again when you’re ready." ]
 
         else if model.game.tutorialMode && model.game.turn == 2 then
             textToDivs [ "You can tap the score slot name in the scoreboard for details about how the scoring works.", "Tap for your second roll." ]

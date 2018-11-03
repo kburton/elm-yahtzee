@@ -91,7 +91,9 @@ scoreInfo info =
 
 scoreBonus : Int -> Html Types.Msg
 scoreBonus bonus =
-    div [ css Styles.scoreBonusStyle ] [ text <| "BONUS " ++ String.fromInt bonus ]
+    div
+        [ css Styles.scoreBonusStyle ]
+        [ text <| "Bonus " ++ String.fromInt bonus ]
 
 
 scoreValue : Types.Model -> Types.ScoreKey -> Types.Scoreboard -> Html Types.Msg
@@ -101,12 +103,12 @@ scoreValue model key game =
             if not (Dice.areRolling model.dice) && model.roll > 1 then
                 div
                     [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
-                    [ a [] [ text <| String.fromInt <| Dice.calcScore key model.dice game ] ]
+                    [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
 
             else
                 div
                     [ css Styles.scoreValueStyle ]
-                    [ text "" ]
+                    [ text "\u{00A0}" ]
 
         Just n ->
             div
