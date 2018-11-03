@@ -1,6 +1,24 @@
-module Styles exposing (containerStyle, dicePaneStyle, messagePaneStyle, scoreboardPaneStyle)
+module Styles exposing (containerStyle, dicePaneStyle, globalStyle, messagePaneStyle, scoreboardPaneStyle)
 
 import Css exposing (..)
+import Css.Global as Global
+import Html.Styled exposing (Html)
+import Style.Utils as Utils
+
+
+globalStyle : Html msg
+globalStyle =
+    Global.global
+        [ Global.everything
+            [ boxSizing borderBox ]
+        , Global.selector "html, body"
+            ([ margin zero
+             , padding zero
+             , height (pct 100)
+             ]
+                ++ Utils.disableUserSelect
+            )
+        ]
 
 
 containerStyle : List Css.Style

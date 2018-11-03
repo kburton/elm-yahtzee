@@ -16,7 +16,8 @@ view : Types.Model -> Html Types.Msg
 view model =
     div
         [ css Styles.containerStyle ]
-        [ div
+        [ Styles.globalStyle
+        , div
             [ css Styles.scoreboardPaneStyle ]
             [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
         , div
