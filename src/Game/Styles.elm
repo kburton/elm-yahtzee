@@ -1,4 +1,4 @@
-module Game.Styles exposing (dieStyle, exampleDiceStyle, exampleDieStyle, exampleScoreStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardDividerStyle, scoreboardStyle)
+module Game.Styles exposing (dieStyle, exampleDiceStyle, exampleScoreStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardDividerStyle, scoreboardStyle)
 
 import Css exposing (..)
 
@@ -105,14 +105,6 @@ exampleDiceStyle =
     [ displayFlex
     , alignItems center
     , marginTop (em 0.5)
-    ]
-
-
-exampleDieStyle : List Css.Style
-exampleDieStyle =
-    [ marginRight (em 0.25)
-    , width (vw 10)
-    , height (vw 10)
     ]
 
 

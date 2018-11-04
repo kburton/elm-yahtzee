@@ -164,7 +164,10 @@ exampleDice faces =
 exampleDie : Types.Face -> Html msg
 exampleDie face =
     div
-        [ css Styles.exampleDieStyle ]
+        [ style "margin-right" "0.25em"
+        , style "width" "10vw"
+        , style "height" "10vw"
+        ]
         [ dieSvg "#444444" "#999999" face ]
 
 
