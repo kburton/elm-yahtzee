@@ -156,19 +156,24 @@ clickableDie index dieModel =
     die attributes
 
 
-exampleDice : List Int -> List (Html msg)
+exampleDice : List ( Types.Face, Bool ) -> List (Html msg)
 exampleDice faces =
-    List.map exampleDie faces
+    List.map (\( f, s ) -> exampleDie f s) faces
 
 
-exampleDie : Types.Face -> Html msg
-exampleDie face =
+exampleDie : Types.Face -> Bool -> Html msg
+exampleDie face isScoring =
     div
         [ style "margin-right" "0.25em"
         , style "width" "10vw"
         , style "height" "10vw"
         ]
-        [ dieSvg "#444444" "#999999" face ]
+        [ if isScoring then
+            dieSvg "#447744" "#AADDAA" face
+
+          else
+            dieSvg "#555555" "#AAAAAA" face
+        ]
 
 
 die : ViewDieAttributes -> Html Types.Msg
@@ -305,15 +310,22 @@ helpBonuses bonusType =
 
 help : Types.ScoreKey -> ( String, List ( String, Html Types.Msg ) )
 help key =
+    let
+        t =
+            True
+
+        f =
+            False
+    in
     case key of
         Types.Ones ->
             helpEntry
                 "Aces"
                 (text "Score the sum of ones.")
-                [ ( [ 1, 2, 3, 4, 5 ], 1 )
-                , ( [ 1, 1, 1, 4, 5 ], 3 )
-                , ( [ 1, 1, 1, 1, 1 ], 5 )
-                , ( [ 2, 3, 4, 5, 6 ], 0 )
+                [ ( [ ( 1, t ), ( 2, f ), ( 3, f ), ( 4, f ), ( 5, f ) ], 1 )
+                , ( [ ( 1, t ), ( 1, t ), ( 1, t ), ( 4, f ), ( 5, f ) ], 3 )
+                , ( [ ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ) ], 5 )
+                , ( [ ( 2, f ), ( 3, f ), ( 4, f ), ( 5, f ), ( 6, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -321,10 +333,10 @@ help key =
             helpEntry
                 "Twos"
                 (text "Score the sum of twos.")
-                [ ( [ 1, 2, 3, 4, 5 ], 2 )
-                , ( [ 2, 2, 3, 4, 5 ], 4 )
-                , ( [ 2, 2, 2, 2, 2 ], 10 )
-                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                [ ( [ ( 1, f ), ( 2, t ), ( 3, f ), ( 4, f ), ( 5, f ) ], 2 )
+                , ( [ ( 2, t ), ( 2, t ), ( 3, f ), ( 4, f ), ( 5, f ) ], 4 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 10 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -332,10 +344,10 @@ help key =
             helpEntry
                 "Threes"
                 (text "Score the sum of threes.")
-                [ ( [ 1, 2, 3, 4, 5 ], 3 )
-                , ( [ 3, 3, 3, 4, 5 ], 9 )
-                , ( [ 3, 3, 3, 3, 3 ], 15 )
-                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                [ ( [ ( 1, f ), ( 2, f ), ( 3, t ), ( 4, f ), ( 5, f ) ], 3 )
+                , ( [ ( 3, t ), ( 3, t ), ( 3, t ), ( 4, f ), ( 5, f ) ], 9 )
+                , ( [ ( 3, t ), ( 3, t ), ( 3, t ), ( 3, t ), ( 3, t ) ], 15 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -343,10 +355,10 @@ help key =
             helpEntry
                 "Fours"
                 (text "Score the sum of fours.")
-                [ ( [ 1, 2, 3, 4, 5 ], 4 )
-                , ( [ 4, 4, 4, 2, 5 ], 12 )
-                , ( [ 4, 4, 4, 4, 4 ], 20 )
-                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                [ ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 4, t ), ( 5, f ) ], 4 )
+                , ( [ ( 4, t ), ( 4, t ), ( 4, t ), ( 2, f ), ( 5, f ) ], 12 )
+                , ( [ ( 4, t ), ( 4, t ), ( 4, t ), ( 4, t ), ( 4, t ) ], 20 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -354,10 +366,10 @@ help key =
             helpEntry
                 "Fives"
                 (text "Score the sum of fives.")
-                [ ( [ 1, 2, 3, 4, 5 ], 5 )
-                , ( [ 5, 5, 4, 6, 6 ], 10 )
-                , ( [ 5, 5, 5, 5, 5 ], 25 )
-                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                [ ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 4, f ), ( 5, t ) ], 5 )
+                , ( [ ( 5, t ), ( 5, t ), ( 4, f ), ( 6, f ), ( 6, f ) ], 10 )
+                , ( [ ( 5, t ), ( 5, t ), ( 5, t ), ( 5, t ), ( 5, t ) ], 25 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -365,10 +377,10 @@ help key =
             helpEntry
                 "Sixes"
                 (text "Score the sum of sixes.")
-                [ ( [ 2, 3, 4, 5, 6 ], 6 )
-                , ( [ 6, 6, 6, 2, 1 ], 18 )
-                , ( [ 6, 6, 6, 6, 6 ], 30 )
-                , ( [ 1, 1, 1, 1, 1 ], 0 )
+                [ ( [ ( 2, f ), ( 3, f ), ( 4, f ), ( 5, f ), ( 6, t ) ], 6 )
+                , ( [ ( 6, t ), ( 6, t ), ( 6, t ), ( 2, f ), ( 1, f ) ], 18 )
+                , ( [ ( 6, t ), ( 6, t ), ( 6, t ), ( 6, t ), ( 6, t ) ], 30 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ) ], 0 )
                 ]
                 [ helpUpperSectionBonus ]
 
@@ -376,11 +388,11 @@ help key =
             helpEntry
                 "Three of a kind"
                 (text "Roll three or more dice of the same value to score the sum total of all five dice.")
-                [ ( [ 1, 2, 1, 2, 1 ], 7 )
-                , ( [ 2, 2, 2, 2, 3 ], 11 )
-                , ( [ 2, 2, 2, 2, 2 ], 10 )
-                , ( [ 5, 5, 5, 4, 2 ], 21 )
-                , ( [ 4, 4, 5, 6, 6 ], 0 )
+                [ ( [ ( 1, t ), ( 2, f ), ( 1, t ), ( 2, f ), ( 1, t ) ], 7 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 3, f ) ], 11 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 10 )
+                , ( [ ( 5, t ), ( 5, t ), ( 5, t ), ( 4, f ), ( 2, f ) ], 21 )
+                , ( [ ( 4, f ), ( 4, f ), ( 5, f ), ( 6, f ), ( 6, f ) ], 0 )
                 ]
                 []
 
@@ -388,11 +400,11 @@ help key =
             helpEntry
                 "Four of a kind"
                 (text "Roll four or more dice of the same value to score the sum total of all five dice.")
-                [ ( [ 1, 2, 1, 1, 1 ], 6 )
-                , ( [ 2, 2, 2, 2, 3 ], 11 )
-                , ( [ 2, 2, 2, 2, 2 ], 10 )
-                , ( [ 5, 5, 5, 4, 2 ], 0 )
-                , ( [ 4, 4, 5, 6, 6 ], 0 )
+                [ ( [ ( 1, t ), ( 2, f ), ( 1, t ), ( 1, t ), ( 1, t ) ], 6 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 3, f ) ], 11 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 10 )
+                , ( [ ( 5, f ), ( 5, f ), ( 5, f ), ( 4, f ), ( 2, f ) ], 0 )
+                , ( [ ( 4, f ), ( 4, f ), ( 5, f ), ( 6, f ), ( 6, f ) ], 0 )
                 ]
                 []
 
@@ -400,11 +412,11 @@ help key =
             helpEntry
                 "Full house"
                 (text "Roll three dice of one value and two dice of another value to score 25 points.")
-                [ ( [ 1, 1, 2, 2, 2 ], 25 )
-                , ( [ 6, 3, 6, 3, 6 ], 25 )
-                , ( [ 2, 2, 2, 2, 3 ], 0 )
-                , ( [ 2, 2, 2, 2, 2 ], 0 )
-                , ( [ 4, 4, 4, 6, 5 ], 0 )
+                [ ( [ ( 1, t ), ( 1, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 25 )
+                , ( [ ( 6, t ), ( 3, t ), ( 6, t ), ( 3, t ), ( 6, t ) ], 25 )
+                , ( [ ( 2, f ), ( 2, f ), ( 2, f ), ( 2, f ), ( 3, f ) ], 0 )
+                , ( [ ( 2, f ), ( 2, f ), ( 2, f ), ( 2, f ), ( 2, f ) ], 0 )
+                , ( [ ( 4, f ), ( 4, f ), ( 4, f ), ( 6, f ), ( 5, f ) ], 0 )
                 ]
                 [ helpYahtzeeWildcardPoints 25 ]
 
@@ -412,12 +424,12 @@ help key =
             helpEntry
                 "Small straight"
                 (text "Roll four consecutive numbers to score 30 points.")
-                [ ( [ 1, 2, 3, 4, 4 ], 30 )
-                , ( [ 2, 3, 4, 5, 3 ], 30 )
-                , ( [ 3, 4, 5, 6, 3 ], 30 )
-                , ( [ 4, 2, 1, 3, 1 ], 30 )
-                , ( [ 1, 2, 3, 5, 6 ], 0 )
-                , ( [ 1, 1, 1, 2, 3 ], 0 )
+                [ ( [ ( 1, t ), ( 2, t ), ( 3, t ), ( 4, t ), ( 4, f ) ], 30 )
+                , ( [ ( 2, t ), ( 3, t ), ( 4, t ), ( 5, t ), ( 3, f ) ], 30 )
+                , ( [ ( 3, t ), ( 4, t ), ( 5, t ), ( 6, t ), ( 3, f ) ], 30 )
+                , ( [ ( 4, t ), ( 2, t ), ( 1, t ), ( 3, t ), ( 1, f ) ], 30 )
+                , ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 5, f ), ( 6, f ) ], 0 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 2, f ), ( 3, f ) ], 0 )
                 ]
                 [ helpYahtzeeWildcardPoints 30 ]
 
@@ -425,12 +437,12 @@ help key =
             helpEntry
                 "Large straight"
                 (text "Roll five consecutive numbers to score 40 points.")
-                [ ( [ 1, 2, 3, 4, 5 ], 40 )
-                , ( [ 2, 3, 4, 5, 6 ], 40 )
-                , ( [ 3, 4, 5, 6, 2 ], 40 )
-                , ( [ 1, 2, 3, 4, 6 ], 0 )
-                , ( [ 1, 2, 3, 5, 6 ], 0 )
-                , ( [ 1, 2, 3, 4, 4 ], 0 )
+                [ ( [ ( 1, t ), ( 2, t ), ( 3, t ), ( 4, t ), ( 5, t ) ], 40 )
+                , ( [ ( 2, t ), ( 3, t ), ( 4, t ), ( 5, t ), ( 6, t ) ], 40 )
+                , ( [ ( 3, t ), ( 4, t ), ( 5, t ), ( 6, t ), ( 2, t ) ], 40 )
+                , ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 4, f ), ( 6, f ) ], 0 )
+                , ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 5, f ), ( 6, f ) ], 0 )
+                , ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 4, f ), ( 4, f ) ], 0 )
                 ]
                 [ helpYahtzeeWildcardPoints 40 ]
 
@@ -438,10 +450,10 @@ help key =
             helpEntry
                 "Yahtzee"
                 (text "Roll the same value on all five dice to score 50 points.")
-                [ ( [ 1, 1, 1, 1, 1 ], 50 )
-                , ( [ 2, 2, 2, 2, 2 ], 50 )
-                , ( [ 1, 1, 1, 1, 2 ], 0 )
-                , ( [ 1, 2, 3, 4, 5 ], 0 )
+                [ ( [ ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ) ], 50 )
+                , ( [ ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 50 )
+                , ( [ ( 1, f ), ( 1, f ), ( 1, f ), ( 1, f ), ( 2, f ) ], 0 )
+                , ( [ ( 1, f ), ( 2, f ), ( 3, f ), ( 4, f ), ( 5, f ) ], 0 )
                 ]
                 [ helpYahtzeeBonus, helpYahtzeeWildcard ]
 
@@ -449,10 +461,10 @@ help key =
             helpEntry
                 "Chance"
                 (text "Score the sum total of all five dice.")
-                [ ( [ 1, 1, 1, 1, 1 ], 5 )
-                , ( [ 1, 2, 3, 4, 5 ], 15 )
-                , ( [ 6, 6, 6, 6, 6 ], 30 )
-                , ( [ 1, 2, 2, 2, 2 ], 9 )
+                [ ( [ ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ), ( 1, t ) ], 5 )
+                , ( [ ( 1, t ), ( 2, t ), ( 3, t ), ( 4, t ), ( 5, t ) ], 15 )
+                , ( [ ( 6, t ), ( 6, t ), ( 6, t ), ( 6, t ), ( 6, t ) ], 30 )
+                , ( [ ( 1, t ), ( 2, t ), ( 2, t ), ( 2, t ), ( 2, t ) ], 9 )
                 ]
                 []
 
@@ -460,7 +472,7 @@ help key =
             ( "Help", [] )
 
 
-helpEntry : String -> Html Types.Msg -> List ( List Int, Int ) -> List ( String, Html Types.Msg ) -> ( String, List ( String, Html Types.Msg ) )
+helpEntry : String -> Html Types.Msg -> List ( List ( Types.Face, Bool ), Int ) -> List ( String, Html Types.Msg ) -> ( String, List ( String, Html Types.Msg ) )
 helpEntry header summary examples extra =
     ( "Help | " ++ header
     , [ ( header
@@ -525,7 +537,7 @@ helpYahtzeeWildcardPoints points =
     )
 
 
-example : List Int -> Int -> Html msg
+example : List ( Types.Face, Bool ) -> Int -> Html msg
 example faces points =
     let
         pointWord =
