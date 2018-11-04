@@ -287,9 +287,9 @@ helpBonuses : Types.Bonus -> ( String, List ( String, Html Types.Msg ) )
 helpBonuses bonusType =
     case bonusType of
         Types.UpperSectionBonus ->
-            ( "Help | Bonus"
-            , [ ( "Bonus"
-                , helpTopSectionBonusContent
+            ( "Help | Upper section bonus"
+            , [ ( "Upper section bonus"
+                , helpUpperSectionBonusContent
                 )
               ]
             )
@@ -315,7 +315,7 @@ help key =
                 , ( [ 1, 1, 1, 1, 1 ], 5 )
                 , ( [ 2, 3, 4, 5, 6 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.Twos ->
             helpEntry
@@ -326,7 +326,7 @@ help key =
                 , ( [ 2, 2, 2, 2, 2 ], 10 )
                 , ( [ 1, 1, 1, 1, 1 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.Threes ->
             helpEntry
@@ -337,7 +337,7 @@ help key =
                 , ( [ 3, 3, 3, 3, 3 ], 15 )
                 , ( [ 1, 1, 1, 1, 1 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.Fours ->
             helpEntry
@@ -348,7 +348,7 @@ help key =
                 , ( [ 4, 4, 4, 4, 4 ], 20 )
                 , ( [ 1, 1, 1, 1, 1 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.Fives ->
             helpEntry
@@ -359,7 +359,7 @@ help key =
                 , ( [ 5, 5, 5, 5, 5 ], 25 )
                 , ( [ 1, 1, 1, 1, 1 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.Sixes ->
             helpEntry
@@ -370,7 +370,7 @@ help key =
                 , ( [ 6, 6, 6, 6, 6 ], 30 )
                 , ( [ 1, 1, 1, 1, 1 ], 0 )
                 ]
-                [ helpTopSectionBonus ]
+                [ helpUpperSectionBonus ]
 
         Types.ThreeOfKind ->
             helpEntry
@@ -476,17 +476,17 @@ helpEntry header summary examples extra =
     )
 
 
-helpTopSectionBonus : ( String, Html msg )
-helpTopSectionBonus =
-    ( "Bonus"
-    , helpTopSectionBonusContent
+helpUpperSectionBonus : ( String, Html msg )
+helpUpperSectionBonus =
+    ( "Upper section bonus"
+    , helpUpperSectionBonusContent
     )
 
 
-helpTopSectionBonusContent : Html msg
-helpTopSectionBonusContent =
+helpUpperSectionBonusContent : Html msg
+helpUpperSectionBonusContent =
     text <|
-        "If you score 63 or more in the top section of the scoreboard, you will gain a 35 point bonus. "
+        "If you score 63 or more in the upper section of the scoreboard, you will gain a 35 point bonus. "
             ++ "This can be achieved by rolling three of each number for every slot in the section."
 
 
