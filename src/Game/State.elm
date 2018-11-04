@@ -16,6 +16,8 @@ init _ =
       , roll = 1
       , dice = Dice.default
       , tutorialMode = True
+      , lastScoreKey = Nothing
+      , previous = Nothing
       }
     , Cmd.none
     )
@@ -51,7 +53,7 @@ update msg model =
                 ( model, Cmd.none )
 
             else
-                ( { model | roll = model.roll + 1 }
+                ( { model | roll = model.roll + 1, previous = Nothing }
                 , Cmd.batch <| List.map (\( i, _ ) -> roll i) <| Dice.active model.dice
                 )
 
@@ -95,6 +97,8 @@ update msg model =
                         , games = Scoreboard.setScore key (Dice.calcScore key model.dice currentScoreboard) incYahtzeeBonus currentScoreboard :: finishedScoreboards
                         , dice = Dice.default
                         , tutorialMode = model.tutorialMode && model.turn < 2
+                        , lastScoreKey = Just key
+                        , previous = Just (Types.Previous model)
                       }
                     , Cmd.none
                     )
@@ -108,10 +112,19 @@ update msg model =
                 , roll = 1
                 , games = Dict.empty :: model.games
                 , dice = Dice.default
+                , lastScoreKey = Nothing
                 , tutorialMode = False
               }
             , Cmd.none
             )
+
+        Types.Undo ->
+            case model.previous of
+                Just (Types.Previous p) ->
+                    ( p, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         Types.ShowHelp _ _ ->
             ( model, Cmd.none )

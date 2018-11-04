@@ -1,4 +1,4 @@
-module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
+module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), Previous(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -11,7 +11,13 @@ type alias Model =
     , roll : Int
     , dice : Dice
     , tutorialMode : Bool
+    , lastScoreKey : Maybe ScoreKey
+    , previous : Maybe Previous
     }
+
+
+type Previous
+    = Previous Model
 
 
 type Msg
@@ -21,8 +27,9 @@ type Msg
     | NewFace Index Face
     | ToggleLock Index
     | Score ScoreKey
-    | ShowHelp String (List ( String, Html Msg ))
     | NewGame
+    | Undo
+    | ShowHelp String (List ( String, Html Msg ))
 
 
 type ScoreKey
