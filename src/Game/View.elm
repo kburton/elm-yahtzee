@@ -44,7 +44,12 @@ scoreboardRow model key label info =
             div
                 [ css Styles.rowStyle ]
                 [ scoreLabel key label
-                , scoreInfo model key info
+                , case scoreUndo model key of
+                    Just html ->
+                        html
+
+                    Nothing ->
+                        scoreInfo key info
                 , scoreValue model key game
                 ]
 
@@ -66,10 +71,18 @@ scoreboardBonusRow model key bonusType bonusFn label info =
             else
                 div
                     [ css Styles.rowStyle ]
-                    [ scoreLabel key label
-                    , scoreBonus bonusType bonus
-                    , scoreValue model key game
-                    ]
+                    ([ scoreLabel key label ]
+                        ++ (case scoreUndo model key of
+                                Just html ->
+                                    [ html ]
+
+                                Nothing ->
+                                    []
+                           )
+                        ++ [ scoreBonus bonusType bonus
+                           , scoreValue model key game
+                           ]
+                    )
 
         _ ->
             div [] []
@@ -89,30 +102,27 @@ scoreLabel key label =
     div [ css Styles.scoreLabelStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text label ]
 
 
-scoreInfo : Types.Model -> Types.ScoreKey -> String -> Html Types.Msg
-scoreInfo model key info =
+scoreInfo : Types.ScoreKey -> String -> Html Types.Msg
+scoreInfo key info =
     let
         ( helpHeader, helpContent ) =
             help key
-
-        isUndo =
-            case model.previous of
-                Just (Types.Previous p) ->
-                    case model.lastScoreKey of
-                        Just k ->
-                            key == k
-
-                        Nothing ->
-                            False
-
-                Nothing ->
-                    False
     in
-    if isUndo then
-        div [ css Styles.scoreInfoStyle, onClick <| Types.Undo ] [ text "Undo" ]
+    div [ css Styles.scoreInfoStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
 
-    else
-        div [ css Styles.scoreInfoStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
+
+scoreUndo : Types.Model -> Types.ScoreKey -> Maybe (Html Types.Msg)
+scoreUndo model key =
+    case ( model.lastScoreKey, model.previous ) of
+        ( Just k, Just (Types.Previous p) ) ->
+            if k == key && (not <| Scoreboard.gameIsOver <| Types.currentGame model) then
+                Just (div [ css Styles.scoreUndoStyle, onClick <| Types.Undo ] [ text "Undo" ])
+
+            else
+                Nothing
+
+        _ ->
+            Nothing
 
 
 scoreBonus : Types.Bonus -> Int -> Html Types.Msg

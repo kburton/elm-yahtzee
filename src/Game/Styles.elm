@@ -1,4 +1,4 @@
-module Game.Styles exposing (dieStyle, exampleDiceStyle, exampleScoreStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardDividerStyle, scoreboardStyle)
+module Game.Styles exposing (dieStyle, exampleDiceStyle, exampleScoreStyle, rowStyle, scoreBonusStyle, scoreInfoStyle, scoreLabelStyle, scoreUndoStyle, scoreValueClickableStyle, scoreValueStyle, scoreboardDividerStyle, scoreboardStyle)
 
 import Css exposing (..)
 
@@ -79,7 +79,7 @@ scoreBonusStyle : List Css.Style
 scoreBonusStyle =
     [ fontFamilies [ "Kalam", "cursive" ]
     , fontWeight bold
-    , padding4 (em 0.2) (em 0.5) zero (em 0.5)
+    , padding4 (em 0.2) (em 0.5) zero zero
     , color (hex "0000FF")
     ]
 
@@ -90,6 +90,11 @@ scoreInfoStyle =
     , paddingRight (em 0.5)
     , color (hex "999999")
     ]
+
+
+scoreUndoStyle : List Css.Style
+scoreUndoStyle =
+    scoreInfoStyle
 
 
 dieStyle : List Css.Style
