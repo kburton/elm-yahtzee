@@ -288,7 +288,7 @@ helpBonuses bonusType =
     case bonusType of
         Types.UpperSectionBonus ->
             ( "Help | Bonus"
-            , [ ( "Summary"
+            , [ ( "Bonus"
                 , helpTopSectionBonusContent
                 )
               ]
@@ -296,7 +296,7 @@ helpBonuses bonusType =
 
         Types.YahtzeeBonus ->
             ( "Help | Yahtzee bonus"
-            , [ ( "Summary"
+            , [ ( "Yahtzee bonus"
                 , helpYahtzeeBonusContent
                 )
               ]
@@ -308,8 +308,8 @@ help key =
     case key of
         Types.Ones ->
             helpEntry
-                "Help | Aces"
-                (text "Sum of ones.")
+                "Aces"
+                (text "Score the sum of ones.")
                 [ ( [ 1, 2, 3, 4, 5 ], 1 )
                 , ( [ 1, 1, 1, 4, 5 ], 3 )
                 , ( [ 1, 1, 1, 1, 1 ], 5 )
@@ -319,8 +319,8 @@ help key =
 
         Types.Twos ->
             helpEntry
-                "Help | Twos"
-                (text "Sum of twos.")
+                "Twos"
+                (text "Score the sum of twos.")
                 [ ( [ 1, 2, 3, 4, 5 ], 2 )
                 , ( [ 2, 2, 3, 4, 5 ], 4 )
                 , ( [ 2, 2, 2, 2, 2 ], 10 )
@@ -330,8 +330,8 @@ help key =
 
         Types.Threes ->
             helpEntry
-                "Help | Threes"
-                (text "Sum of threes.")
+                "Threes"
+                (text "Score the sum of threes.")
                 [ ( [ 1, 2, 3, 4, 5 ], 3 )
                 , ( [ 3, 3, 3, 4, 5 ], 9 )
                 , ( [ 3, 3, 3, 3, 3 ], 15 )
@@ -341,8 +341,8 @@ help key =
 
         Types.Fours ->
             helpEntry
-                "Help | Fours"
-                (text "Sum of fours.")
+                "Fours"
+                (text "Score the sum of fours.")
                 [ ( [ 1, 2, 3, 4, 5 ], 4 )
                 , ( [ 4, 4, 4, 2, 5 ], 12 )
                 , ( [ 4, 4, 4, 4, 4 ], 20 )
@@ -352,8 +352,8 @@ help key =
 
         Types.Fives ->
             helpEntry
-                "Help | Fives"
-                (text "Sum of fives.")
+                "Fives"
+                (text "Score the sum of fives.")
                 [ ( [ 1, 2, 3, 4, 5 ], 5 )
                 , ( [ 5, 5, 4, 6, 6 ], 10 )
                 , ( [ 5, 5, 5, 5, 5 ], 25 )
@@ -363,8 +363,8 @@ help key =
 
         Types.Sixes ->
             helpEntry
-                "Help | Sixes"
-                (text "Sum of sixes.")
+                "Sixes"
+                (text "Score the sum of sixes.")
                 [ ( [ 2, 3, 4, 5, 6 ], 6 )
                 , ( [ 6, 6, 6, 2, 1 ], 18 )
                 , ( [ 6, 6, 6, 6, 6 ], 30 )
@@ -374,7 +374,7 @@ help key =
 
         Types.ThreeOfKind ->
             helpEntry
-                "Help | Three of a kind"
+                "Three of a kind"
                 (text "Roll three or more dice of the same value to score the sum total of all five dice.")
                 [ ( [ 1, 2, 1, 2, 1 ], 7 )
                 , ( [ 2, 2, 2, 2, 3 ], 11 )
@@ -386,7 +386,7 @@ help key =
 
         Types.FourOfKind ->
             helpEntry
-                "Help | Four of a kind"
+                "Four of a kind"
                 (text "Roll four or more dice of the same value to score the sum total of all five dice.")
                 [ ( [ 1, 2, 1, 1, 1 ], 6 )
                 , ( [ 2, 2, 2, 2, 3 ], 11 )
@@ -398,7 +398,7 @@ help key =
 
         Types.FullHouse ->
             helpEntry
-                "Help | Full house"
+                "Full house"
                 (text "Roll three dice of one value and two dice of another value to score 25 points.")
                 [ ( [ 1, 1, 2, 2, 2 ], 25 )
                 , ( [ 6, 3, 6, 3, 6 ], 25 )
@@ -410,7 +410,7 @@ help key =
 
         Types.SmallStraight ->
             helpEntry
-                "Help | Small straight"
+                "Small straight"
                 (text "Roll four consecutive numbers to score 30 points.")
                 [ ( [ 1, 2, 3, 4, 4 ], 30 )
                 , ( [ 2, 3, 4, 5, 3 ], 30 )
@@ -423,7 +423,7 @@ help key =
 
         Types.LargeStraight ->
             helpEntry
-                "Help | Large straight"
+                "Large straight"
                 (text "Roll five consecutive numbers to score 40 points.")
                 [ ( [ 1, 2, 3, 4, 5 ], 40 )
                 , ( [ 2, 3, 4, 5, 6 ], 40 )
@@ -436,7 +436,7 @@ help key =
 
         Types.Yahtzee ->
             helpEntry
-                "Help | Yahtzee"
+                "Yahtzee"
                 (text "Roll the same value on all five dice to score 50 points.")
                 [ ( [ 1, 1, 1, 1, 1 ], 50 )
                 , ( [ 2, 2, 2, 2, 2 ], 50 )
@@ -447,7 +447,7 @@ help key =
 
         Types.Chance ->
             helpEntry
-                "Help | Chance"
+                "Chance"
                 (text "Score the sum total of all five dice.")
                 [ ( [ 1, 1, 1, 1, 1 ], 5 )
                 , ( [ 1, 2, 3, 4, 5 ], 15 )
@@ -462,8 +462,8 @@ help key =
 
 helpEntry : String -> Html Types.Msg -> List ( List Int, Int ) -> List ( String, Html Types.Msg ) -> ( String, List ( String, Html Types.Msg ) )
 helpEntry header summary examples extra =
-    ( header
-    , [ ( "Summary"
+    ( "Help | " ++ header
+    , [ ( header
         , summary
         )
       , ( "Examples"

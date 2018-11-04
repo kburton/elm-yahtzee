@@ -28,7 +28,7 @@ update msg model =
             Maybe.withDefault (Types.Die 1 0 False) (Array.get index model.dice)
 
         roll index =
-            Random.generate (Types.SetFlips index) (Random.int 8 25)
+            Random.generate (Types.SetFlips index) (Random.int 8 20)
 
         flip index =
             Random.generate (Types.NewFace index) (Random.int 1 6)
