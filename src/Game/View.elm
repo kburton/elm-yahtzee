@@ -44,12 +44,7 @@ scoreboardRow model key label info =
             div
                 [ css Styles.rowStyle ]
                 [ scoreLabel key label
-                , case scoreUndo model key of
-                    Just html ->
-                        html
-
-                    Nothing ->
-                        scoreInfo key info
+                , scoreInfo key info
                 , scoreValue model key game
                 ]
 
@@ -71,18 +66,10 @@ scoreboardBonusRow model key bonusType bonusFn label info =
             else
                 div
                     [ css Styles.rowStyle ]
-                    ([ scoreLabel key label ]
-                        ++ (case scoreUndo model key of
-                                Just html ->
-                                    [ html ]
-
-                                Nothing ->
-                                    []
-                           )
-                        ++ [ scoreBonus bonusType bonus
-                           , scoreValue model key game
-                           ]
-                    )
+                    [ scoreLabel key label
+                    , scoreBonus bonusType bonus
+                    , scoreValue model key game
+                    ]
 
         _ ->
             div [] []
@@ -109,20 +96,6 @@ scoreInfo key info =
             help key
     in
     div [ css Styles.scoreInfoStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
-
-
-scoreUndo : Types.Model -> Types.ScoreKey -> Maybe (Html Types.Msg)
-scoreUndo model key =
-    case ( model.lastScoreKey, model.previous ) of
-        ( Just k, Just (Types.Previous p) ) ->
-            if k == key && (not <| Scoreboard.gameIsOver <| Types.currentGame model) then
-                Just (div [ css Styles.scoreUndoStyle, onClick <| Types.Undo ] [ text "Undo" ])
-
-            else
-                Nothing
-
-        _ ->
-            Nothing
 
 
 scoreBonus : Types.Bonus -> Int -> Html Types.Msg
@@ -153,7 +126,43 @@ scoreValue model key game =
         Just n ->
             div
                 [ css Styles.scoreValueStyle ]
-                [ text <| String.fromInt n ]
+                ([ div [] [ text <| String.fromInt n ]
+                 ]
+                    ++ (case scoreUndo model key of
+                            Just html ->
+                                [ html ]
+
+                            Nothing ->
+                                []
+                       )
+                )
+
+
+scoreUndo : Types.Model -> Types.ScoreKey -> Maybe (Html Types.Msg)
+scoreUndo model key =
+    case ( model.lastScoreKey, model.previous ) of
+        ( Just k, Just (Types.Previous p) ) ->
+            if k == key && (not <| Scoreboard.gameIsOver <| Types.currentGame model) then
+                Just (div [ css Styles.scoreUndoStyle ] [ undoSvg ])
+
+            else
+                Nothing
+
+        _ ->
+            Nothing
+
+
+undoSvg : Html Types.Msg
+undoSvg =
+    Svg.svg
+        [ SvgAtt.viewBox "0 0 24 24"
+        , SvgAtt.style "fill: currentColor; height: 0.8em; width: 0.8em;"
+        , SvgEvt.onClick Types.Undo
+        ]
+        [ Svg.path
+            [ SvgAtt.d "M18.885 3.515c-4.617-4.618-12.056-4.676-16.756-.195l-2.129-2.258v7.938h7.484l-2.066-2.191c2.82-2.706 7.297-2.676 10.073.1 4.341 4.341 1.737 12.291-5.491 12.291v4.8c3.708 0 6.614-1.244 8.885-3.515 4.686-4.686 4.686-12.284 0-16.97z" ]
+            []
+        ]
 
 
 dice : Types.Model -> List (Html Types.Msg)

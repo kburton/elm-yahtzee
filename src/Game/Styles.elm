@@ -49,6 +49,7 @@ scoreLabelStyle =
 scoreValueStyle : List Css.Style
 scoreValueStyle =
     [ alignSelf stretch
+    , position relative
     , displayFlex
     , alignItems center
     , justifyContent center
@@ -94,7 +95,17 @@ scoreInfoStyle =
 
 scoreUndoStyle : List Css.Style
 scoreUndoStyle =
-    scoreInfoStyle
+    [ position absolute
+    , top zero
+    , right zero
+    , bottom zero
+    , left zero
+    , paddingRight (em 0.25)
+    , displayFlex
+    , justifyContent flexEnd
+    , alignItems center
+    , color (hex "CCCCCC")
+    ]
 
 
 dieStyle : List Css.Style
