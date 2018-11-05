@@ -1,7 +1,7 @@
 module Types exposing (Model, Msg(..))
 
 import Game.Types
-import Html.Styled exposing (Html)
+import Html exposing (Html)
 
 
 type alias Model =

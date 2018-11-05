@@ -2,7 +2,7 @@ module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), P
 
 import Array exposing (Array)
 import Dict exposing (Dict)
-import Html.Styled exposing (Html)
+import Html exposing (Html)
 
 
 type alias Model =

@@ -1,25 +1,21 @@
 module Game.View exposing (dice, scoreboard)
 
 import Array
-import Dict exposing (Dict)
 import Game.Dice as Dice
 import Game.Scoreboard as Scoreboard
-import Game.Styles as Styles
 import Game.Types as Types
-import Html
-import Html.Styled exposing (Html, a, div, h1, p, table, td, text, th, tr)
-import Html.Styled.Attributes exposing (css, href, style)
-import Html.Styled.Events exposing (onClick)
-import Svg.Styled as Svg
-import Svg.Styled.Attributes as SvgAtt
-import Svg.Styled.Events as SvgEvt
-import Types as RootTypes
+import Html exposing (Html, a, div, text)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
+import Svg
+import Svg.Attributes as SvgAtt
+import Svg.Events as SvgEvt
 
 
 scoreboard : Types.Model -> Html Types.Msg
 scoreboard model =
     div
-        [ css Styles.scoreboardStyle ]
+        [ class "scoreboard" ]
         [ scoreboardRow model Types.Ones "Aces" "Sum of ones"
         , scoreboardRow model Types.Twos "Twos" "Sum of twos"
         , scoreboardRow model Types.Threes "Threes" "Sum of threes"
@@ -42,7 +38,7 @@ scoreboardRow model key label info =
     case model.games of
         game :: rest ->
             div
-                [ css Styles.rowStyle ]
+                [ class "scoreboard__row" ]
                 [ scoreLabel key label
                 , scoreInfo key info
                 , scoreValue model key game
@@ -65,7 +61,7 @@ scoreboardBonusRow model key bonusType bonusFn label info =
 
             else
                 div
-                    [ css Styles.rowStyle ]
+                    [ class "scoreboard__row" ]
                     [ scoreLabel key label
                     , scoreBonus bonusType bonus
                     , scoreValue model key game
@@ -77,7 +73,7 @@ scoreboardBonusRow model key bonusType bonusFn label info =
 
 scoreboardDivider : Html msg
 scoreboardDivider =
-    div [ css Styles.scoreboardDividerStyle ] []
+    div [ class "scoreboard__divider" ] []
 
 
 scoreLabel : Types.ScoreKey -> String -> Html Types.Msg
@@ -86,7 +82,7 @@ scoreLabel key label =
         ( helpHeader, helpContent ) =
             help key
     in
-    div [ css Styles.scoreLabelStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text label ]
+    div [ class "scoreboard__label", onClick <| Types.ShowHelp helpHeader helpContent ] [ text label ]
 
 
 scoreInfo : Types.ScoreKey -> String -> Html Types.Msg
@@ -95,7 +91,7 @@ scoreInfo key info =
         ( helpHeader, helpContent ) =
             help key
     in
-    div [ css Styles.scoreInfoStyle, onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
+    div [ class "scoreboard__info", onClick <| Types.ShowHelp helpHeader helpContent ] [ text info ]
 
 
 scoreBonus : Types.Bonus -> Int -> Html Types.Msg
@@ -105,7 +101,7 @@ scoreBonus bonusType bonus =
             helpBonuses bonusType
     in
     div
-        [ css Styles.scoreBonusStyle, onClick <| Types.ShowHelp helpHeader helpContent ]
+        [ class "scoreboard__bonus", onClick <| Types.ShowHelp helpHeader helpContent ]
         [ text <| "Bonus " ++ String.fromInt bonus ]
 
 
@@ -115,17 +111,17 @@ scoreValue model key game =
         Nothing ->
             if not (Dice.areRolling model.dice) && model.roll > 1 then
                 div
-                    [ css Styles.scoreValueClickableStyle, onClick (Types.Score key) ]
+                    [ class "scoreboard__value scoreboard__value--clickable", onClick (Types.Score key) ]
                     [ text <| String.fromInt <| Dice.calcScore key model.dice game ]
 
             else
                 div
-                    [ css Styles.scoreValueStyle ]
+                    [ class "scoreboard__value" ]
                     [ text "\u{00A0}" ]
 
         Just n ->
             div
-                [ css Styles.scoreValueStyle ]
+                [ class "scoreboard__value" ]
                 ([ div [] [ text <| String.fromInt n ]
                  ]
                     ++ (case scoreUndo model key of
@@ -143,7 +139,7 @@ scoreUndo model key =
     case ( model.lastScoreKey, model.previous ) of
         ( Just k, Just (Types.Previous p) ) ->
             if k == key && (not <| Scoreboard.gameIsOver <| Types.currentGame model) then
-                Just (div [ css Styles.scoreUndoStyle ] [ undoSvg ])
+                Just (div [ class "scoreboard__undo" ] [ undoSvg ])
 
             else
                 Nothing
@@ -156,7 +152,7 @@ undoSvg : Html Types.Msg
 undoSvg =
     Svg.svg
         [ SvgAtt.viewBox "0 0 24 24"
-        , SvgAtt.style "fill: currentColor; height: 0.8em; width: 0.8em;"
+        , SvgAtt.class "scoreboard__undo-icon"
         , SvgEvt.onClick Types.Undo
         ]
         [ Svg.path
@@ -170,89 +166,102 @@ dice model =
     Array.toList <| Array.indexedMap clickableDie model.dice
 
 
-type alias ViewDieAttributes =
-    { dieColor : String
-    , spotColor : String
-    , face : Types.Face
-    , msg : Types.Msg
-    }
+type DieType
+    = DieTypeLocked
+    | DieTypeUnlocked
+    | DieTypeExample
+    | DieTypeExampleScored
 
 
 clickableDie : Types.Index -> Types.Die -> Html Types.Msg
 clickableDie index dieModel =
     let
-        attributes =
-            case dieModel.locked of
-                True ->
-                    ViewDieAttributes "#440000" "#990000" dieModel.face (Types.ToggleLock index)
+        dieType =
+            if dieModel.locked then
+                DieTypeLocked
 
-                False ->
-                    ViewDieAttributes "#005500" "#00CC00" dieModel.face (Types.ToggleLock index)
+            else
+                DieTypeUnlocked
     in
-    die attributes
+    die dieType dieModel.face (Just (Types.ToggleLock index))
 
 
-exampleDice : List ( Types.Face, Bool ) -> List (Html msg)
+exampleDice : List ( Types.Face, Bool ) -> List (Html Types.Msg)
 exampleDice faces =
     List.map (\( f, s ) -> exampleDie f s) faces
 
 
-exampleDie : Types.Face -> Bool -> Html msg
+exampleDie : Types.Face -> Bool -> Html Types.Msg
 exampleDie face isScoring =
-    div
-        [ style "margin-right" "0.25em"
-        , style "width" "10vw"
-        , style "height" "10vw"
-        ]
-        [ if isScoring then
-            dieSvg "#447744" "#AADDAA" face
+    let
+        dieType =
+            if isScoring then
+                DieTypeExampleScored
 
-          else
-            dieSvg "#555555" "#AAAAAA" face
-        ]
+            else
+                DieTypeExample
+    in
+    die dieType face Nothing
 
 
-die : ViewDieAttributes -> Html Types.Msg
-die attributes =
-    div
-        [ css Styles.dieStyle
-        , onClick attributes.msg
-        ]
-        [ dieSvg attributes.dieColor attributes.spotColor attributes.face ]
+die : DieType -> Types.Face -> Maybe Types.Msg -> Html Types.Msg
+die dieType face msg =
+    let
+        ( evt, baseClass ) =
+            case msg of
+                Just m ->
+                    ( [ SvgEvt.onClick m ], "die die--clickable" )
 
+                Nothing ->
+                    ( [], "die" )
 
-dieSvg : String -> String -> Types.Face -> Html msg
-dieSvg dieColor spotColor face =
+        typeClass =
+            case dieType of
+                DieTypeLocked ->
+                    "die--locked"
+
+                DieTypeUnlocked ->
+                    "die--unlocked"
+
+                DieTypeExample ->
+                    "die--example"
+
+                DieTypeExampleScored ->
+                    "die--example-scored"
+
+        class =
+            baseClass ++ " " ++ typeClass
+    in
     Svg.svg
-        [ SvgAtt.viewBox "0 0 120 120"
-        , SvgAtt.style "height: 100%;"
+        ([ SvgAtt.viewBox "0 0 120 120", SvgAtt.class class ] ++ evt)
+        (dieFace ++ spots face)
+
+
+dieFace : List (Svg.Svg msg)
+dieFace =
+    [ Svg.rect
+        [ SvgAtt.x "0"
+        , SvgAtt.y "0"
+        , SvgAtt.width "120"
+        , SvgAtt.height "120"
+        , SvgAtt.rx "25"
+        , SvgAtt.ry "25"
         ]
-        ([ Svg.rect
-            [ SvgAtt.x "0"
-            , SvgAtt.y "0"
-            , SvgAtt.width "120"
-            , SvgAtt.height "120"
-            , SvgAtt.rx "25"
-            , SvgAtt.ry "25"
-            , SvgAtt.fill dieColor
-            ]
-            []
-         ]
-            ++ spots spotColor face
-        )
+        []
+    ]
 
 
-spots : String -> Types.Face -> List (Svg.Svg msg)
-spots color face =
+spots : Types.Face -> List (Svg.Svg msg)
+spots face =
     let
         smSpot =
-            spot color "12"
+            spot "12"
 
         mdSpot =
-            spot color "15"
+            spot "15"
 
         lgSpot =
-            spot color "20"
+            spot "20"
     in
     case face of
         1 ->
@@ -289,8 +298,8 @@ type DieH
     | R
 
 
-spot : String -> String -> DieV -> DieH -> Html msg
-spot c r v h =
+spot : String -> DieV -> DieH -> Html msg
+spot r v h =
     let
         x =
             case h of
@@ -318,7 +327,7 @@ spot c r v h =
         [ SvgAtt.cx x
         , SvgAtt.cy y
         , SvgAtt.r r
-        , SvgAtt.fill c
+        , SvgAtt.class "die__spot"
         , SvgAtt.pointerEvents "none"
         ]
         []
@@ -573,7 +582,7 @@ helpYahtzeeWildcardPoints points =
     )
 
 
-example : List ( Types.Face, Bool ) -> Int -> Html msg
+example : List ( Types.Face, Bool ) -> Int -> Html Types.Msg
 example faces points =
     let
         pointWord =
@@ -584,5 +593,5 @@ example faces points =
                 " points"
     in
     div
-        [ css Styles.exampleDiceStyle ]
-        (exampleDice faces ++ [ div [ css Styles.exampleScoreStyle ] [ text <| "= " ++ String.fromInt points ++ pointWord ] ])
+        [ class "dice-example" ]
+        (exampleDice faces ++ [ div [] [ text <| "= " ++ String.fromInt points ++ pointWord ] ])

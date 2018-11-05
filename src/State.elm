@@ -2,7 +2,7 @@ module State exposing (init, subscriptions, update)
 
 import Game.State
 import Game.Types
-import Html.Styled
+import Html
 import Types
 
 
@@ -31,7 +31,7 @@ update msg model =
         Types.GameMsg gameMsg ->
             case gameMsg of
                 Game.Types.ShowHelp header sections ->
-                    ( { model | modal = Just ( header, List.map (\( h, s ) -> ( h, Html.Styled.map Types.GameMsg s )) sections ) }, Cmd.none )
+                    ( { model | modal = Just ( header, List.map (\( h, s ) -> ( h, Html.map Types.GameMsg s )) sections ) }, Cmd.none )
 
                 _ ->
                     let

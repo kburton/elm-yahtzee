@@ -4,29 +4,25 @@ import Game.Dice
 import Game.Scoreboard
 import Game.Types
 import Game.View
-import Html
-import Html.Styled exposing (Html, button, div, h1, h2, span, text)
-import Html.Styled.Attributes exposing (css, disabled, style)
-import Html.Styled.Events exposing (onClick)
-import Styles
-import Svg.Styled as Svg
-import Svg.Styled.Attributes as SvgAtt
-import Svg.Styled.Events as SvgEvt
+import Html exposing (Html, button, div, h1, h2, span, text)
+import Html.Attributes exposing (class, disabled, style)
+import Html.Events exposing (onClick)
+import Svg
+import Svg.Attributes as SvgAtt
+import Svg.Events as SvgEvt
 import Types
 
 
 view : Types.Model -> Html Types.Msg
 view model =
     div
-        [ css Styles.containerStyle ]
-        ([ Styles.globalStyle ]
-            ++ (case model.modal of
-                    Just ( header, content ) ->
-                        modal header content
+        [ class "container" ]
+        (case model.modal of
+            Just ( header, content ) ->
+                modal header content
 
-                    Nothing ->
-                        menuGameWrapper model
-               )
+            Nothing ->
+                menuGameWrapper model
         )
 
 
@@ -50,14 +46,22 @@ menuGameWrapper model =
 
 game : Types.Model -> List (Html Types.Msg)
 game model =
+    let
+        messagePaneClass =
+            if model.game.tutorialMode then
+                "message-pane message-pane--tutorial"
+
+            else
+                "message-pane"
+    in
     [ div
-        [ css Styles.scoreboardPaneStyle ]
-        [ Html.Styled.map Types.GameMsg (Game.View.scoreboard model.game) ]
+        [ class "scoreboard-pane" ]
+        [ Html.map Types.GameMsg (Game.View.scoreboard model.game) ]
     , div
-        [ css Styles.dicePaneStyle ]
-        (List.map (Html.Styled.map Types.GameMsg) (Game.View.dice model.game))
+        [ class "dice-pane" ]
+        (List.map (Html.map Types.GameMsg) (Game.View.dice model.game))
     , div
-        [ css <| Styles.messagePaneStyle model.game.tutorialMode
+        [ class messagePaneClass
         , onClick <| messageAction model
         ]
         [ messageHtml model ]
@@ -67,7 +71,7 @@ game model =
 menuBar : String -> Html Types.Msg
 menuBar title =
     div
-        [ css Styles.menuBarStyle ]
+        [ class "menu-bar" ]
         [ text title
         , menuButton
         ]
@@ -77,7 +81,7 @@ menuButton : Html Types.Msg
 menuButton =
     Svg.svg
         [ SvgAtt.viewBox "0 0 32 24"
-        , SvgAtt.style "fill: currentColor; height: 100%;"
+        , SvgAtt.class "menu-button"
         , SvgEvt.onClick Types.ToggleMenu
         ]
         [ Svg.rect
@@ -118,17 +122,17 @@ menu =
 modal : String -> List ( String, Html Types.Msg ) -> List (Html Types.Msg)
 modal header sections =
     [ div
-        [ css Styles.modalHeaderStyle ]
+        [ class "modal__header" ]
         [ div [] [ text header ]
         , modalCloseButton
         ]
     , div
-        [ css Styles.modalBodyStyle ]
+        [ class "modal__body" ]
         (List.map
             (\( h, c ) ->
                 div
-                    [ css Styles.modalSectionStyle ]
-                    [ div [ css Styles.modalSectionHeaderStyle ] [ text h ]
+                    [ class "modal__section" ]
+                    [ div [ class "modal__section-header" ] [ text h ]
                     , div [] [ c ]
                     ]
             )
@@ -141,11 +145,11 @@ modalCloseButton : Html Types.Msg
 modalCloseButton =
     Svg.svg
         [ SvgAtt.viewBox "0 0 12 12"
-        , SvgAtt.style "stroke: currentColor; height: 100%;"
+        , SvgAtt.class "modal__close"
         , SvgEvt.onClick Types.CloseModal
         ]
-        [ Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "11", SvgAtt.x2 "11", SvgAtt.y2 "1", SvgAtt.strokeWidth "2" ] []
-        , Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "1", SvgAtt.x2 "11", SvgAtt.y2 "11", SvgAtt.strokeWidth "2" ] []
+        [ Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "11", SvgAtt.x2 "11", SvgAtt.y2 "1", SvgAtt.strokeWidth "2", SvgAtt.strokeLinecap "round" ] []
+        , Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "1", SvgAtt.x2 "11", SvgAtt.y2 "11", SvgAtt.strokeWidth "2", SvgAtt.strokeLinecap "round" ] []
         ]
 
 

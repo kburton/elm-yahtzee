@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.menu-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2em;
+  padding: 0.5em;
+  font-weight: bold;
+  background-color: #333;
+  color: #FFF;
+}
+
+.menu-button {
+  fill: currentColor;
+  height: 100%;
+}
+
+.scoreboard-pane {
+  position: relative;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.dice-pane {
+  flex-shrink: 0;
+  height: 21vw;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 1.5vw 0;
+  background-color: #EEE;
+}
+
+.message-pane {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  min-height: 18vw;
+  background-color: #CCF;
+  text-align: center;
+  cursor: pointer;
+
+  &--tutorial {
+    font-size: 2.2vh;
+
+    &:before {
+      content: 'TUTORIAL';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 1.6vh;
+      font-weight: bold;
+      color: #999;
+      padding: 0.2em;
+    }
+  }
+}
+
+.dice-example {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5em;
+
+  .die {
+    margin-right: 0.25em;
+  }
+}

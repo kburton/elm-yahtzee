@@ -1,0 +1,36 @@
+.modal {
+  &__header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 2em;
+    padding: 0.5em;
+    font-weight: bold;
+    background-color: #333;
+    color: #FFF;
+  }
+
+  &__body {
+    padding: 1em 0.5em;
+  }
+
+  &__section {
+    margin-bottom: 1em;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  &__section-header {
+    margin-bottom: 0.25em;
+    font-size: 1.1em;
+    font-weight: bold;
+  }
+
+  &__close {
+    stroke: currentColor;
+    height: 100%;
+  }
+}
