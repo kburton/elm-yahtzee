@@ -47,7 +47,7 @@ type ViewMode
 
 
 aspectRatioBreakpoint =
-    0.6
+    0.7
 
 
 mode : Types.Model -> ViewMode
@@ -75,7 +75,7 @@ htmlStyle model =
                     "html { font-size: 1vw; }"
 
                 Desktop ->
-                    "html { font-size: " ++ String.fromFloat aspectRatioBreakpoint ++ "vh; padding: 1vh; }"
+                    "html { font-size: 0.6vh; padding: 1vh; }"
 
                 Unknown ->
                     "html { display: none; }"
@@ -172,7 +172,7 @@ menuButton =
 
 menu : Html Types.Msg
 menu =
-    div [] []
+    div [ class "menu" ] []
 
 
 modal : String -> List ( String, Html Types.Msg ) -> List (Html Types.Msg)

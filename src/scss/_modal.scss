@@ -1,6 +1,4 @@
 .modal {
-  background-color: #FFF;
-
   &__header {
     flex-shrink: 0;
     display: flex;
@@ -14,7 +12,10 @@
   }
 
   &__body {
+    flex-grow: 1;
     padding: 1em 0.5em;
+    background-color: #EEE;
+    overflow-y: auto;
   }
 
   &__section {

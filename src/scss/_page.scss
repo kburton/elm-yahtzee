@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #EEE;
+  background-color: #000;
 
   &--desktop {
     max-width: 100rem;
     margin: auto;
     border-radius: 3vh;
-    border: 0.6vh solid black;
+    border: 0.6vh solid #000;
     overflow: hidden;
     box-shadow: 0 0 8px #555;
   }
@@ -29,6 +29,11 @@
 .menu-button {
   fill: currentColor;
   height: 100%;
+}
+
+.menu {
+  flex-grow: 1;
+  background-color: #EEE;
 }
 
 .scoreboard-pane {
