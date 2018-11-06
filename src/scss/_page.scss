@@ -2,6 +2,16 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: #EEE;
+
+  &--desktop {
+    max-width: 100rem;
+    margin: auto;
+    border-radius: 3vh;
+    border: 0.6vh solid black;
+    overflow: hidden;
+    box-shadow: 0 0 8px #555;
+  }
 }
 
 .menu-bar {
@@ -29,10 +39,10 @@
 
 .dice-pane {
   flex-shrink: 0;
-  height: 21vw;
+  height: 21rem;
   display: flex;
   justify-content: space-evenly;
-  padding: 1.5vw 0;
+  padding: 1.5rem 0;
   background-color: #EEE;
 }
 
@@ -42,7 +52,7 @@
   justify-content: center;
   align-items: center;
   padding: 0;
-  min-height: 18vw;
+  min-height: 18rem;
   background-color: #CCF;
   text-align: center;
   cursor: pointer;

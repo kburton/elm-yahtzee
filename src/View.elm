@@ -4,7 +4,7 @@ import Game.Dice
 import Game.Scoreboard
 import Game.Types
 import Game.View
-import Html exposing (Html, button, div, h1, h2, span, text)
+import Html exposing (Html, button, div, h1, h2, node, span, text)
 import Html.Attributes exposing (class, disabled, style)
 import Html.Events exposing (onClick)
 import Svg
@@ -15,15 +15,71 @@ import Types
 
 view : Types.Model -> Html Types.Msg
 view model =
-    div
-        [ class "container" ]
-        (case model.modal of
-            Just ( header, content ) ->
-                modal header content
+    let
+        modeClass =
+            case mode model of
+                Desktop ->
+                    " container--desktop"
 
-            Nothing ->
-                menuGameWrapper model
+                Mobile ->
+                    " container--mobile"
+
+                Unknown ->
+                    ""
+    in
+    div
+        [ class <| "container" ++ modeClass ]
+        ([ htmlStyle model ]
+            ++ (case model.modal of
+                    Just ( header, content ) ->
+                        modal header content
+
+                    Nothing ->
+                        menuGameWrapper model
+               )
         )
+
+
+type ViewMode
+    = Desktop
+    | Mobile
+    | Unknown
+
+
+aspectRatioBreakpoint =
+    0.6
+
+
+mode : Types.Model -> ViewMode
+mode model =
+    case model.aspectRatio of
+        Just aspectRatio ->
+            if aspectRatio <= aspectRatioBreakpoint then
+                Mobile
+
+            else
+                Desktop
+
+        Nothing ->
+            Unknown
+
+
+htmlStyle : Types.Model -> Html msg
+htmlStyle model =
+    node
+        "style"
+        []
+        [ text <|
+            case mode model of
+                Mobile ->
+                    "html { font-size: 1vw; }"
+
+                Desktop ->
+                    "html { font-size: " ++ String.fromFloat aspectRatioBreakpoint ++ "vh; padding: 1vh; }"
+
+                Unknown ->
+                    "html { display: none; }"
+        ]
 
 
 menuGameWrapper : Types.Model -> List (Html Types.Msg)

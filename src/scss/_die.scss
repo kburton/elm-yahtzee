@@ -1,7 +1,7 @@
 .die {
   $block: &;
-  width: 18vw;
-  height: 18vw;
+  width: 18rem;
+  height: 18rem;
 
   &--locked {
     fill: #400;
@@ -20,8 +20,8 @@
   }
 
   &--example {
-    width: 10vw;
-    height: 10vw;
+    width: 10rem;
+    height: 10rem;
     fill: #555;
 
     #{$block}__spot {
@@ -30,8 +30,8 @@
   }
 
   &--example-scored {
-    width: 10vw;
-    height: 10vw;
+    width: 10rem;
+    height: 10rem;
     fill: #474;
 
     #{$block}__spot {

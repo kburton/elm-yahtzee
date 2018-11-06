@@ -1,8 +1,11 @@
 module State exposing (init, subscriptions, update)
 
+import Browser.Dom
+import Browser.Events
 import Game.State
 import Game.Types
 import Html
+import Task
 import Types
 
 
@@ -15,11 +18,13 @@ init _ =
         cmds =
             Cmd.batch
                 [ Cmd.map Types.GameMsg gameCmd
+                , Task.perform (\vp -> Types.UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
                 ]
     in
     ( { game = gameModel
       , menuOpen = False
       , modal = Nothing
+      , aspectRatio = Nothing
       }
     , cmds
     )
@@ -49,6 +54,9 @@ update msg model =
         Types.CloseModal ->
             ( { model | modal = Nothing }, Cmd.none )
 
+        Types.UpdateAspectRatio aspectRatio ->
+            ( { model | aspectRatio = Just aspectRatio }, Cmd.none )
+
         Types.NoOp ->
             ( model, Cmd.none )
 
@@ -57,4 +65,5 @@ subscriptions : Types.Model -> Sub Types.Msg
 subscriptions model =
     Sub.batch
         [ Sub.map Types.GameMsg (Game.State.subscriptions model.game)
+        , Browser.Events.onResize (\w h -> Types.UpdateAspectRatio (toFloat w / toFloat h))
         ]
