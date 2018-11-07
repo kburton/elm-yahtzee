@@ -11,6 +11,11 @@
 </head>
 <body>
 <div id="elm"></div>
-<script>Elm.Main.init({node: document.getElementById('elm')});</script>
+<script>
+    var app = Elm.Main.init({node: document.getElementById('elm')});
+    app.ports.persistGameState.subscribe(function(data) {
+        sessionStorage.setItem('gameState', JSON.stringify(data));
+    });
+</script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import Dict
 import Game.Dice as Dice
 import Game.Scoreboard as Scoreboard
 import Game.Types as Types
+import Ports
 import Random
 import Time
 
@@ -36,13 +37,10 @@ update msg model =
             Random.generate (Types.NewFace index) (Random.int 1 6)
 
         updateFace index face =
-            (\d -> { model | dice = Array.set index { d | face = face } model.dice }) (getDie index)
+            (\d -> { model | dice = Array.set index { d | face = face, flipsLeft = d.flipsLeft - 1 } model.dice }) (getDie index)
 
         updateFlips index flips =
             (\d -> { model | dice = Array.set index { d | flipsLeft = flips } model.dice }) (getDie index)
-
-        decrementFlips index =
-            (\d -> { model | dice = Array.set index { d | flipsLeft = d.flipsLeft - 1 } model.dice }) (getDie index)
 
         toggleLock index =
             (\d -> { model | dice = Array.set index { d | locked = not d.locked } model.dice }) (getDie index)
@@ -58,18 +56,22 @@ update msg model =
                 )
 
         Types.SetFlips index flips ->
-            ( updateFlips index flips
-            , Cmd.none
-            )
+            ( updateFlips index flips, Cmd.none )
 
         Types.Flip index ->
-            ( decrementFlips index
-            , flip index
-            )
+            ( model, flip index )
 
         Types.NewFace index newFace ->
+            let
+                newModel =
+                    updateFace index newFace
+            in
             ( updateFace index newFace
-            , Cmd.none
+            , if Dice.areRolling newModel.dice then
+                Cmd.none
+
+              else
+                Ports.persistGameState <| Ports.toGameStateModel newModel
             )
 
         Types.ToggleLock index ->
