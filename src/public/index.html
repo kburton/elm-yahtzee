@@ -12,7 +12,19 @@
 <body>
 <div id="elm"></div>
 <script>
-    var app = Elm.Main.init({node: document.getElementById('elm')});
+    var app = undefined;
+    try {
+        app = Elm.Main.init({
+            node: document.getElementById('elm'),
+            flags: JSON.parse(sessionStorage.getItem('gameState'))
+        });
+    } catch (error) {
+        console.error(error);
+        app = Elm.Main.init({
+            node: document.getElementById('elm'),
+            flags: null
+        });
+    }
     app.ports.persistGameState.subscribe(function(data) {
         sessionStorage.setItem('gameState', JSON.stringify(data));
     });

@@ -10,18 +10,26 @@ import Random
 import Time
 
 
-init : () -> ( Types.Model, Cmd Types.Msg )
-init _ =
-    ( { scoreboard = Dict.empty
-      , turn = 1
-      , roll = 1
-      , dice = Dice.default
-      , tutorialMode = True
-      , lastScoreKey = Nothing
-      , previous = Nothing
-      }
-    , Cmd.none
-    )
+defaultModel : Types.Model
+defaultModel =
+    { scoreboard = Dict.empty
+    , turn = 1
+    , roll = 1
+    , dice = Dice.default
+    , tutorialMode = True
+    , lastScoreKey = Nothing
+    , previous = Nothing
+    }
+
+
+init : Maybe Ports.GameStateModel -> ( Types.Model, Cmd Types.Msg )
+init gameState =
+    case gameState of
+        Just gs ->
+            ( Ports.fromGameStateModel defaultModel gs, Cmd.none )
+
+        Nothing ->
+            ( defaultModel, Cmd.none )
 
 
 update : Types.Msg -> Types.Model -> ( Types.Model, Cmd Types.Msg )

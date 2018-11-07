@@ -5,15 +5,16 @@ import Browser.Events
 import Game.State
 import Game.Types
 import Html
+import Ports
 import Task
 import Types
 
 
-init : () -> ( Types.Model, Cmd Types.Msg )
-init _ =
+init : Maybe Ports.GameStateModel -> ( Types.Model, Cmd Types.Msg )
+init gameStateModel =
     let
         ( gameModel, gameCmd ) =
-            Game.State.init ()
+            Game.State.init gameStateModel
 
         cmds =
             Cmd.batch
