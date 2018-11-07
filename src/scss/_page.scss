@@ -35,6 +35,18 @@
 .menu {
   flex-grow: 1;
   background-color: #EEE;
+  display: flex;
+  flex-direction: column;
+
+  &__item {
+    padding: 1em;
+    border-bottom: 1px solid #BBB;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #FFF;
+    }
+  }
 }
 
 .scoreboard-pane {

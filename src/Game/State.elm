@@ -98,35 +98,38 @@ update msg model =
 
                 incYahtzeeBonus =
                     isYahtzee && Maybe.withDefault 0 (Scoreboard.getScore Types.Yahtzee model.scoreboard) > 0
+
+                newModel =
+                    { model
+                        | turn = model.turn + 1
+                        , roll = 1
+                        , scoreboard = Scoreboard.setScore key (Dice.calcScore key model.dice model.scoreboard) incYahtzeeBonus model.scoreboard
+                        , dice = Dice.default
+                        , tutorialMode = model.tutorialMode && model.turn < 2
+                        , lastScoreKey = Just key
+                        , previous = Just (Types.Previous model)
+                    }
             in
-            ( { model
-                | turn = model.turn + 1
-                , roll = 1
-                , scoreboard = Scoreboard.setScore key (Dice.calcScore key model.dice model.scoreboard) incYahtzeeBonus model.scoreboard
-                , dice = Dice.default
-                , tutorialMode = model.tutorialMode && model.turn < 2
-                , lastScoreKey = Just key
-                , previous = Just (Types.Previous model)
-              }
-            , Cmd.none
-            )
+            ( newModel, Ports.persistGameState <| Ports.toGameStateModel newModel )
 
         Types.NewGame ->
-            ( { model
-                | turn = 1
-                , roll = 1
-                , scoreboard = Dict.empty
-                , dice = Dice.default
-                , lastScoreKey = Nothing
-                , tutorialMode = False
-              }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model
+                        | turn = 1
+                        , roll = 1
+                        , scoreboard = Dict.empty
+                        , dice = Dice.default
+                        , lastScoreKey = Nothing
+                        , tutorialMode = False
+                    }
+            in
+            ( newModel, Ports.persistGameState <| Ports.toGameStateModel newModel )
 
         Types.Undo ->
             case model.previous of
                 Just (Types.Previous p) ->
-                    ( p, Cmd.none )
+                    ( p, Ports.persistGameState <| Ports.toGameStateModel p )
 
                 Nothing ->
                     ( model, Cmd.none )

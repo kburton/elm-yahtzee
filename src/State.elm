@@ -43,8 +43,11 @@ update msg model =
                     let
                         ( gameModel, gameCmd ) =
                             Game.State.update gameMsg model.game
+
+                        menuOpen =
+                            gameMsg /= Game.Types.NewGame && model.menuOpen
                     in
-                    ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
+                    ( { model | game = gameModel, menuOpen = menuOpen }, Cmd.map Types.GameMsg gameCmd )
 
         Types.ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )

@@ -176,7 +176,10 @@ menuButton =
 
 menu : Html Types.Msg
 menu =
-    div [ class "menu" ] []
+    div
+        [ class "menu" ]
+        [ div [ class "menu__item", onClick <| Types.GameMsg Game.Types.NewGame ] [ text "New game" ]
+        ]
 
 
 modal : String -> List ( String, Html Types.Msg ) -> List (Html Types.Msg)
