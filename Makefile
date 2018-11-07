@@ -4,4 +4,4 @@ build:
 	cp src/public/* dist/
 	elm make --optimize --output=dist/main.js src/Main.elm
 	docker run --rm --volume=${CURDIR}/src/scss:/sass ubuntudesign/sassc /sass/main.scss > dist/main.css
-	sed -i '' -E 's/(main\.js|main\.css)/\1?t=$(shell date +%s)/g' dist/index.html
+	sed -i '' -E 's/(main\.js|main\.css|favicon\.ico)/\1?t=$(shell date +%s)/g' dist/index.html
