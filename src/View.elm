@@ -13,6 +13,14 @@ import Svg.Events as SvgEvt
 import Types
 
 
+aspectRatioBreakpoint =
+    0.75
+
+
+desktopAspectRatio =
+    0.6
+
+
 view : Types.Model -> Html Types.Msg
 view model =
     let
@@ -46,10 +54,6 @@ type ViewMode
     | Unknown
 
 
-aspectRatioBreakpoint =
-    0.7
-
-
 mode : Types.Model -> ViewMode
 mode model =
     case model.aspectRatio of
@@ -75,7 +79,7 @@ htmlStyle model =
                     "html { font-size: 1vw; }"
 
                 Desktop ->
-                    "html { font-size: 0.6vh; padding: 1vh; }"
+                    "html { font-size: " ++ String.fromFloat desktopAspectRatio ++ "vh; padding: 1vh; }"
 
                 Unknown ->
                     "html { display: none; }"
