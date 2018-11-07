@@ -217,7 +217,7 @@ messageHtml : Types.Model -> Html msg
 messageHtml model =
     let
         scoreboard =
-            Game.Types.currentGame model.game
+            model.game.scoreboard
     in
     if Game.Dice.areRolling model.game.dice then
         text ""
@@ -276,7 +276,7 @@ messageAction : Types.Model -> Types.Msg
 messageAction model =
     let
         scoreboard =
-            Game.Types.currentGame model.game
+            model.game.scoreboard
     in
     if Game.Dice.areRolling model.game.dice then
         Types.NoOp

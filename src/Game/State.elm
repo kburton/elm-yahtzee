@@ -12,7 +12,7 @@ import Time
 
 init : () -> ( Types.Model, Cmd Types.Msg )
 init _ =
-    ( { games = [ Dict.empty ]
+    ( { scoreboard = Dict.empty
       , turn = 1
       , roll = 1
       , dice = Dice.default
@@ -84,35 +84,30 @@ update msg model =
             )
 
         Types.Score key ->
-            case model.games of
-                currentScoreboard :: finishedScoreboards ->
-                    let
-                        isYahtzee =
-                            Dice.calcScore Types.Yahtzee model.dice currentScoreboard > 0
+            let
+                isYahtzee =
+                    Dice.calcScore Types.Yahtzee model.dice model.scoreboard > 0
 
-                        incYahtzeeBonus =
-                            isYahtzee && Maybe.withDefault 0 (Scoreboard.getScore Types.Yahtzee currentScoreboard) > 0
-                    in
-                    ( { model
-                        | turn = model.turn + 1
-                        , roll = 1
-                        , games = Scoreboard.setScore key (Dice.calcScore key model.dice currentScoreboard) incYahtzeeBonus currentScoreboard :: finishedScoreboards
-                        , dice = Dice.default
-                        , tutorialMode = model.tutorialMode && model.turn < 2
-                        , lastScoreKey = Just key
-                        , previous = Just (Types.Previous model)
-                      }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    ( model, Cmd.none )
+                incYahtzeeBonus =
+                    isYahtzee && Maybe.withDefault 0 (Scoreboard.getScore Types.Yahtzee model.scoreboard) > 0
+            in
+            ( { model
+                | turn = model.turn + 1
+                , roll = 1
+                , scoreboard = Scoreboard.setScore key (Dice.calcScore key model.dice model.scoreboard) incYahtzeeBonus model.scoreboard
+                , dice = Dice.default
+                , tutorialMode = model.tutorialMode && model.turn < 2
+                , lastScoreKey = Just key
+                , previous = Just (Types.Previous model)
+              }
+            , Cmd.none
+            )
 
         Types.NewGame ->
             ( { model
                 | turn = 1
                 , roll = 1
-                , games = Dict.empty :: model.games
+                , scoreboard = Dict.empty
                 , dice = Dice.default
                 , lastScoreKey = Nothing
                 , tutorialMode = False

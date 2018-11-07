@@ -1,4 +1,4 @@
-module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), Previous(..), ScoreKey(..), Scoreboard, currentGame, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
+module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), Previous(..), ScoreKey(..), Scoreboard, maxRolls, maxRollsReached, maxTurns, maxTurnsReached)
 
 import Array exposing (Array)
 import Dict exposing (Dict)
@@ -6,7 +6,7 @@ import Html exposing (Html)
 
 
 type alias Model =
-    { games : List Scoreboard
+    { scoreboard : Scoreboard
     , turn : Int
     , roll : Int
     , dice : Dice
@@ -95,13 +95,3 @@ maxTurns =
 maxTurnsReached : Model -> Bool
 maxTurnsReached model =
     model.turn > maxTurns
-
-
-currentGame : Model -> Scoreboard
-currentGame model =
-    case model.games of
-        scoreboard :: rest ->
-            scoreboard
-
-        _ ->
-            Dict.empty

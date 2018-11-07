@@ -35,40 +35,30 @@ scoreboard model =
 
 scoreboardRow : Types.Model -> Types.ScoreKey -> String -> String -> Html Types.Msg
 scoreboardRow model key label info =
-    case model.games of
-        game :: rest ->
-            div
-                [ class "scoreboard__row" ]
-                [ scoreLabel key label
-                , scoreInfo key info
-                , scoreValue model key game
-                ]
-
-        _ ->
-            div [] []
+    div
+        [ class "scoreboard__row" ]
+        [ scoreLabel key label
+        , scoreInfo key info
+        , scoreValue model key model.scoreboard
+        ]
 
 
 scoreboardBonusRow : Types.Model -> Types.ScoreKey -> Types.Bonus -> (Types.Scoreboard -> Int) -> String -> String -> Html Types.Msg
 scoreboardBonusRow model key bonusType bonusFn label info =
-    case model.games of
-        game :: rest ->
-            let
-                bonus =
-                    bonusFn game
-            in
-            if bonus == 0 then
-                scoreboardRow model key label info
+    let
+        bonus =
+            bonusFn model.scoreboard
+    in
+    if bonus == 0 then
+        scoreboardRow model key label info
 
-            else
-                div
-                    [ class "scoreboard__row" ]
-                    [ scoreLabel key label
-                    , scoreBonus bonusType bonus
-                    , scoreValue model key game
-                    ]
-
-        _ ->
-            div [] []
+    else
+        div
+            [ class "scoreboard__row" ]
+            [ scoreLabel key label
+            , scoreBonus bonusType bonus
+            , scoreValue model key model.scoreboard
+            ]
 
 
 scoreboardDivider : Html msg
@@ -138,7 +128,7 @@ scoreUndo : Types.Model -> Types.ScoreKey -> Maybe (Html Types.Msg)
 scoreUndo model key =
     case ( model.lastScoreKey, model.previous ) of
         ( Just k, Just (Types.Previous p) ) ->
-            if k == key && (not <| Scoreboard.gameIsOver <| Types.currentGame model) then
+            if k == key && (not <| Scoreboard.gameIsOver <| model.scoreboard) then
                 Just (div [ class "scoreboard__undo" ] [ undoSvg ])
 
             else

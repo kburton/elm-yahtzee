@@ -13,14 +13,9 @@ type alias GameStateModel =
     }
 
 
-fromGameStateModel : GameStateModel -> Model
-fromGameStateModel gameStateModel =
-
-
-
 toGameStateModel : Model -> GameStateModel
 toGameStateModel model =
-    { game = Dict.toList <| Game.Types.currentGame model
+    { game = Dict.toList <| model.scoreboard
     , turn = model.turn
     , roll = model.roll
     , dice = model.dice
