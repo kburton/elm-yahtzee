@@ -10,9 +10,17 @@ import Task
 import Types
 
 
-init : Maybe Ports.GameStateModel -> ( Types.Model, Cmd Types.Msg )
-init gameStateModel =
+init : Maybe Ports.Flags -> ( Types.Model, Cmd Types.Msg )
+init flags =
     let
+        gameStateModel =
+            case flags of
+                Just f ->
+                    f.gameState
+
+                Nothing ->
+                    Nothing
+
         ( gameModel, gameCmd ) =
             Game.State.init gameStateModel
 

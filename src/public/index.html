@@ -16,7 +16,9 @@
     try {
         app = Elm.Main.init({
             node: document.getElementById('elm'),
-            flags: JSON.parse(sessionStorage.getItem('gameState'))
+            flags: {
+                gameState: JSON.parse(sessionStorage.getItem('gameState'))
+            }
         });
     } catch (error) {
         console.error(error);
@@ -27,6 +29,16 @@
     }
     app.ports.persistGameState.subscribe(function(data) {
         sessionStorage.setItem('gameState', JSON.stringify(data));
+    });
+    app.ports.persistCompletedGame.subscribe(function(data) {
+        try {
+            var gameHistoryJson = localStorage.getItem('history');
+            var gameHistory = gameHistoryJson ? JSON.parse(gameHistoryJson) : [];
+            gameHistory.push(data);
+            localStorage.setItem('history', JSON.stringify(gameHistory));
+        } catch (error) {
+            console.error(error);
+        }
     });
 </script>
 </body>

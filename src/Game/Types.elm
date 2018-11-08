@@ -3,6 +3,7 @@ module Game.Types exposing (Bonus(..), Dice, Die, Face, Index, Model, Msg(..), P
 import Array exposing (Array)
 import Dict exposing (Dict)
 import Html exposing (Html)
+import Time
 
 
 type alias Model =
@@ -29,6 +30,7 @@ type Msg
     | Score ScoreKey
     | NewGame
     | Undo
+    | Persist Model Time.Posix
     | ShowHelp String (List ( String, Html Msg ))
 
 

@@ -1,19 +1,43 @@
-port module Ports exposing (GameStateModel, fromGameStateModel, persistGameState, toGameStateModel)
+port module Ports exposing (Flags, GameStateModel, fromGameStateModel, persistCompletedGame, persistGameState, toGameModel, toGameStateModel)
 
 import Dict
-import Game.Types exposing (..)
+import Game.Scoreboard
+import Game.Types
+import Time
+
+
+type alias Flags =
+    { gameState : Maybe GameStateModel
+    }
 
 
 type alias GameStateModel =
     { scoreboard : List ( Int, Int )
     , turn : Int
     , roll : Int
-    , dice : Dice
+    , dice : Game.Types.Dice
     , tutorialMode : Bool
     }
 
 
-toGameStateModel : Model -> GameStateModel
+type alias HistoryModel =
+    List GameModel
+
+
+type alias GameModel =
+    { v : Int
+    , t : Int
+    , g : Int
+    , s : List ( Int, Int )
+    }
+
+
+currentVersion : Int
+currentVersion =
+    1
+
+
+toGameStateModel : Game.Types.Model -> GameStateModel
 toGameStateModel model =
     { scoreboard = Dict.toList model.scoreboard
     , turn = model.turn
@@ -23,7 +47,7 @@ toGameStateModel model =
     }
 
 
-fromGameStateModel : Model -> GameStateModel -> Model
+fromGameStateModel : Game.Types.Model -> GameStateModel -> Game.Types.Model
 fromGameStateModel model gameStateModel =
     { model
         | scoreboard = Dict.fromList gameStateModel.scoreboard
@@ -34,4 +58,16 @@ fromGameStateModel model gameStateModel =
     }
 
 
+toGameModel : Game.Types.Model -> Time.Posix -> GameModel
+toGameModel model time =
+    { v = currentVersion
+    , t = Time.posixToMillis time
+    , g = Game.Scoreboard.grandTotal model.scoreboard
+    , s = Dict.toList model.scoreboard
+    }
+
+
 port persistGameState : GameStateModel -> Cmd msg
+
+
+port persistCompletedGame : GameModel -> Cmd msg

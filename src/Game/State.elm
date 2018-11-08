@@ -7,6 +7,7 @@ import Game.Scoreboard as Scoreboard
 import Game.Types as Types
 import Ports
 import Random
+import Task
 import Time
 
 
@@ -110,7 +111,17 @@ update msg model =
                         , previous = Just (Types.Previous model)
                     }
             in
-            ( newModel, Ports.persistGameState <| Ports.toGameStateModel newModel )
+            ( newModel
+            , Cmd.batch
+                ([ Ports.persistGameState <| Ports.toGameStateModel newModel ]
+                    ++ (if Scoreboard.gameIsOver newModel.scoreboard then
+                            [ Task.perform (Types.Persist newModel) Time.now ]
+
+                        else
+                            []
+                       )
+                )
+            )
 
         Types.NewGame ->
             let
@@ -133,6 +144,9 @@ update msg model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        Types.Persist m time ->
+            ( model, Ports.persistCompletedGame <| Ports.toGameModel m time )
 
         Types.ShowHelp _ _ ->
             ( model, Cmd.none )
