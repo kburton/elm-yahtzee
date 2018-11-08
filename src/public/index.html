@@ -13,11 +13,13 @@
 <div id="elm"></div>
 <script>
     var app = undefined;
+
     try {
         app = Elm.Main.init({
             node: document.getElementById('elm'),
             flags: {
-                gameState: JSON.parse(sessionStorage.getItem('gameState'))
+                gameState: JSON.parse(sessionStorage.getItem('gameState')),
+                history: JSON.parse(localStorage.getItem('history'))
             }
         });
     } catch (error) {

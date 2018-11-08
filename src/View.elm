@@ -97,7 +97,7 @@ menuGameWrapper model =
         )
     ]
         ++ (if model.menuOpen then
-                [ menu ]
+                [ menu model ]
 
             else
                 game model
@@ -174,12 +174,21 @@ menuButton =
         ]
 
 
-menu : Html Types.Msg
-menu =
+menu : Types.Model -> Html Types.Msg
+menu model =
     div
         [ class "menu" ]
-        [ div [ class "menu__item", onClick <| Types.GameMsg Game.Types.NewGame ] [ text "New game" ]
-        ]
+        ([ div [ class "menu__item", onClick <| Types.GameMsg Game.Types.NewGame ] [ text "New game" ] ]
+            ++ (if model.gamesPlayed > 0 then
+                    [ div
+                        [ class "menu__item", onClick Types.ToggleMenu ]
+                        [ text <| "High score: " ++ String.fromInt model.highScore ]
+                    ]
+
+                else
+                    []
+               )
+        )
 
 
 modal : String -> List ( String, Html Types.Msg ) -> List (Html Types.Msg)
@@ -226,7 +235,18 @@ messageHtml model =
         text ""
 
     else if Game.Scoreboard.gameIsOver scoreboard then
-        textToDivs [ "Game over! You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points.", " Play again?" ]
+        let
+            score =
+                Game.Scoreboard.grandTotal scoreboard
+
+            startText =
+                if model.gamesPlayed > 1 && score == model.highScore then
+                    "New high score!"
+
+                else
+                    "Game over!"
+        in
+        textToDivs [ startText ++ " You scored " ++ String.fromInt (Game.Scoreboard.grandTotal scoreboard) ++ " points.", " Play again?" ]
 
     else if Game.Dice.isYahtzeeWildcard model.game.dice scoreboard && model.game.roll > 1 then
         text "Yahtzee wildcard!"

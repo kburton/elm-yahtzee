@@ -23,14 +23,14 @@ defaultModel =
     }
 
 
-init : Maybe Ports.GameStateModel -> ( Types.Model, Cmd Types.Msg )
-init gameState =
+init : Maybe Ports.GameStateModel -> Int -> ( Types.Model, Cmd Types.Msg )
+init gameState gamesPlayed =
     case gameState of
         Just gs ->
             ( Ports.fromGameStateModel defaultModel gs, Cmd.none )
 
         Nothing ->
-            ( defaultModel, Cmd.none )
+            ( { defaultModel | tutorialMode = gamesPlayed == 0 }, Cmd.none )
 
 
 update : Types.Msg -> Types.Model -> ( Types.Model, Cmd Types.Msg )

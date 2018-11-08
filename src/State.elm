@@ -2,6 +2,7 @@ module State exposing (init, subscriptions, update)
 
 import Browser.Dom
 import Browser.Events
+import Game.Scoreboard
 import Game.State
 import Game.Types
 import Html
@@ -13,16 +14,24 @@ import Types
 init : Maybe Ports.Flags -> ( Types.Model, Cmd Types.Msg )
 init flags =
     let
-        gameStateModel =
+        ( gameStateModel, history ) =
             case flags of
                 Just f ->
-                    f.gameState
+                    ( f.gameState, f.history )
 
                 Nothing ->
-                    Nothing
+                    ( Nothing, Nothing )
+
+        ( gamesPlayed, highScore ) =
+            case history of
+                Just h ->
+                    ( List.length h, Maybe.withDefault 0 <| List.maximum <| List.map .g h )
+
+                Nothing ->
+                    ( 0, 0 )
 
         ( gameModel, gameCmd ) =
-            Game.State.init gameStateModel
+            Game.State.init gameStateModel gamesPlayed
 
         cmds =
             Cmd.batch
@@ -34,6 +43,8 @@ init flags =
       , menuOpen = False
       , modal = Nothing
       , aspectRatio = Nothing
+      , gamesPlayed = gamesPlayed
+      , highScore = highScore
       }
     , cmds
     )
@@ -54,8 +65,18 @@ update msg model =
 
                         menuOpen =
                             gameMsg /= Game.Types.NewGame && model.menuOpen
+
+                        ( gamesPlayed, highScore ) =
+                            case gameMsg of
+                                Game.Types.Persist m _ ->
+                                    ( model.gamesPlayed + 1, max (Game.Scoreboard.grandTotal m.scoreboard) model.highScore )
+
+                                _ ->
+                                    ( model.gamesPlayed, model.highScore )
                     in
-                    ( { model | game = gameModel, menuOpen = menuOpen }, Cmd.map Types.GameMsg gameCmd )
+                    ( { model | game = gameModel, menuOpen = menuOpen, gamesPlayed = gamesPlayed, highScore = highScore }
+                    , Cmd.map Types.GameMsg gameCmd
+                    )
 
         Types.ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )

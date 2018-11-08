@@ -10,6 +10,8 @@ type alias Model =
     , menuOpen : Bool
     , modal : Maybe ( String, List ( String, Html Msg ) )
     , aspectRatio : Maybe Float
+    , gamesPlayed : Int
+    , highScore : Int
     }
 
 

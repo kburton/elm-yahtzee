@@ -8,6 +8,7 @@ import Time
 
 type alias Flags =
     { gameState : Maybe GameStateModel
+    , history : Maybe HistoryModel
     }
 
 
