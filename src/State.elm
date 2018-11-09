@@ -54,29 +54,28 @@ update : Types.Msg -> Types.Model -> ( Types.Model, Cmd Types.Msg )
 update msg model =
     case msg of
         Types.GameMsg gameMsg ->
+            let
+                ( gameModel, gameCmd ) =
+                    Game.State.update gameMsg model.game
+            in
             case gameMsg of
                 Game.Types.ShowHelp header sections ->
                     ( { model | modal = Just ( header, List.map (\( h, s ) -> ( h, Html.map Types.GameMsg s )) sections ) }, Cmd.none )
 
-                _ ->
-                    let
-                        ( gameModel, gameCmd ) =
-                            Game.State.update gameMsg model.game
+                Game.Types.NewGame ->
+                    ( { model | menuOpen = False, game = gameModel }, Cmd.map Types.GameMsg gameCmd )
 
-                        menuOpen =
-                            gameMsg /= Game.Types.NewGame && model.menuOpen
-
-                        ( gamesPlayed, highScore ) =
-                            case gameMsg of
-                                Game.Types.Persist m _ ->
-                                    ( model.gamesPlayed + 1, max (Game.Scoreboard.grandTotal m.scoreboard) model.highScore )
-
-                                _ ->
-                                    ( model.gamesPlayed, model.highScore )
-                    in
-                    ( { model | game = gameModel, menuOpen = menuOpen, gamesPlayed = gamesPlayed, highScore = highScore }
+                Game.Types.Persist m _ ->
+                    ( { model
+                        | gamesPlayed = model.gamesPlayed + 1
+                        , highScore = max (Game.Scoreboard.grandTotal m.scoreboard) model.highScore
+                        , game = gameModel
+                      }
                     , Cmd.map Types.GameMsg gameCmd
                     )
+
+                _ ->
+                    ( { model | game = gameModel }, Cmd.map Types.GameMsg gameCmd )
 
         Types.ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )
