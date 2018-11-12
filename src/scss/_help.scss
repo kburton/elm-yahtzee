@@ -1,0 +1,11 @@
+.help {
+  &__example {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5em;
+
+    .die {
+      margin-right: 0.25em;
+    }
+  }
+}

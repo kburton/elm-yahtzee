@@ -1,0 +1,16 @@
+.menu-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2em;
+  padding: 0.5em;
+  font-weight: bold;
+  background-color: #333;
+  color: #FFF;
+
+  &__button {
+    fill: currentColor;
+    height: 100%;
+    cursor: pointer;
+  }
+}
