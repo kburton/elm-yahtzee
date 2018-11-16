@@ -252,9 +252,6 @@ example ( faces, score ) =
     in
     div
         [ class "help__example" ]
-        [ div
-            []
-            (exampleDice faces
-                ++ [ text <| "= " ++ String.fromInt score ++ pointsWord ]
-            )
-        ]
+        (exampleDice faces
+            ++ [ text <| "= " ++ String.fromInt score ++ pointsWord ]
+        )
