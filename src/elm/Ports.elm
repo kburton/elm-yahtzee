@@ -1,4 +1,4 @@
-port module Ports exposing (Flags, GameStateModel, persistCompletedGame, persistGameState)
+port module Ports exposing (Flags, GameModel, GameStateModel, persistCompletedGame, persistGameState)
 
 import Dice.Model
 

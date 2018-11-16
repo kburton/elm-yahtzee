@@ -152,7 +152,7 @@ messageHtml model isYahtzeeWildcard =
                 Scoreboard.grandTotal model.scoreboard
 
             startText =
-                if model.gamesPlayed > 1 && score == model.highScore then
+                if model.stats.gamesPlayed > 1 && score == model.stats.highScore then
                     "New high score!"
 
                 else

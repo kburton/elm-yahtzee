@@ -1,0 +1,15 @@
+.stats {
+  margin-top: 1em;
+
+  &__stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+
+  &__divider {
+    margin: 0 -0.5em 1em -0.5em;
+    border-bottom: 1px solid #BBB;
+  }
+}

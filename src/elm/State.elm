@@ -14,10 +14,13 @@ import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
 import Scoreboard.State
+import Stats.Msg
+import Stats.State
 import Task
 import Time
 import Update.Extra exposing (andThen)
 import View.Help
+import View.Stats
 
 
 init : Maybe Ports.Flags -> ( Model, Cmd Msg )
@@ -26,18 +29,10 @@ init flags =
         ( gameStateModel, history ) =
             case flags of
                 Just f ->
-                    ( f.gameState, f.history )
+                    ( f.gameState, Maybe.withDefault [] f.history )
 
                 Nothing ->
-                    ( Nothing, Nothing )
-
-        ( gamesPlayed, highScore ) =
-            case history of
-                Just h ->
-                    ( List.length h, Maybe.withDefault 0 <| List.maximum <| List.map .g h )
-
-                Nothing ->
-                    ( 0, 0 )
+                    ( Nothing, [] )
 
         ( persistedScoreboard, persistedDice, roll ) =
             case gameStateModel of
@@ -53,22 +48,25 @@ init flags =
         ( diceModel, diceCmd ) =
             Dice.State.init persistedDice
 
+        ( statsModel, statsCmd ) =
+            Stats.State.init history
+
         cmds =
             Cmd.batch
                 [ Cmd.map ScoreboardMsg scoreboardCmd
                 , Cmd.map DiceMsg diceCmd
+                , Cmd.map StatsMsg statsCmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
                 ]
     in
     ( { scoreboard = scoreboardModel
       , dice = diceModel
+      , stats = statsModel
       , roll = roll
-      , tutorialMode = gamesPlayed == 0
+      , tutorialMode = statsModel.gamesPlayed == 0
       , menuOpen = False
       , modalStack = []
       , aspectRatio = Nothing
-      , gamesPlayed = gamesPlayed
-      , highScore = highScore
       , undo = Nothing
       }
     , cmds
@@ -108,6 +106,13 @@ update msg model =
             else
                 ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
 
+        StatsMsg statsMsg ->
+            let
+                ( statsModel, statsCmd ) =
+                    Stats.State.update statsMsg model.stats
+            in
+            ( { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
+
         Roll ->
             ( { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
                 |> andThen update (DiceMsg Dice.Msg.Roll)
@@ -128,6 +133,7 @@ update msg model =
             in
             if Scoreboard.Model.isComplete newModel.scoreboard then
                 ( newModel, newCmd )
+                    |> andThen update (StatsMsg (Stats.Msg.Update newModel.scoreboard))
 
             else
                 ( { newModel
@@ -160,14 +166,14 @@ update msg model =
 
         NewGame ->
             ( { model
-                | scoreboard = Scoreboard.Model.defaultModel
-                , dice = Dice.Model.defaultModel
-                , roll = 1
+                | roll = 1
                 , menuOpen = False
                 , undo = Nothing
               }
             , Cmd.none
             )
+                |> andThen update (ScoreboardMsg Scoreboard.Msg.Reset)
+                |> andThen update (DiceMsg Dice.Msg.Reset)
                 |> andThen update PersistState
 
         ToggleMenu ->
@@ -175,6 +181,9 @@ update msg model =
 
         ShowHelp helpKey ->
             ( { model | modalStack = View.Help.help helpKey :: model.modalStack }, Cmd.none )
+
+        ShowStats ->
+            ( { model | menuOpen = False, modalStack = View.Stats.stats model.stats :: model.modalStack }, Cmd.none )
 
         CloseModal ->
             ( { model | modalStack = List.drop 1 model.modalStack }, Cmd.none )

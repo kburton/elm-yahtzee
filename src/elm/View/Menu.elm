@@ -13,7 +13,7 @@ menu : Html Msg
 menu =
     div
         [ class "menu" ]
-        [ menuItem "Stats" Msg.NoOp
+        [ menuItem "Stats" Msg.ShowStats
         , menuItem "New game" Msg.NewGame
         ]
 
