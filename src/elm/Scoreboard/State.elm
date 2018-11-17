@@ -1,9 +1,10 @@
 module Scoreboard.State exposing (init, update)
 
 import Dict
-import Scoreboard.Model exposing (..)
+import Scoreboard.Model exposing (Model, ScoreKey(..), defaultModel, getScore, setScore)
 import Scoreboard.Msg exposing (..)
 import Scoreboard.Score
+import Scoreboard.Summary
 
 
 init : List ( Int, Int ) -> ( Model, Cmd Msg )
@@ -33,7 +34,7 @@ update msg model dice =
 
                 newModel =
                     if isYahtzee && yahtzeeAlreadyScored then
-                        incYahtzeeBonus modelWithScore
+                        Scoreboard.Summary.incYahtzeeBonus modelWithScore
 
                     else
                         modelWithScore

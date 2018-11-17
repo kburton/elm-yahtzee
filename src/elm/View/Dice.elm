@@ -1,7 +1,7 @@
 module View.Dice exposing (dice, exampleDice)
 
 import Array
-import Dice.Model exposing (..)
+import Dice.Model exposing (Die, Face, Index, Model)
 import Dice.Msg
 import Html exposing (Html)
 import Msg exposing (Msg)
@@ -13,6 +13,11 @@ import Svg.Events as SvgEvt
 dice : Model -> Bool -> List (Html Msg)
 dice model allowToggle =
     Array.toList <| Array.indexedMap (clickableDie allowToggle) model
+
+
+exampleDice : List ( Face, Bool ) -> List (Html Msg)
+exampleDice faces =
+    List.map (\( f, s ) -> exampleDie f s) faces
 
 
 type DieType
@@ -40,11 +45,6 @@ clickableDie allowToggle index dieModel =
                 Nothing
     in
     die dieType dieModel.face msg
-
-
-exampleDice : List ( Face, Bool ) -> List (Html Msg)
-exampleDice faces =
-    List.map (\( f, s ) -> exampleDie f s) faces
 
 
 exampleDie : Face -> Bool -> Html Msg

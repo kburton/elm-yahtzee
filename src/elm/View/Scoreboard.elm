@@ -1,26 +1,25 @@
 module View.Scoreboard exposing (scoreboard)
 
-import Help.Model as Help exposing (HelpKey)
+import Help.Model as Help
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Msg exposing (Msg)
-import Scoreboard.Model exposing (..)
-import Scoreboard.Score
+import Scoreboard.Model exposing (Model, ScoreKey(..), getScore)
+import Scoreboard.Summary as Summary
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
-import View.Help
 
 
 scoreboard : Model -> Model -> Maybe ScoreKey -> Html Msg
 scoreboard model scoreOptions lastScoreKey =
     let
-        buildRow : ScoreKey -> HelpKey -> String -> String -> Html Msg
+        buildRow : ScoreKey -> Help.HelpKey -> String -> String -> Html Msg
         buildRow scoreKey helpKey label info =
             row scoreKey helpKey label info model scoreOptions (lastScoreKey == Just scoreKey)
 
-        buildBonusRow : ScoreKey -> HelpKey -> HelpKey -> String -> String -> Int -> Html Msg
+        buildBonusRow : ScoreKey -> Help.HelpKey -> Help.HelpKey -> String -> String -> Int -> Html Msg
         buildBonusRow scoreKey helpKey bonusHelpKey label info bonus =
             bonusRow scoreKey helpKey bonusHelpKey label info bonus model scoreOptions (lastScoreKey == Just scoreKey)
     in
@@ -31,19 +30,19 @@ scoreboard model scoreOptions lastScoreKey =
         , buildRow Threes Help.ScoreThrees "Threes" "Sum of threes"
         , buildRow Fours Help.ScoreFours "Fours" "Sum of fours"
         , buildRow Fives Help.ScoreFives "Fives" "Sum of fives"
-        , buildBonusRow Sixes Help.ScoreSixes Help.BonusUpper "Sixes" "Sum of sixes" <| upperBonus model
+        , buildBonusRow Sixes Help.ScoreSixes Help.BonusUpper "Sixes" "Sum of sixes" <| Summary.upperBonus model
         , divider
         , buildRow ThreeOfKind Help.ScoreThreeOfKind "3 of a kind" "Sum of all dice"
         , buildRow FourOfKind Help.ScoreFourOfKind "4 of a kind" "Sum of all dice"
         , buildRow FullHouse Help.ScoreFullHouse "Full house" "25 points"
         , buildRow SmallStraight Help.ScoreSmallStraight "Sm straight" "30 points"
         , buildRow LargeStraight Help.ScoreLargeStraight "Lg straight" "40 points"
-        , buildBonusRow Yahtzee Help.ScoreYahtzee Help.BonusYahtzee "Yahtzee" "50 points" <| yahtzeeBonus model
+        , buildBonusRow Yahtzee Help.ScoreYahtzee Help.BonusYahtzee "Yahtzee" "50 points" <| Summary.yahtzeeBonus model
         , buildRow Chance Help.ScoreChance "Chance" "Sum of all dice"
         ]
 
 
-row : ScoreKey -> HelpKey -> String -> String -> Model -> Model -> Bool -> Html Msg
+row : ScoreKey -> Help.HelpKey -> String -> String -> Model -> Model -> Bool -> Html Msg
 row scoreKey helpKey label info model scoreOptions showUndo =
     div
         [ class "scoreboard__row" ]
@@ -53,7 +52,7 @@ row scoreKey helpKey label info model scoreOptions showUndo =
         ]
 
 
-bonusRow : ScoreKey -> HelpKey -> HelpKey -> String -> String -> Int -> Model -> Model -> Bool -> Html Msg
+bonusRow : ScoreKey -> Help.HelpKey -> Help.HelpKey -> String -> String -> Int -> Model -> Model -> Bool -> Html Msg
 bonusRow scoreKey helpKey bonusHelpKey label info bonus model scoreOptions showUndo =
     if bonus == 0 then
         row scoreKey helpKey label info model scoreOptions showUndo
@@ -72,17 +71,17 @@ divider =
     div [ class "scoreboard__divider" ] []
 
 
-scoreLabel : HelpKey -> String -> Html Msg
+scoreLabel : Help.HelpKey -> String -> Html Msg
 scoreLabel helpKey label =
     div [ class "scoreboard__label", onClick <| Msg.ShowHelp helpKey ] [ text label ]
 
 
-scoreInfo : HelpKey -> String -> Html Msg
+scoreInfo : Help.HelpKey -> String -> Html Msg
 scoreInfo helpKey info =
     div [ class "scoreboard__info", onClick <| Msg.ShowHelp helpKey ] [ text info ]
 
 
-scoreBonus : HelpKey -> Int -> Html Msg
+scoreBonus : Help.HelpKey -> Int -> Html Msg
 scoreBonus bonusHelpKey bonus =
     div [ class "scoreboard__bonus", onClick <| Msg.ShowHelp bonusHelpKey ] [ text <| "Bonus " ++ String.fromInt bonus ]
 

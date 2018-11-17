@@ -3,7 +3,8 @@ module Stats.State exposing (init, update)
 import Dict
 import Ports
 import Scoreboard.Model as Scoreboard
-import Stats.Model exposing (..)
+import Scoreboard.Summary as Summary
+import Stats.Model exposing (Model, defaultModel)
 import Stats.Msg exposing (..)
 
 
@@ -11,7 +12,7 @@ init : List Ports.GameModel -> ( Model, Cmd Msg )
 init games =
     let
         model =
-            List.foldl (\g m -> updateScoreboard m g.g <| Dict.fromList g.s) defaultModel games
+            List.foldl (\g m -> updateStats m g.g <| Dict.fromList g.s) defaultModel games
     in
     ( model, Cmd.none )
 
@@ -20,11 +21,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Update sb ->
-            ( updateScoreboard model (Scoreboard.grandTotal sb) sb, Cmd.none )
+            ( updateStats model (Summary.grandTotal sb) sb, Cmd.none )
 
 
-updateScoreboard : Model -> Int -> Scoreboard.Model -> Model
-updateScoreboard model grandTotal scoreboard =
+updateStats : Model -> Int -> Scoreboard.Model -> Model
+updateStats model grandTotal scoreboard =
     let
         yahtzeeScored =
             (Maybe.withDefault 0 <| Scoreboard.getScore Scoreboard.Yahtzee scoreboard) > 0

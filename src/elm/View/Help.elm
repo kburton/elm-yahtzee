@@ -1,6 +1,6 @@
 module View.Help exposing (help)
 
-import Help.Model exposing (..)
+import Help.Model exposing (HelpKey(..))
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Modal.Model

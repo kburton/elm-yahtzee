@@ -1,27 +1,27 @@
 module Model exposing (Model, UndoState)
 
-import Dice.Model
-import Modal.Model
-import Scoreboard.Model
-import Stats.Model
+import Dice.Model as Dice
+import Modal.Model as Modal
+import Scoreboard.Model as Scoreboard
+import Stats.Model as Stats
 
 
 type alias Model =
-    { scoreboard : Scoreboard.Model.Model
-    , dice : Dice.Model.Model
-    , stats : Stats.Model.Model
+    { scoreboard : Scoreboard.Model
+    , dice : Dice.Model
+    , stats : Stats.Model
     , roll : Int
     , tutorialMode : Bool
     , menuOpen : Bool
-    , modalStack : List Modal.Model.Model
+    , modalStack : List Modal.Model
     , aspectRatio : Maybe Float
     , undo : Maybe UndoState
     }
 
 
 type alias UndoState =
-    { scoreboard : Scoreboard.Model.Model
-    , dice : Dice.Model.Model
+    { scoreboard : Scoreboard.Model
+    , dice : Dice.Model
     , roll : Int
-    , lastScoreKey : Scoreboard.Model.ScoreKey
+    , lastScoreKey : Scoreboard.ScoreKey
     }

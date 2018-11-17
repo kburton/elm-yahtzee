@@ -2,8 +2,7 @@ module View.Modal exposing (modal)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
-import Modal.Model exposing (..)
+import Modal.Model exposing (Model, Section)
 import Msg exposing (Msg)
 import Svg
 import Svg.Attributes as SvgAtt

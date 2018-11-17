@@ -1,6 +1,6 @@
 module Dice.Msg exposing (Msg(..))
 
-import Dice.Model exposing (..)
+import Dice.Model exposing (Face, Index)
 
 
 type Msg

@@ -7,13 +7,13 @@ import Dice.Model
 import Dice.Msg
 import Dice.State
 import Dict
-import Html
-import Model exposing (..)
+import Model exposing (Model)
 import Msg exposing (..)
 import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
 import Scoreboard.State
+import Scoreboard.Summary
 import Stats.Msg
 import Stats.State
 import Task
@@ -215,7 +215,7 @@ update msg model =
             , Ports.persistCompletedGame
                 { v = 1
                 , t = Time.posixToMillis time
-                , g = Scoreboard.Model.grandTotal scoreboard
+                , g = Scoreboard.Summary.grandTotal scoreboard
                 , s = Dict.toList scoreboard
                 }
             )

@@ -1,16 +1,14 @@
 module View exposing (view)
 
 import Dice.Model as Dice
-import Html exposing (Html, button, div, h1, h2, node, span, text)
-import Html.Attributes exposing (class, disabled, style)
+import Html exposing (Html, div, node, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Scoreboard.Model as Scoreboard
 import Scoreboard.Score
-import Svg
-import Svg.Attributes as SvgAtt
-import Svg.Events as SvgEvt
+import Scoreboard.Summary
 import View.Dice
 import View.Menu
 import View.MenuBar
@@ -149,7 +147,7 @@ messageHtml model isYahtzeeWildcard =
     else if Scoreboard.isComplete model.scoreboard then
         let
             score =
-                Scoreboard.grandTotal model.scoreboard
+                Scoreboard.Summary.grandTotal model.scoreboard
 
             startText =
                 if model.stats.gamesPlayed > 1 && score == model.stats.highScore then

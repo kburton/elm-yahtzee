@@ -2,12 +2,12 @@ module View.Stats exposing (stats)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Modal.Model
+import Modal.Model as Modal
 import Msg exposing (Msg)
-import Stats.Model exposing (..)
+import Stats.Model exposing (Model)
 
 
-stats : Model -> Modal.Model.Model
+stats : Model -> Modal.Model
 stats model =
     { title = "Stats"
     , sections =

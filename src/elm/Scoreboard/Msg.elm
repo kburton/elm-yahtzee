@@ -1,6 +1,6 @@
 module Scoreboard.Msg exposing (Msg(..))
 
-import Scoreboard.Model exposing (..)
+import Scoreboard.Model exposing (ScoreKey)
 
 
 type Msg
