@@ -19,8 +19,9 @@ import Stats.State
 import Task
 import Time
 import Update.Extra exposing (andThen)
-import View.Help
-import View.Stats
+import View.Modals.Credits
+import View.Modals.Help
+import View.Modals.Stats
 
 
 init : Maybe Ports.Flags -> ( Model, Cmd Msg )
@@ -180,10 +181,13 @@ update msg model =
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         ShowHelp helpKey ->
-            ( { model | modalStack = View.Help.help helpKey :: model.modalStack }, Cmd.none )
+            ( { model | modalStack = View.Modals.Help.help helpKey :: model.modalStack }, Cmd.none )
 
         ShowStats ->
-            ( { model | menuOpen = False, modalStack = View.Stats.stats model.stats :: model.modalStack }, Cmd.none )
+            ( { model | menuOpen = False, modalStack = View.Modals.Stats.stats model.stats :: model.modalStack }, Cmd.none )
+
+        ShowCredits ->
+            ( { model | menuOpen = False, modalStack = View.Modals.Credits.credits :: model.modalStack }, Cmd.none )
 
         CloseModal ->
             ( { model | modalStack = List.drop 1 model.modalStack }, Cmd.none )

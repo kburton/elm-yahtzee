@@ -19,6 +19,7 @@ type Msg
     | ToggleMenu
     | ShowHelp Help.Model.HelpKey
     | ShowStats
+    | ShowCredits
     | CloseModal
     | UpdateAspectRatio Float
     | PersistState

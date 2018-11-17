@@ -12,6 +12,7 @@ menu =
         [ class "menu" ]
         [ menuItem "Stats" Msg.ShowStats
         , menuItem "New game" Msg.NewGame
+        , menuItem "Credits" Msg.ShowCredits
         ]
 
 

@@ -30,7 +30,9 @@
   &__bonus {
     font-family: Kalam, cursive;
     font-weight: bold;
-    padding: 0.2em 0.5em 0 0;
+    position: relative;
+    top: 0.1em;
+    padding-right: 0.5em;
     color: #00F;
     cursor: pointer;
   }
@@ -72,7 +74,6 @@
     border-left: 1px solid #BBB;
     font-family: Kalam, cursive;
     font-weight: bold;
-    padding-top: 0.2em;
     color: #00F;
 
     &--clickable {
@@ -84,5 +85,10 @@
         background-color: #EFE;
       }
     }
+  }
+
+  &__value-text {
+    position: relative;
+    top: 0.1em;
   }
 }

@@ -25,3 +25,11 @@ html, body {
   -ms-user-select: none;
   user-select: none;
 }
+
+p {
+  margin: 0 0 0.5em 0;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}

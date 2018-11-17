@@ -1,4 +1,4 @@
-module View.Stats exposing (stats)
+module View.Modals.Stats exposing (stats)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)

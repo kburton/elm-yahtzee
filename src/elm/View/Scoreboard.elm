@@ -96,7 +96,7 @@ scoreValue scoreKey model scoreOptions showUndo =
                         [ class "scoreboard__value scoreboard__value--clickable"
                         , onClick <| Msg.Score scoreKey
                         ]
-                        [ text <| String.fromInt s ]
+                        [ div [ class "scoreboard__value-text" ] [ text <| String.fromInt s ] ]
 
                 Nothing ->
                     div
@@ -106,7 +106,7 @@ scoreValue scoreKey model scoreOptions showUndo =
         Just s ->
             div
                 [ class "scoreboard__value" ]
-                ([ div [] [ text <| String.fromInt s ]
+                ([ div [ class "scoreboard__value-text" ] [ text <| String.fromInt s ]
                  ]
                     ++ (if showUndo then
                             [ undo ]

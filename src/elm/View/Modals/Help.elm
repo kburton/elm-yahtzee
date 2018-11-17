@@ -1,4 +1,4 @@
-module View.Help exposing (help)
+module View.Modals.Help exposing (help)
 
 import Help.Model exposing (HelpKey(..))
 import Html exposing (Html, div, text)
