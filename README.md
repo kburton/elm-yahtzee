@@ -2,7 +2,7 @@
 
 Elm Yahtzee is an implementation of the dice game Yahtzee written in elm. It is primarily designed for mobile.
 
-Play online [here](http://elm-yahtzee.kappasoft.net).
+Play online [here](https://elm-yahtzee.kappasoft.net).
 
 ## Build
 
@@ -31,4 +31,4 @@ This project is licensed under the [GNU General Public License v3.0](https://cho
 
 ## Contact
 
-You can contact the author [here](http://www.kappasoft.net/contact).
+You can contact the author [here](https://www.kappasoft.net/contact).
