@@ -3,12 +3,11 @@ module View exposing (view)
 import Dice.Model as Dice
 import Html exposing (Html, div, node, text)
 import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Scoreboard.Model as Scoreboard
 import Scoreboard.Score
-import Scoreboard.Summary
+import View.ActionButton
 import View.Dice
 import View.Menu
 import View.MenuBar
@@ -103,12 +102,12 @@ menuGameWrapper model =
 game : Model -> List (Html Msg)
 game model =
     let
-        messagePaneClass =
+        actionPaneClass =
             if model.tutorialMode then
-                "message-pane message-pane--tutorial"
+                "action-pane action-pane--tutorial"
 
             else
-                "message-pane"
+                "action-pane"
 
         ( scoreOptions, isYahtzeeWildcard ) =
             if model.roll > 1 && not (Dice.anyRolling model.dice) then
@@ -132,94 +131,6 @@ game model =
         [ class "dice-pane" ]
         (View.Dice.dice model.dice <| model.roll > 1)
     , div
-        [ class messagePaneClass
-        , onClick <| messageAction model
-        ]
-        [ messageHtml model isYahtzeeWildcard ]
+        [ class actionPaneClass ]
+        [ View.ActionButton.actionButton model isYahtzeeWildcard ]
     ]
-
-
-messageHtml : Model -> Bool -> Html msg
-messageHtml model isYahtzeeWildcard =
-    if Dice.anyRolling model.dice then
-        text ""
-
-    else if Scoreboard.isComplete model.scoreboard then
-        let
-            score =
-                Scoreboard.Summary.grandTotal model.scoreboard
-
-            startText =
-                if model.stats.gamesPlayed > 1 && score == model.stats.highScore then
-                    "New high score!"
-
-                else
-                    "Game over!"
-        in
-        textToDivs [ startText ++ " You scored " ++ String.fromInt score ++ " points.", " Play again?" ]
-
-    else if isYahtzeeWildcard && model.roll > 1 then
-        text "Yahtzee wildcard!"
-
-    else if model.roll == 1 then
-        if model.tutorialMode && Scoreboard.turn model.scoreboard == 1 then
-            textToDivs [ "Welcome to Elm Yahtzee!", "Tap here to roll the dice." ]
-
-        else if model.tutorialMode && Scoreboard.turn model.scoreboard == 2 then
-            textToDivs [ "That’s it! Roll the dice to start your second turn.", "The game continues until all score slots are filled." ]
-
-        else
-            text "First roll"
-
-    else if model.roll == 2 then
-        if model.tutorialMode && Scoreboard.turn model.scoreboard == 1 then
-            textToDivs [ "Look at the dice - which score will you go for?", "You can lock any dice by tapping them.", "Roll again when you’re ready." ]
-
-        else if model.tutorialMode && Scoreboard.turn model.scoreboard == 2 then
-            textToDivs [ "You can tap the score slot name in the scoreboard for details about how the scoring works.", "Tap for your second roll." ]
-
-        else
-            text "Second roll"
-
-    else if model.roll == 3 then
-        if model.tutorialMode && Scoreboard.turn model.scoreboard == 1 then
-            textToDivs [ "Did that roll help?", "You can still lock and unlock any dice.", "This is your last roll, make it count!" ]
-
-        else if model.tutorialMode && Scoreboard.turn model.scoreboard == 2 then
-            textToDivs [ "This is your final roll." ]
-
-        else
-            text "Final roll"
-
-    else if model.roll > 3 then
-        if model.tutorialMode && Scoreboard.turn model.scoreboard == 1 then
-            text "Tap a score slot to choose a score for this turn."
-
-        else if model.tutorialMode && Scoreboard.turn model.scoreboard == 2 then
-            textToDivs [ "Okay, I think you can take it from here. Good luck!", "Choose the score slot for your second turn." ]
-
-        else
-            text "Choose a score slot"
-
-    else
-        text ""
-
-
-messageAction : Model -> Msg
-messageAction model =
-    if Dice.anyRolling model.dice then
-        Msg.NoOp
-
-    else if Scoreboard.isComplete model.scoreboard then
-        Msg.NewGame
-
-    else if model.roll <= 3 then
-        Msg.Roll
-
-    else
-        Msg.NoOp
-
-
-textToDivs : List String -> Html msg
-textToDivs =
-    div [] << List.map (\line -> div [] [ text line ])

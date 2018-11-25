@@ -29,30 +29,3 @@
   padding: 1.5rem 0;
   background-color: #EEE;
 }
-
-.message-pane {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  min-height: 18rem;
-  background-color: #CCF;
-  text-align: center;
-  cursor: pointer;
-
-  &--tutorial {
-    font-size: 2.2vh;
-
-    &:before {
-      content: 'TUTORIAL';
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      font-size: 1.6vh;
-      font-weight: bold;
-      color: #999;
-      padding: 0.2em;
-    }
-  }
-}
