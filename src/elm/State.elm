@@ -7,13 +7,11 @@ import Dice.Model
 import Dice.Msg
 import Dice.State
 import Dict
-import Help.Model
 import ImportExport.Msg
 import ImportExport.State
-import Modal.Model
 import Model exposing (Model)
 import ModelWrapper exposing (ModelWrapper)
-import Msg exposing (..)
+import Msg exposing (Msg(..))
 import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
@@ -281,6 +279,6 @@ subscriptions : ModelWrapper -> Sub Msg
 subscriptions modelWrapper =
     Sub.batch
         [ Sub.map DiceMsg (Dice.State.subscriptions modelWrapper.model.dice)
-        , Sub.map ImportExportMsg (ImportExport.State.subscriptions modelWrapper.model.importExport)
+        , Sub.map ImportExportMsg ImportExport.State.subscriptions
         , Browser.Events.onResize (\w h -> UpdateAspectRatio (toFloat w / toFloat h))
         ]

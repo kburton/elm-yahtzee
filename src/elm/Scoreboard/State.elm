@@ -2,7 +2,7 @@ module Scoreboard.State exposing (init, update)
 
 import Dict
 import Scoreboard.Model exposing (Model, ScoreKey(..), defaultModel, getScore, setScore)
-import Scoreboard.Msg exposing (..)
+import Scoreboard.Msg exposing (Msg(..))
 import Scoreboard.Score
 import Scoreboard.Summary
 

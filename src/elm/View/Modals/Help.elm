@@ -10,7 +10,7 @@ import View.Dice exposing (exampleDice)
 
 
 help : HelpKey -> Model -> Modal.Model.Model
-help key model =
+help key _ =
     let
         t =
             True

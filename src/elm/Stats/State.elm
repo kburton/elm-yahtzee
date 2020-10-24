@@ -5,7 +5,7 @@ import Ports
 import Scoreboard.Model as Scoreboard
 import Scoreboard.Summary as Summary
 import Stats.Model exposing (Model, defaultModel)
-import Stats.Msg exposing (..)
+import Stats.Msg exposing (Msg(..))
 
 
 init : Ports.HistoryModel -> ( Model, Cmd Msg )

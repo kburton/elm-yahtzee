@@ -4,7 +4,7 @@ import File
 import File.Download
 import File.Select
 import ImportExport.Model exposing (Model)
-import ImportExport.Msg exposing (..)
+import ImportExport.Msg exposing (Msg(..))
 import Ports
 import Task
 
@@ -38,18 +38,18 @@ update msg model =
         PersistImportedHistory history ->
             ( model, Ports.importHistory history )
 
-        ImportHistoryCheck history ->
+        ImportHistoryCheck _ ->
             ( model, Cmd.none )
 
-        ImportHistorySuccess history ->
+        ImportHistorySuccess _ ->
             ( { model | importResult = Just (Ok ()) }, Cmd.none )
 
         ImportHistoryFailure error ->
             ( { model | importResult = Just (Err error) }, Cmd.none )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions : Sub Msg
+subscriptions =
     Sub.batch
         [ Ports.exportHistoryResponse DownloadExportedHistory
         , Ports.importHistoryCheck ImportHistoryCheck

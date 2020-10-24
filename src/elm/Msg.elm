@@ -1,10 +1,8 @@
 module Msg exposing (Msg(..))
 
 import Dice.Msg
-import File
 import Help.Model
 import ImportExport.Msg
-import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
 import Stats.Msg

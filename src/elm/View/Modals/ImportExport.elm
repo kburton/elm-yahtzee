@@ -5,7 +5,7 @@ import Html.Events exposing (onClick)
 import ImportExport.Msg exposing (Msg(..))
 import Modal.Model as Modal
 import Model exposing (Model)
-import Msg exposing (Msg)
+import Msg exposing (Msg(..))
 
 
 importExport : Model -> Modal.Model
@@ -21,7 +21,7 @@ exportSection =
     , content =
         div []
             [ text "Click the button below to download your current game history and stats so they can be imported on another device."
-            , button [ onClick (Msg.ImportExportMsg ExportHistory) ] [ text "Export History" ]
+            , button [ onClick (ImportExportMsg ExportHistory) ] [ text "Export History" ]
             ]
     }
 
@@ -32,7 +32,7 @@ importSection result =
     , content =
         div []
             ([ text "Upload an exported file to restore your history. Note that this will delete any existing history on this device."
-             , button [ onClick (Msg.ImportExportMsg ImportHistory) ] [ text "Import History" ]
+             , button [ onClick (ImportExportMsg ImportHistory) ] [ text "Import History" ]
              ]
                 ++ importResult result
             )

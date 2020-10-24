@@ -7,7 +7,7 @@ import Model exposing (Model)
 
 
 credits : Model -> Modal.Model.Model
-credits model =
+credits _ =
     { title = "Credits"
     , sections =
         [ { header = "Project"

@@ -106,9 +106,8 @@ scoreValue scoreKey model scoreOptions showUndo =
         Just s ->
             div
                 [ class "scoreboard__value" ]
-                ([ div [ class "scoreboard__value-text" ] [ text <| String.fromInt s ]
-                 ]
-                    ++ (if showUndo then
+                (div [ class "scoreboard__value-text" ] [ text <| String.fromInt s ]
+                    :: (if showUndo then
                             [ undo ]
 
                         else

@@ -118,7 +118,7 @@ calcFullHouse counts yahtzeeWildcard =
 
     else
         case counts of
-            3 :: 2 :: rest ->
+            3 :: 2 :: _ ->
                 25
 
             _ ->

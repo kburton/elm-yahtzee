@@ -16,10 +16,12 @@ import View.Modal
 import View.Scoreboard
 
 
+aspectRatioBreakpoint : Float
 aspectRatioBreakpoint =
     0.75
 
 
+desktopAspectRatio : Float
 desktopAspectRatio =
     0.6
 
@@ -40,9 +42,9 @@ view modelWrapper =
     in
     div
         [ class <| "container" ++ modeClass ]
-        ([ htmlStyle modelWrapper.model ]
-            ++ (case modelWrapper.modalStack of
-                    m :: rest ->
+        (htmlStyle modelWrapper.model
+            :: (case modelWrapper.modalStack of
+                    m :: _ ->
                         [ View.Modal.modal (m modelWrapper.model) ]
 
                     _ ->
@@ -91,8 +93,8 @@ htmlStyle model =
 
 menuGameWrapper : Model -> List (Html Msg)
 menuGameWrapper model =
-    [ View.MenuBar.menuBar model.menuOpen ]
-        ++ (if model.menuOpen then
+    View.MenuBar.menuBar model.menuOpen
+        :: (if model.menuOpen then
                 [ View.Menu.menu ]
 
             else
@@ -118,12 +120,7 @@ game model =
                 ( Scoreboard.defaultModel, False )
 
         lastScoreKey =
-            case model.undo of
-                Just u ->
-                    Just u.lastScoreKey
-
-                Nothing ->
-                    Nothing
+            Maybe.map .lastScoreKey model.undo
     in
     [ div
         [ class "scoreboard-pane" ]

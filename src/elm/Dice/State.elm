@@ -2,7 +2,7 @@ module Dice.State exposing (init, subscriptions, update)
 
 import Array
 import Dice.Model exposing (Die, Model, active, defaultModel, dieAt, rolling)
-import Dice.Msg exposing (..)
+import Dice.Msg exposing (Msg(..))
 import Random
 import Time
 
