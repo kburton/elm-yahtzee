@@ -29,3 +29,25 @@
   padding: 1.5rem 0;
   background-color: #EEE;
 }
+
+.action-pane {
+  position: relative;
+  //display: flex;
+  padding: 0;
+  min-height: 18rem;
+
+  &--tutorial {
+    font-size: 2.2vh;
+
+    &:before {
+      content: 'TUTORIAL';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 1.6vh;
+      font-weight: bold;
+      color: #999;
+      padding: 0.2em;
+    }
+  }
+}
