@@ -1,17 +1,19 @@
 module View.Modals.ImportExport exposing (importExport)
 
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, p, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import ImportExport.Msg exposing (Msg(..))
+import ImportExport.Model
+import ImportExport.Msg
 import Modal.Model as Modal
 import Model exposing (Model)
-import Msg exposing (Msg(..))
+import Msg
 
 
 importExport : Model -> Modal.Model
 importExport model =
     { title = "Import / Export"
-    , sections = [ exportSection, importSection model.importExport.importResult ]
+    , sections = [ exportSection, importSection model.importExport.importStage ]
     }
 
 
@@ -20,33 +22,53 @@ exportSection =
     { header = "Export Game History"
     , content =
         div []
-            [ text "Click the button below to download your current game history and stats so they can be imported on another device."
-            , button [ onClick (ImportExportMsg ExportHistory) ] [ text "Export History" ]
+            [ p [] [ text "Click the button below to download your current game history and stats so they can be imported on another device." ]
+            , p [] [ button [ onClick (Msg.ImportExportMsg ImportExport.Msg.ExportHistory) ] [ text "Export History" ] ]
             ]
     }
 
 
-importSection : Maybe (Result String ()) -> Modal.Section
+importSection : ImportExport.Model.ImportStage -> Modal.Section
 importSection result =
     { header = "Import Game History"
     , content =
         div []
-            ([ text "Upload an exported file to restore your history. Note that this will delete any existing history on this device."
-             , button [ onClick (ImportExportMsg ImportHistory) ] [ text "Import History" ]
+            ([ p [] [ text "Upload an exported file to restore your history. Note that this will delete any existing history on this device." ]
+             , p [] [ button [ onClick (Msg.ImportExportMsg ImportExport.Msg.UploadFile) ] [ text "Import History" ] ]
              ]
                 ++ importResult result
             )
     }
 
 
-importResult : Maybe (Result String ()) -> List (Html msg)
-importResult result =
-    case result of
-        Just (Ok ()) ->
-            [ div [] [ text "Import completed successfully" ] ]
+importResult : ImportExport.Model.ImportStage -> List (Html Msg.Msg)
+importResult importStage =
+    case importStage of
+        ImportExport.Model.ImportStageChecked { result } ->
+            case result of
+                Ok history ->
+                    [ p [] [ text <| "Import " ++ String.fromInt (List.length history) ++ " historical games?" ]
+                    , p []
+                        [ button
+                            [ onClick (Msg.ImportExportMsg ImportExport.Msg.ImportHistory), class "import-export__import-confirm" ]
+                            [ text "Complete Import" ]
+                        , button
+                            [ onClick (Msg.ImportExportMsg ImportExport.Msg.CancelImport) ]
+                            [ text "Cancel Import" ]
+                        ]
+                    ]
 
-        Just (Err error) ->
-            [ div [] [ text <| "Import failed: " ++ error ] ]
+                Err error ->
+                    [ p [ class "import-export__import-result--error" ] [ text <| "Import failed: " ++ error ] ]
 
-        Nothing ->
+        ImportExport.Model.ImportStageImported (Ok ()) ->
+            [ p [ class "import-export__import-result--success" ] [ text "Import completed successfully!" ] ]
+
+        ImportExport.Model.ImportStageImported (Err error) ->
+            [ p [ class "import-export__import-result--error" ] [ text <| "Import failed: " ++ error ] ]
+
+        ImportExport.Model.ImportStageUploaded _ ->
+            []
+
+        ImportExport.Model.ImportStageNone ->
             []

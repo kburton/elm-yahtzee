@@ -6,6 +6,8 @@ port module Ports exposing
     , exportHistoryResponse
     , importHistory
     , importHistoryCheck
+    , importHistoryCheckFailure
+    , importHistoryCheckSuccess
     , importHistoryFailure
     , importHistorySuccess
     , persistCompletedGame
@@ -53,10 +55,16 @@ port exportHistory : () -> Cmd msg
 port exportHistoryResponse : (String -> msg) -> Sub msg
 
 
+port importHistoryCheck : String -> Cmd msg
+
+
+port importHistoryCheckSuccess : (HistoryModel -> msg) -> Sub msg
+
+
+port importHistoryCheckFailure : (String -> msg) -> Sub msg
+
+
 port importHistory : String -> Cmd msg
-
-
-port importHistoryCheck : (HistoryModel -> msg) -> Sub msg
 
 
 port importHistorySuccess : (HistoryModel -> msg) -> Sub msg

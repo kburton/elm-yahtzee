@@ -45,7 +45,7 @@ view modelWrapper =
         (htmlStyle modelWrapper.model
             :: (case modelWrapper.modalStack of
                     m :: _ ->
-                        [ View.Modal.modal (m modelWrapper.model) ]
+                        [ View.Modal.modal (m.modal modelWrapper.model) ]
 
                     _ ->
                         menuGameWrapper modelWrapper.model

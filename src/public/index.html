@@ -12,72 +12,80 @@
 <body>
 <div id="elm"></div>
 <script>
-    var app = undefined;
+  var app = undefined
+
+  try {
+    app = Elm.Main.init({
+      node: document.getElementById('elm'),
+      flags: {
+        gameState: JSON.parse(sessionStorage.getItem('gameState')),
+        history: JSON.parse(localStorage.getItem('history'))
+      }
+    })
+  } catch (error) {
+    console.error(error)
+    app = Elm.Main.init({
+      node: document.getElementById('elm'),
+      flags: null
+    })
+  }
+
+  app.ports.persistGameState.subscribe(function (data) {
+    sessionStorage.setItem('gameState', JSON.stringify(data))
+  })
+
+  app.ports.persistCompletedGame.subscribe(function (data) {
+    try {
+      var gameHistoryJson = localStorage.getItem('history')
+      var gameHistory = gameHistoryJson ? JSON.parse(gameHistoryJson) : []
+      gameHistory.push(data)
+      localStorage.setItem('history', JSON.stringify(gameHistory))
+    } catch (error) {
+      console.error(error)
+    }
+  })
+
+  app.ports.exportHistory.subscribe(function () {
+    try {
+      var gameHistoryJson = localStorage.getItem('history')
+      app.ports.exportHistoryResponse.send(gameHistoryJson || JSON.stringify([]))
+    } catch (error) {
+      console.error(error)
+    }
+  })
+
+  app.ports.importHistoryCheck.subscribe(function (data) {
+    var newGameHistory = null
 
     try {
-        app = Elm.Main.init({
-            node: document.getElementById('elm'),
-            flags: {
-                gameState: JSON.parse(sessionStorage.getItem('gameState')),
-                history: JSON.parse(localStorage.getItem('history'))
-            }
-        });
+      newGameHistory = JSON.parse(data)
     } catch (error) {
-        console.error(error);
-        app = Elm.Main.init({
-            node: document.getElementById('elm'),
-            flags: null
-        });
+      console.error(error)
+      app.ports.importHistoryCheckFailure.send('Imported file could not be parsed as JSON.')
+      return
     }
-    app.ports.persistGameState.subscribe(function(data) {
-        sessionStorage.setItem('gameState', JSON.stringify(data));
-    });
-    app.ports.persistCompletedGame.subscribe(function(data) {
-        try {
-            var gameHistoryJson = localStorage.getItem('history');
-            var gameHistory = gameHistoryJson ? JSON.parse(gameHistoryJson) : [];
-            gameHistory.push(data);
-            localStorage.setItem('history', JSON.stringify(gameHistory));
-        } catch (error) {
-            console.error(error);
-        }
-    });
-    app.ports.exportHistory.subscribe(function() {
-        try {
-            var gameHistoryJson = localStorage.getItem('history');
-            app.ports.exportHistoryResponse.send(gameHistoryJson || JSON.stringify([]));
-        } catch (error) {
-            console.error(error);
-        }
-    });
-    app.ports.importHistory.subscribe(function(data) {
-        var newGameHistory = null;
-        try {
-            newGameHistory = JSON.parse(data);
-        } catch (error) {
-            console.error(error);
-            app.ports.importHistoryFailure.send("Imported file could not be parsed as JSON");
-            return;
-        }
 
-        try {
-            app.ports.importHistoryCheck.send(newGameHistory);
-        } catch (error) {
-            console.error(error);
-            app.ports.importHistoryFailure.send("Imported file did not match expected model");
-            return;
-        }
+    try {
+      app.ports.importHistoryCheckSuccess.send(newGameHistory)
+    } catch (error) {
+      console.error(error)
+      app.ports.importHistoryCheckFailure.send('Imported file did not match expected model.')
+    }
+  })
 
-        try {
-            localStorage.setItem('history', JSON.stringify(newGameHistory));
-        } catch (error) {
-            console.error(error);
-            app.ports.importHistoryFailure.send("Error persisting imported state to local storage");
-            return;
-        }
+  app.ports.importHistory.subscribe(function (data) {
+    var newGameHistory = JSON.parse(data)
 
-        app.ports.importHistorySuccess.send(newGameHistory);
-    });
+    try {
+      localStorage.setItem('history', JSON.stringify(newGameHistory))
+    } catch (error) {
+      console.error(error)
+      app.ports.importHistoryFailure.send('Error persisting imported state to local storage.')
+      return
+    }
+
+    app.ports.importHistorySuccess.send(newGameHistory)
+  })
 
 </script>
 </body>

@@ -3,7 +3,7 @@ module ImportExport.State exposing (init, subscriptions, update)
 import File
 import File.Download
 import File.Select
-import ImportExport.Model exposing (Model)
+import ImportExport.Model exposing (ImportStage(..), Model, defaultModel)
 import ImportExport.Msg exposing (Msg(..))
 import Ports
 import Task
@@ -11,7 +11,7 @@ import Task
 
 init : ( Model, Cmd Msg )
 init =
-    ( { importResult = Nothing }, Cmd.none )
+    ( defaultModel, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -27,32 +27,65 @@ update msg model =
             , File.Download.string "elm-yahtzee-export.txt" "text/plain" history
             )
 
-        ImportHistory ->
-            ( { model | importResult = Nothing }
-            , File.Select.file [ "text/plain" ] ProcessImportedHistory
+        CancelImport ->
+            ( defaultModel, Cmd.none )
+
+        UploadFile ->
+            ( defaultModel
+            , File.Select.file [ "text/plain" ] ProcessUploadedFile
             )
 
-        ProcessImportedHistory file ->
-            ( model, Task.perform PersistImportedHistory (File.toString file) )
+        ProcessUploadedFile file ->
+            ( model, Task.perform ProcessUploadedFileContent (File.toString file) )
 
-        PersistImportedHistory history ->
-            ( model, Ports.importHistory history )
+        ProcessUploadedFileContent content ->
+            ( { model | importStage = ImportStageUploaded content }, Ports.importHistoryCheck content )
 
-        ImportHistoryCheck _ ->
-            ( model, Cmd.none )
+        ImportHistoryCheckSuccess history ->
+            case model.importStage of
+                ImportStageUploaded content ->
+                    ( { model | importStage = ImportStageChecked { uploadedContent = content, result = Ok history } }, Cmd.none )
+
+                _ ->
+                    ( defaultModel, Cmd.none )
+
+        ImportHistoryCheckFailure error ->
+            case model.importStage of
+                ImportStageUploaded content ->
+                    ( { model | importStage = ImportStageChecked { uploadedContent = content, result = Err error } }, Cmd.none )
+
+                _ ->
+                    ( defaultModel, Cmd.none )
+
+        ImportHistory ->
+            case model.importStage of
+                ImportStageChecked rec ->
+                    case rec.result of
+                        Ok _ ->
+                            ( model, Ports.importHistory rec.uploadedContent )
+
+                        _ ->
+                            ( defaultModel, Cmd.none )
+
+                _ ->
+                    ( defaultModel, Cmd.none )
 
         ImportHistorySuccess _ ->
-            ( { model | importResult = Just (Ok ()) }, Cmd.none )
+            ( { model | importStage = ImportStageImported (Ok ()) }, Cmd.none )
 
         ImportHistoryFailure error ->
-            ( { model | importResult = Just (Err error) }, Cmd.none )
+            ( { model | importStage = ImportStageImported (Err error) }, Cmd.none )
+
+        Clear ->
+            ( defaultModel, Cmd.none )
 
 
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
         [ Ports.exportHistoryResponse DownloadExportedHistory
-        , Ports.importHistoryCheck ImportHistoryCheck
+        , Ports.importHistoryCheckSuccess ImportHistoryCheckSuccess
+        , Ports.importHistoryCheckFailure ImportHistoryCheckFailure
         , Ports.importHistorySuccess ImportHistorySuccess
         , Ports.importHistoryFailure ImportHistoryFailure
         ]

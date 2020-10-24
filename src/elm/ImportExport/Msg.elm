@@ -7,9 +7,13 @@ import Ports
 type Msg
     = ExportHistory
     | DownloadExportedHistory String
+    | UploadFile
+    | ProcessUploadedFile File.File
+    | ProcessUploadedFileContent String
+    | ImportHistoryCheckSuccess Ports.HistoryModel
+    | ImportHistoryCheckFailure String
+    | CancelImport
     | ImportHistory
-    | ProcessImportedHistory File.File
-    | PersistImportedHistory String
-    | ImportHistoryCheck Ports.HistoryModel
     | ImportHistorySuccess Ports.HistoryModel
     | ImportHistoryFailure String
+    | Clear

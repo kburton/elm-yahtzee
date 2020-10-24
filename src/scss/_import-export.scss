@@ -1,0 +1,15 @@
+.import-export {
+  &__import-result {
+    &--success {
+      color: darkgreen;
+    }
+
+    &--error {
+      color: darkred;
+    }
+  }
+
+  &__import-confirm {
+    margin-right: 0.5em;
+  }
+}

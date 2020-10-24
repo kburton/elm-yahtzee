@@ -220,24 +220,58 @@ update msg modelWrapper =
             ( updateModel { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         ShowHelp helpKey ->
-            ( { modelWrapper | modalStack = View.Modals.Help.help helpKey :: modelWrapper.modalStack }, Cmd.none )
+            ( { modelWrapper
+                | modalStack = { modal = View.Modals.Help.help helpKey, onClose = NoOp } :: modelWrapper.modalStack
+              }
+            , Cmd.none
+            )
 
         ShowStats ->
-            ( { modelWrapper | modalStack = View.Modals.Stats.stats :: modelWrapper.modalStack }, Cmd.none )
+            ( { modelWrapper
+                | modalStack = { modal = View.Modals.Stats.stats, onClose = NoOp } :: modelWrapper.modalStack
+              }
+            , Cmd.none
+            )
 
         ShowCredits ->
-            ( { modelWrapper | modalStack = View.Modals.Credits.credits :: modelWrapper.modalStack }, Cmd.none )
+            ( { modelWrapper
+                | modalStack = { modal = View.Modals.Credits.credits, onClose = NoOp } :: modelWrapper.modalStack
+              }
+            , Cmd.none
+            )
 
         ShowImportExport ->
-            ( { modelWrapper | modalStack = View.Modals.ImportExport.importExport :: modelWrapper.modalStack }, Cmd.none )
+            ( { modelWrapper
+                | modalStack =
+                    { modal = View.Modals.ImportExport.importExport, onClose = ImportExportMsg ImportExport.Msg.Clear }
+                        :: modelWrapper.modalStack
+              }
+            , Cmd.none
+            )
 
         CloseModal ->
+            let
+                topModal =
+                    List.head modelWrapper.modalStack
+
+                onClose =
+                    case topModal of
+                        Just modal ->
+                            modal.onClose
+
+                        Nothing ->
+                            NoOp
+
+                remainingStack =
+                    Maybe.withDefault [] (List.tail modelWrapper.modalStack)
+            in
             ( { modelWrapper
-                | modalStack = List.drop 1 modelWrapper.modalStack
+                | modalStack = remainingStack
                 , model = { model | menuOpen = False }
               }
             , Cmd.none
             )
+                |> andThen update onClose
 
         UpdateAspectRatio aspectRatio ->
             ( updateModel { model | aspectRatio = Just aspectRatio }, Cmd.none )

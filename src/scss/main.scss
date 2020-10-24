@@ -1,6 +1,7 @@
 @import "action-button";
 @import "die";
 @import "help";
+@import "import-export";
 @import "menu";
 @import "menu-bar";
 @import "modal";
@@ -33,4 +34,8 @@ p {
   &:last-of-type {
     margin-bottom: 0;
   }
+}
+
+button {
+  font-size: 1em;
 }
