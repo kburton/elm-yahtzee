@@ -1,7 +1,10 @@
 module Msg exposing (Msg(..))
 
 import Dice.Msg
+import File
 import Help.Model
+import ImportExport.Msg
+import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
 import Stats.Msg
@@ -12,6 +15,7 @@ type Msg
     = ScoreboardMsg Scoreboard.Msg.Msg
     | DiceMsg Dice.Msg.Msg
     | StatsMsg Stats.Msg.Msg
+    | ImportExportMsg ImportExport.Msg.Msg
     | Roll
     | Score Scoreboard.Model.ScoreKey
     | Undo
@@ -20,6 +24,7 @@ type Msg
     | ShowHelp Help.Model.HelpKey
     | ShowStats
     | ShowCredits
+    | ShowImportExport
     | CloseModal
     | UpdateAspectRatio Float
     | PersistState

@@ -8,20 +8,24 @@ import Stats.Model exposing (Model, defaultModel)
 import Stats.Msg exposing (..)
 
 
-init : List Ports.GameModel -> ( Model, Cmd Msg )
+init : Ports.HistoryModel -> ( Model, Cmd Msg )
 init games =
-    let
-        model =
-            List.foldl (\g m -> updateStats m g.g <| Dict.fromList g.s) defaultModel games
-    in
-    ( model, Cmd.none )
+    ( initStats games, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Init games ->
+            ( initStats games, Cmd.none )
+
         Update sb ->
             ( updateStats model (Summary.grandTotal sb) sb, Cmd.none )
+
+
+initStats : Ports.HistoryModel -> Model
+initStats games =
+    List.foldl (\g m -> updateStats m g.g <| Dict.fromList g.s) defaultModel games
 
 
 updateStats : Model -> Int -> Scoreboard.Model -> Model

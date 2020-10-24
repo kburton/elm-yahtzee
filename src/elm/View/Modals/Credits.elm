@@ -3,10 +3,11 @@ module View.Modals.Credits exposing (credits)
 import Html exposing (a, div, p, text)
 import Html.Attributes exposing (href, target)
 import Modal.Model
+import Model exposing (Model)
 
 
-credits : Modal.Model.Model
-credits =
+credits : Model -> Modal.Model.Model
+credits model =
     { title = "Credits"
     , sections =
         [ { header = "Project"

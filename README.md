@@ -12,7 +12,7 @@ Requirements:
 
 * make
 * docker
-* elm 0.19
+* elm 0.19.1
 
 From the root directory of the project, run `make build` to build the project.
 

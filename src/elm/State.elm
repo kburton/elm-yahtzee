@@ -7,7 +7,12 @@ import Dice.Model
 import Dice.Msg
 import Dice.State
 import Dict
+import Help.Model
+import ImportExport.Msg
+import ImportExport.State
+import Modal.Model
 import Model exposing (Model)
+import ModelWrapper exposing (ModelWrapper)
 import Msg exposing (..)
 import Ports
 import Scoreboard.Model
@@ -21,10 +26,11 @@ import Time
 import Update.Extra exposing (andThen)
 import View.Modals.Credits
 import View.Modals.Help
+import View.Modals.ImportExport
 import View.Modals.Stats
 
 
-init : Maybe Ports.Flags -> ( Model, Cmd Msg )
+init : Maybe Ports.Flags -> ( ModelWrapper, Cmd Msg )
 init flags =
     let
         ( gameStateModel, history ) =
@@ -52,37 +58,52 @@ init flags =
         ( statsModel, statsCmd ) =
             Stats.State.init history
 
+        ( importExportModel, importExportCmd ) =
+            ImportExport.State.init
+
         cmds =
             Cmd.batch
                 [ Cmd.map ScoreboardMsg scoreboardCmd
                 , Cmd.map DiceMsg diceCmd
                 , Cmd.map StatsMsg statsCmd
+                , Cmd.map ImportExportMsg importExportCmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
                 ]
     in
-    ( { scoreboard = scoreboardModel
-      , dice = diceModel
-      , stats = statsModel
-      , roll = roll
-      , tutorialMode = statsModel.gamesPlayed == 0
-      , menuOpen = False
+    ( { model =
+            { scoreboard = scoreboardModel
+            , dice = diceModel
+            , stats = statsModel
+            , importExport = importExportModel
+            , roll = roll
+            , tutorialMode = statsModel.gamesPlayed == 0
+            , menuOpen = False
+            , aspectRatio = Nothing
+            , undo = Nothing
+            }
       , modalStack = []
-      , aspectRatio = Nothing
-      , undo = Nothing
       }
     , cmds
     )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Msg -> ModelWrapper -> ( ModelWrapper, Cmd Msg )
+update msg modelWrapper =
+    let
+        model =
+            modelWrapper.model
+
+        updateModel : Model -> ModelWrapper
+        updateModel newModel =
+            { modelWrapper | model = newModel }
+    in
     case msg of
         ScoreboardMsg scoreboardMsg ->
             let
                 ( scoreboardModel, scoreboardCmd ) =
                     Scoreboard.State.update scoreboardMsg model.scoreboard <| Dice.Model.faces model.dice
             in
-            ( { model | scoreboard = scoreboardModel }, Cmd.map ScoreboardMsg scoreboardCmd )
+            ( updateModel { model | scoreboard = scoreboardModel }, Cmd.map ScoreboardMsg scoreboardCmd )
 
         DiceMsg diceMsg ->
             let
@@ -101,76 +122,96 @@ update msg model =
                             False
             in
             if persist then
-                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+                ( updateModel { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
                     |> andThen update PersistState
 
             else
-                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+                ( updateModel { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
 
         StatsMsg statsMsg ->
             let
                 ( statsModel, statsCmd ) =
                     Stats.State.update statsMsg model.stats
             in
-            ( { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
+            ( updateModel { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
+
+        ImportExportMsg importExportMsg ->
+            let
+                ( importExportModel, importExportCmd ) =
+                    ImportExport.State.update importExportMsg model.importExport
+            in
+            case importExportMsg of
+                ImportExport.Msg.ImportHistorySuccess history ->
+                    ( updateModel { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
+                        |> andThen update (StatsMsg (Stats.Msg.Init history))
+
+                _ ->
+                    ( updateModel { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
 
         Roll ->
-            ( { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
+            ( updateModel { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
                 |> andThen update (DiceMsg Dice.Msg.Roll)
 
         Score scoreKey ->
             let
-                ( newModel, newCmd ) =
-                    ( { model
-                        | roll = 1
-                        , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.scoreboard < 2
-                      }
+                ( newModelWrapper, newCmd ) =
+                    ( updateModel
+                        { model
+                            | roll = 1
+                            , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.scoreboard < 2
+                        }
                     , Cmd.none
                     )
                         |> andThen update (ScoreboardMsg (Scoreboard.Msg.Score scoreKey))
                         |> andThen update (DiceMsg Dice.Msg.Reset)
                         |> andThen update PersistState
                         |> andThen update TryPersistGame
+
+                newModel =
+                    newModelWrapper.model
             in
             if Scoreboard.Model.isComplete newModel.scoreboard then
-                ( newModel, newCmd )
-                    |> andThen update (StatsMsg (Stats.Msg.Update newModel.scoreboard))
+                ( newModelWrapper, newCmd )
+                    |> andThen update (StatsMsg (Stats.Msg.Update newModelWrapper.model.scoreboard))
 
             else
-                ( { newModel
-                    | undo =
-                        Just
-                            { scoreboard = model.scoreboard
-                            , dice = model.dice
-                            , roll = model.roll
-                            , lastScoreKey = scoreKey
-                            }
-                  }
+                ( updateModel
+                    { newModel
+                        | undo =
+                            Just
+                                { scoreboard = model.scoreboard
+                                , dice = model.dice
+                                , roll = model.roll
+                                , lastScoreKey = scoreKey
+                                }
+                    }
                 , newCmd
                 )
 
         Undo ->
             case model.undo of
                 Just u ->
-                    ( { model
-                        | scoreboard = u.scoreboard
-                        , dice = u.dice
-                        , roll = u.roll
-                        , undo = Nothing
-                      }
+                    ( updateModel
+                        { model
+                            | scoreboard = u.scoreboard
+                            , dice = u.dice
+                            , roll = u.roll
+                            , undo = Nothing
+                        }
                     , Cmd.none
                     )
                         |> andThen update PersistState
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( modelWrapper, Cmd.none )
 
         NewGame ->
-            ( { model
-                | roll = 1
-                , menuOpen = False
-                , undo = Nothing
-              }
+            ( updateModel
+                { model
+                    | roll = 1
+                    , menuOpen = False
+                    , undo = Nothing
+                }
             , Cmd.none
             )
                 |> andThen update (ScoreboardMsg Scoreboard.Msg.Reset)
@@ -178,25 +219,33 @@ update msg model =
                 |> andThen update PersistState
 
         ToggleMenu ->
-            ( { model | menuOpen = not model.menuOpen }, Cmd.none )
+            ( updateModel { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         ShowHelp helpKey ->
-            ( { model | modalStack = View.Modals.Help.help helpKey :: model.modalStack }, Cmd.none )
+            ( { modelWrapper | modalStack = View.Modals.Help.help helpKey :: modelWrapper.modalStack }, Cmd.none )
 
         ShowStats ->
-            ( { model | menuOpen = False, modalStack = View.Modals.Stats.stats model.stats :: model.modalStack }, Cmd.none )
+            ( { modelWrapper | modalStack = View.Modals.Stats.stats :: modelWrapper.modalStack }, Cmd.none )
 
         ShowCredits ->
-            ( { model | menuOpen = False, modalStack = View.Modals.Credits.credits :: model.modalStack }, Cmd.none )
+            ( { modelWrapper | modalStack = View.Modals.Credits.credits :: modelWrapper.modalStack }, Cmd.none )
+
+        ShowImportExport ->
+            ( { modelWrapper | modalStack = View.Modals.ImportExport.importExport :: modelWrapper.modalStack }, Cmd.none )
 
         CloseModal ->
-            ( { model | modalStack = List.drop 1 model.modalStack }, Cmd.none )
+            ( { modelWrapper
+                | modalStack = List.drop 1 modelWrapper.modalStack
+                , model = { model | menuOpen = False }
+              }
+            , Cmd.none
+            )
 
         UpdateAspectRatio aspectRatio ->
-            ( { model | aspectRatio = Just aspectRatio }, Cmd.none )
+            ( updateModel { model | aspectRatio = Just aspectRatio }, Cmd.none )
 
         PersistState ->
-            ( model
+            ( modelWrapper
             , Ports.persistGameState
                 { scoreboard = Dict.toList model.scoreboard
                 , roll = model.roll
@@ -206,7 +255,7 @@ update msg model =
             )
 
         TryPersistGame ->
-            ( model
+            ( modelWrapper
             , if Scoreboard.Model.isComplete model.scoreboard then
                 Task.perform (PersistGame model.scoreboard) Time.now
 
@@ -215,7 +264,7 @@ update msg model =
             )
 
         PersistGame scoreboard time ->
-            ( model
+            ( modelWrapper
             , Ports.persistCompletedGame
                 { v = 1
                 , t = Time.posixToMillis time
@@ -225,12 +274,13 @@ update msg model =
             )
 
         NoOp ->
-            ( model, Cmd.none )
+            ( modelWrapper, Cmd.none )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions : ModelWrapper -> Sub Msg
+subscriptions modelWrapper =
     Sub.batch
-        [ Sub.map DiceMsg (Dice.State.subscriptions model.dice)
+        [ Sub.map DiceMsg (Dice.State.subscriptions modelWrapper.model.dice)
+        , Sub.map ImportExportMsg (ImportExport.State.subscriptions modelWrapper.model.importExport)
         , Browser.Events.onResize (\w h -> UpdateAspectRatio (toFloat w / toFloat h))
         ]

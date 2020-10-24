@@ -1,7 +1,9 @@
 module Stats.Msg exposing (Msg(..))
 
+import Ports
 import Scoreboard.Model
 
 
 type Msg
-    = Update Scoreboard.Model.Model
+    = Init Ports.HistoryModel
+    | Update Scoreboard.Model.Model

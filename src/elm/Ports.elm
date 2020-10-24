@@ -1,4 +1,16 @@
-port module Ports exposing (Flags, GameModel, persistCompletedGame, persistGameState)
+port module Ports exposing
+    ( Flags
+    , GameModel
+    , HistoryModel
+    , exportHistory
+    , exportHistoryResponse
+    , importHistory
+    , importHistoryCheck
+    , importHistoryFailure
+    , importHistorySuccess
+    , persistCompletedGame
+    , persistGameState
+    )
 
 import Dice.Model
 
@@ -33,3 +45,21 @@ port persistGameState : GameStateModel -> Cmd msg
 
 
 port persistCompletedGame : GameModel -> Cmd msg
+
+
+port exportHistory : () -> Cmd msg
+
+
+port exportHistoryResponse : (String -> msg) -> Sub msg
+
+
+port importHistory : String -> Cmd msg
+
+
+port importHistoryCheck : (HistoryModel -> msg) -> Sub msg
+
+
+port importHistorySuccess : (HistoryModel -> msg) -> Sub msg
+
+
+port importHistoryFailure : (String -> msg) -> Sub msg

@@ -4,12 +4,13 @@ import Help.Model exposing (HelpKey(..))
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Modal.Model
+import Model exposing (Model)
 import Msg exposing (Msg)
 import View.Dice exposing (exampleDice)
 
 
-help : HelpKey -> Modal.Model.Model
-help key =
+help : HelpKey -> Model -> Modal.Model.Model
+help key model =
     let
         t =
             True
