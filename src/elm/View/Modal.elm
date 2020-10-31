@@ -2,7 +2,7 @@ module View.Modal exposing (modal)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Modal.Model exposing (Model, Section)
+import Modal.Model exposing (Body(..), Model, Section)
 import Msg exposing (Msg)
 import Svg
 import Svg.Attributes as SvgAtt
@@ -31,7 +31,13 @@ body : Model -> Html Msg
 body model =
     div
         [ class "modal__body" ]
-        (List.map section model.sections)
+        (case model.body of
+            Raw content ->
+                [ content ]
+
+            Sections sections ->
+                List.map section sections
+        )
 
 
 title : String -> Html Msg

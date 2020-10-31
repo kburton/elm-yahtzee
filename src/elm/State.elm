@@ -22,6 +22,7 @@ import Stats.State
 import Task
 import Time
 import Update.Extra exposing (andThen)
+import View.Modals.CompletedGame
 import View.Modals.Credits
 import View.Modals.Help
 import View.Modals.ImportExport
@@ -66,6 +67,7 @@ init flags =
                 , Cmd.map StatsMsg statsCmd
                 , Cmd.map ImportExportMsg importExportCmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
+                , Task.perform InitTimeZone Time.here
                 ]
     in
     ( { model =
@@ -78,6 +80,7 @@ init flags =
             , menuOpen = False
             , aspectRatio = Nothing
             , undo = Nothing
+            , timeZone = Time.utc
             }
       , modalStack = []
       }
@@ -170,7 +173,6 @@ update msg modelWrapper =
             in
             if Scoreboard.Model.isComplete newModel.scoreboard then
                 ( newModelWrapper, newCmd )
-                    |> andThen update (StatsMsg (Stats.Msg.Update newModelWrapper.model.scoreboard))
 
             else
                 ( updateModel
@@ -249,6 +251,13 @@ update msg modelWrapper =
             , Cmd.none
             )
 
+        ShowCompletedGame game ->
+            ( { modelWrapper
+                | modalStack = { modal = View.Modals.CompletedGame.completedGame game, onClose = NoOp } :: modelWrapper.modalStack
+              }
+            , Cmd.none
+            )
+
         CloseModal ->
             let
                 topModal =
@@ -296,14 +305,27 @@ update msg modelWrapper =
             )
 
         PersistGame scoreboard time ->
-            ( modelWrapper
-            , Ports.persistCompletedGame
-                { v = 1
-                , t = Time.posixToMillis time
-                , g = Scoreboard.Summary.grandTotal scoreboard
-                , s = Dict.toList scoreboard
-                }
+            let
+                game : Ports.GameModel
+                game =
+                    { v = 1
+                    , t = Time.posixToMillis time
+                    , g = Scoreboard.Summary.grandTotal scoreboard
+                    , s = Dict.toList scoreboard
+                    }
+
+                ( newModel, newCmd ) =
+                    update (StatsMsg (Stats.Msg.Update game)) modelWrapper
+            in
+            ( newModel
+            , Cmd.batch
+                [ newCmd
+                , Ports.persistCompletedGame game
+                ]
             )
+
+        InitTimeZone timeZone ->
+            ( updateModel { model | timeZone = timeZone }, Cmd.none )
 
         NoOp ->
             ( modelWrapper, Cmd.none )

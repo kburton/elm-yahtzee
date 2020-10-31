@@ -8,8 +8,11 @@
     margin-bottom: 0.5em;
   }
 
-  &__divider {
-    margin: 0 -0.5em 0.5em -0.5em;
-    border-bottom: 1px solid #BBB;
+  &__high-score-game {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+    cursor: pointer;
   }
 }

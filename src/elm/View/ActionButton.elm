@@ -42,8 +42,16 @@ message model isYahtzeeWildcard =
             score =
                 Scoreboard.Summary.grandTotal model.scoreboard
 
+            highScore =
+                case List.head model.stats.highScoreGames of
+                    Just game ->
+                        game.g
+
+                    Nothing ->
+                        0
+
             startText =
-                if model.stats.gamesPlayed > 1 && score == model.stats.highScore then
+                if score >= highScore then
                     "New high score!"
 
                 else

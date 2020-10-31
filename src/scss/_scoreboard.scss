@@ -14,6 +14,10 @@
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #BBB;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
   }
 
   &__divider {

@@ -4,6 +4,7 @@ import Dice.Model
 import ImportExport.Model
 import Scoreboard.Model
 import Stats.Model
+import Time
 
 
 type alias Model =
@@ -16,6 +17,7 @@ type alias Model =
     , menuOpen : Bool
     , aspectRatio : Maybe Float
     , undo : Maybe UndoState
+    , timeZone : Time.Zone
     }
 
 

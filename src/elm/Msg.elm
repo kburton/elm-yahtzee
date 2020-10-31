@@ -3,6 +3,7 @@ module Msg exposing (Msg(..))
 import Dice.Msg
 import Help.Model
 import ImportExport.Msg
+import Ports
 import Scoreboard.Model
 import Scoreboard.Msg
 import Stats.Msg
@@ -23,9 +24,11 @@ type Msg
     | ShowStats
     | ShowCredits
     | ShowImportExport
+    | ShowCompletedGame Ports.GameModel
     | CloseModal
     | UpdateAspectRatio Float
     | PersistState
     | TryPersistGame
     | PersistGame Scoreboard.Model.Model Time.Posix
+    | InitTimeZone Time.Zone
     | NoOp

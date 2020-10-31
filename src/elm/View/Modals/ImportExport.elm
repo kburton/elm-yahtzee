@@ -13,7 +13,7 @@ import Msg
 importExport : Model -> Modal.Model
 importExport model =
     { title = "Import / Export"
-    , sections = [ exportSection, importSection model.importExport.importStage ]
+    , body = Modal.Sections [ exportSection, importSection model.importExport.importStage ]
     }
 
 

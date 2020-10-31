@@ -171,12 +171,12 @@ help key _ =
 
         BonusUpper ->
             { title = "Help | Upper section bonus"
-            , sections = [ bonusUpper ]
+            , body = Modal.Model.Sections [ bonusUpper ]
             }
 
         BonusYahtzee ->
             { title = "Help | Yahtzee bonus"
-            , sections = [ bonusYahtzee ]
+            , body = Modal.Model.Sections [ bonusYahtzee ]
             }
 
 
@@ -226,11 +226,13 @@ yahtzeeWildcardPoints points =
 helpEntry : String -> String -> List ( List ( Int, Bool ), Int ) -> List Modal.Model.Section -> Modal.Model.Model
 helpEntry header content exampleList extraSections =
     { title = "Help | " ++ header
-    , sections =
-        [ { header = header, content = text content }
-        , examples exampleList
-        ]
-            ++ extraSections
+    , body =
+        Modal.Model.Sections
+            ([ { header = header, content = text content }
+             , examples exampleList
+             ]
+                ++ extraSections
+            )
     }
 
 
