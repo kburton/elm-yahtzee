@@ -3,7 +3,7 @@ module View.Modals.CompletedGame exposing (completedGame)
 import Dict
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Modal.Model
+import ModalStack.Model
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ports
@@ -13,10 +13,10 @@ import Utils.Date exposing (formatDate)
 import View.Scoreboard
 
 
-completedGame : Ports.GameModel -> Model -> Modal.Model.Model Msg
+completedGame : Ports.GameModel -> Model -> ModalStack.Model.Modal Msg
 completedGame game model =
     { title = "Game Details"
-    , body = Modal.Model.Raw <| div [ class "completed-game" ] [ summary game model, scoreboard game ]
+    , body = ModalStack.Model.Raw <| div [ class "completed-game" ] [ summary game model, scoreboard game ]
     }
 
 

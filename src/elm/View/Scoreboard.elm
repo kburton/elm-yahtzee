@@ -4,6 +4,7 @@ import Help.Model as Help
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import ModalStack.Msg
 import Msg exposing (Msg)
 import Scoreboard.Model exposing (Model, ScoreKey(..), getScore)
 import Scoreboard.Summary as Summary
@@ -73,17 +74,17 @@ divider =
 
 scoreLabel : Help.HelpKey -> String -> Html Msg
 scoreLabel helpKey label =
-    div [ class "scoreboard__label", onClick <| Msg.ShowHelp helpKey ] [ text label ]
+    div [ class "scoreboard__label", onClick <| Msg.ModalStackMsg <| ModalStack.Msg.ShowHelp helpKey ] [ text label ]
 
 
 scoreInfo : Help.HelpKey -> String -> Html Msg
 scoreInfo helpKey info =
-    div [ class "scoreboard__info", onClick <| Msg.ShowHelp helpKey ] [ text info ]
+    div [ class "scoreboard__info", onClick <| Msg.ModalStackMsg <| ModalStack.Msg.ShowHelp helpKey ] [ text info ]
 
 
 scoreBonus : Help.HelpKey -> Int -> Html Msg
 scoreBonus bonusHelpKey bonus =
-    div [ class "scoreboard__bonus", onClick <| Msg.ShowHelp bonusHelpKey ] [ text <| "Bonus " ++ String.fromInt bonus ]
+    div [ class "scoreboard__bonus", onClick <| Msg.ModalStackMsg <| ModalStack.Msg.ShowHelp bonusHelpKey ] [ text <| "Bonus " ++ String.fromInt bonus ]
 
 
 scoreValue : ScoreKey -> Model -> Model -> Bool -> Html Msg

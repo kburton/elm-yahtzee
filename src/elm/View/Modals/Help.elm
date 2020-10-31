@@ -3,13 +3,13 @@ module View.Modals.Help exposing (help)
 import Help.Model exposing (HelpKey(..))
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Modal.Model
+import ModalStack.Model
 import Model exposing (Model)
 import Msg exposing (Msg)
 import View.Dice exposing (exampleDice)
 
 
-help : HelpKey -> Model -> Modal.Model.Model Msg
+help : HelpKey -> Model -> ModalStack.Model.Modal Msg
 help key _ =
     let
         t =
@@ -171,16 +171,16 @@ help key _ =
 
         BonusUpper ->
             { title = "Help | Upper section bonus"
-            , body = Modal.Model.Sections [ bonusUpper ]
+            , body = ModalStack.Model.Sections [ bonusUpper ]
             }
 
         BonusYahtzee ->
             { title = "Help | Yahtzee bonus"
-            , body = Modal.Model.Sections [ bonusYahtzee ]
+            , body = ModalStack.Model.Sections [ bonusYahtzee ]
             }
 
 
-bonusUpper : Modal.Model.Section Msg
+bonusUpper : ModalStack.Model.Section Msg
 bonusUpper =
     { header = "Upper section bonus"
     , content =
@@ -190,7 +190,7 @@ bonusUpper =
     }
 
 
-bonusYahtzee : Modal.Model.Section Msg
+bonusYahtzee : ModalStack.Model.Section Msg
 bonusYahtzee =
     { header = "Yahtzee bonus"
     , content =
@@ -200,7 +200,7 @@ bonusYahtzee =
     }
 
 
-yahtzeeWildcard : Modal.Model.Section Msg
+yahtzeeWildcard : ModalStack.Model.Section Msg
 yahtzeeWildcard =
     { header = "Yahtzee wildcard"
     , content =
@@ -211,7 +211,7 @@ yahtzeeWildcard =
     }
 
 
-yahtzeeWildcardPoints : Int -> Modal.Model.Section Msg
+yahtzeeWildcardPoints : Int -> ModalStack.Model.Section Msg
 yahtzeeWildcardPoints points =
     { header = "Yahtzee wildcard"
     , content =
@@ -223,11 +223,11 @@ yahtzeeWildcardPoints points =
     }
 
 
-helpEntry : String -> String -> List ( List ( Int, Bool ), Int ) -> List (Modal.Model.Section Msg) -> Modal.Model.Model Msg
+helpEntry : String -> String -> List ( List ( Int, Bool ), Int ) -> List (ModalStack.Model.Section Msg) -> ModalStack.Model.Modal Msg
 helpEntry header content exampleList extraSections =
     { title = "Help | " ++ header
     , body =
-        Modal.Model.Sections
+        ModalStack.Model.Sections
             ([ { header = header, content = text content }
              , examples exampleList
              ]
@@ -236,7 +236,7 @@ helpEntry header content exampleList extraSections =
     }
 
 
-examples : List ( List ( Int, Bool ), Int ) -> Modal.Model.Section Msg
+examples : List ( List ( Int, Bool ), Int ) -> ModalStack.Model.Section Msg
 examples es =
     { header = "Examples"
     , content = div [] (List.map example es)

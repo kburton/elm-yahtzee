@@ -2,16 +2,16 @@ module View.Modals.Credits exposing (credits)
 
 import Html exposing (a, div, p, text)
 import Html.Attributes exposing (href, target)
-import Modal.Model
+import ModalStack.Model
 import Model exposing (Model)
 import Msg exposing (Msg)
 
 
-credits : Model -> Modal.Model.Model Msg
+credits : Model -> ModalStack.Model.Modal Msg
 credits _ =
     { title = "Credits"
     , body =
-        Modal.Model.Sections
+        ModalStack.Model.Sections
             [ { header = "Project"
               , content =
                     div

@@ -5,12 +5,12 @@ import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import ImportExport.Model
 import ImportExport.Msg
-import Modal.Model as Modal
+import ModalStack.Model as Modal
 import Model exposing (Model)
 import Msg
 
 
-importExport : Model -> Modal.Model Msg.Msg
+importExport : Model -> Modal.Modal Msg.Msg
 importExport model =
     { title = "Import / Export"
     , body = Modal.Sections [ exportSection, importSection model.importExport.importStage ]

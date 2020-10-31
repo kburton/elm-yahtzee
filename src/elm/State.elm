@@ -9,7 +9,9 @@ import Dice.State
 import Dict
 import ImportExport.Msg
 import ImportExport.State
-import Model exposing (ActiveModal, ModalStack(..), Model)
+import ModalStack.Model
+import ModalStack.State
+import Model exposing (ModalStack(..), Model)
 import Msg exposing (Msg(..))
 import Ports
 import Scoreboard.Model
@@ -21,11 +23,6 @@ import Stats.State
 import Task
 import Time
 import Update.Extra exposing (andThen)
-import View.Modals.CompletedGame
-import View.Modals.Credits
-import View.Modals.Help
-import View.Modals.ImportExport
-import View.Modals.Stats
 
 
 init : Maybe Ports.Flags -> ( Model, Cmd Msg )
@@ -53,6 +50,9 @@ init flags =
         ( diceModel, diceCmd ) =
             Dice.State.init persistedDice
 
+        ( modalStackModel, modalStackCmd ) =
+            ModalStack.State.init
+
         ( statsModel, statsCmd ) =
             Stats.State.init history
 
@@ -63,6 +63,7 @@ init flags =
             Cmd.batch
                 [ Cmd.map ScoreboardMsg scoreboardCmd
                 , Cmd.map DiceMsg diceCmd
+                , Cmd.map ModalStackMsg modalStackCmd
                 , Cmd.map StatsMsg statsCmd
                 , Cmd.map ImportExportMsg importExportCmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
@@ -72,6 +73,7 @@ init flags =
     ( { scoreboard = scoreboardModel
       , dice = diceModel
       , stats = statsModel
+      , modalStack = ModalStack modalStackModel
       , importExport = importExportModel
       , roll = roll
       , tutorialMode = statsModel.gamesPlayed == 0
@@ -79,7 +81,6 @@ init flags =
       , aspectRatio = Nothing
       , undo = Nothing
       , timeZone = Time.utc
-      , modalStack = ModalStack []
       }
     , cmds
     )
@@ -87,17 +88,6 @@ init flags =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        pushModal : ModalStack -> ActiveModal -> ModalStack
-        pushModal (ModalStack modalStack) modal =
-            ModalStack (modal :: modalStack)
-
-        popModal : ModalStack -> ( Maybe ActiveModal, ModalStack )
-        popModal (ModalStack modalStack) =
-            ( List.head modalStack
-            , ModalStack (Maybe.withDefault [] <| List.tail modalStack)
-            )
-    in
     case msg of
         ScoreboardMsg scoreboardMsg ->
             let
@@ -128,6 +118,18 @@ update msg model =
 
             else
                 ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+
+        ModalStackMsg modalStackMsg ->
+            let
+                extractModel : ModalStack -> ModalStack.Model.Model Model Msg
+                extractModel (ModalStack modalStack) =
+                    modalStack
+
+                ( modalStackModel, modalStackCmd, modalStackCb ) =
+                    ModalStack.State.update modalStackMsg <| extractModel model.modalStack
+            in
+            ( { model | modalStack = ModalStack modalStackModel }, Cmd.map ModalStackMsg modalStackCmd )
+                |> andThen update modalStackCb
 
         StatsMsg statsMsg ->
             let
@@ -213,65 +215,6 @@ update msg model =
 
         ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )
-
-        ShowHelp helpKey ->
-            ( { model
-                | modalStack = pushModal model.modalStack { modal = View.Modals.Help.help helpKey, onClose = NoOp }
-              }
-            , Cmd.none
-            )
-
-        ShowStats ->
-            ( { model
-                | modalStack = pushModal model.modalStack { modal = View.Modals.Stats.stats, onClose = NoOp }
-              }
-            , Cmd.none
-            )
-
-        ShowCredits ->
-            ( { model
-                | modalStack = pushModal model.modalStack { modal = View.Modals.Credits.credits, onClose = NoOp }
-              }
-            , Cmd.none
-            )
-
-        ShowImportExport ->
-            ( { model
-                | modalStack =
-                    pushModal
-                        model.modalStack
-                        { modal = View.Modals.ImportExport.importExport, onClose = ImportExportMsg ImportExport.Msg.Clear }
-              }
-            , Cmd.none
-            )
-
-        ShowCompletedGame game ->
-            ( { model
-                | modalStack = pushModal model.modalStack { modal = View.Modals.CompletedGame.completedGame game, onClose = NoOp }
-              }
-            , Cmd.none
-            )
-
-        CloseModal ->
-            let
-                ( topModal, remainingStack ) =
-                    popModal model.modalStack
-
-                onClose =
-                    case topModal of
-                        Just modal ->
-                            modal.onClose
-
-                        Nothing ->
-                            NoOp
-            in
-            ( { model
-                | modalStack = remainingStack
-                , menuOpen = False
-              }
-            , Cmd.none
-            )
-                |> andThen update onClose
 
         UpdateAspectRatio aspectRatio ->
             ( { model | aspectRatio = Just aspectRatio }, Cmd.none )

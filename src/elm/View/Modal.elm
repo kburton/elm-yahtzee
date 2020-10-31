@@ -2,14 +2,15 @@ module View.Modal exposing (modal)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
-import Modal.Model exposing (Body(..), Model, Section)
+import ModalStack.Model exposing (Body(..), Modal, Section)
+import ModalStack.Msg
 import Msg exposing (Msg)
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
 
 
-modal : Model Msg -> Html Msg
+modal : Modal Msg -> Html Msg
 modal model =
     div
         [ class "modal" ]
@@ -18,7 +19,7 @@ modal model =
         ]
 
 
-header : Model Msg -> Html Msg
+header : Modal Msg -> Html Msg
 header model =
     div
         [ class "modal__header" ]
@@ -27,7 +28,7 @@ header model =
         ]
 
 
-body : Model Msg -> Html Msg
+body : Modal Msg -> Html Msg
 body model =
     div
         [ class "modal__body" ]
@@ -52,7 +53,7 @@ close =
     Svg.svg
         [ SvgAtt.viewBox "0 0 12 12"
         , SvgAtt.class "modal__close"
-        , SvgEvt.onClick Msg.CloseModal
+        , SvgEvt.onClick <| Msg.ModalStackMsg ModalStack.Msg.Close
         ]
         [ Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "11", SvgAtt.x2 "11", SvgAtt.y2 "1", SvgAtt.strokeWidth "2", SvgAtt.strokeLinecap "round" ] []
         , Svg.line [ SvgAtt.x1 "1", SvgAtt.y1 "1", SvgAtt.x2 "11", SvgAtt.y2 "11", SvgAtt.strokeWidth "2", SvgAtt.strokeLinecap "round" ] []
