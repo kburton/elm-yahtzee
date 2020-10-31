@@ -10,14 +10,14 @@ import Model exposing (Model)
 import Msg
 
 
-importExport : Model -> Modal.Model
+importExport : Model -> Modal.Model Msg.Msg
 importExport model =
     { title = "Import / Export"
     , body = Modal.Sections [ exportSection, importSection model.importExport.importStage ]
     }
 
 
-exportSection : Modal.Section
+exportSection : Modal.Section Msg.Msg
 exportSection =
     { header = "Export Game History"
     , content =
@@ -28,7 +28,7 @@ exportSection =
     }
 
 
-importSection : ImportExport.Model.ImportStage -> Modal.Section
+importSection : ImportExport.Model.ImportStage -> Modal.Section Msg.Msg
 importSection result =
     { header = "Import Game History"
     , content =

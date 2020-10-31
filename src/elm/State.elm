@@ -9,8 +9,7 @@ import Dice.State
 import Dict
 import ImportExport.Msg
 import ImportExport.State
-import Model exposing (Model)
-import ModelWrapper exposing (ModelWrapper)
+import Model exposing (ActiveModal, ModalStack(..), Model)
 import Msg exposing (Msg(..))
 import Ports
 import Scoreboard.Model
@@ -29,7 +28,7 @@ import View.Modals.ImportExport
 import View.Modals.Stats
 
 
-init : Maybe Ports.Flags -> ( ModelWrapper, Cmd Msg )
+init : Maybe Ports.Flags -> ( Model, Cmd Msg )
 init flags =
     let
         ( gameStateModel, history ) =
@@ -70,33 +69,34 @@ init flags =
                 , Task.perform InitTimeZone Time.here
                 ]
     in
-    ( { model =
-            { scoreboard = scoreboardModel
-            , dice = diceModel
-            , stats = statsModel
-            , importExport = importExportModel
-            , roll = roll
-            , tutorialMode = statsModel.gamesPlayed == 0
-            , menuOpen = False
-            , aspectRatio = Nothing
-            , undo = Nothing
-            , timeZone = Time.utc
-            }
-      , modalStack = []
+    ( { scoreboard = scoreboardModel
+      , dice = diceModel
+      , stats = statsModel
+      , importExport = importExportModel
+      , roll = roll
+      , tutorialMode = statsModel.gamesPlayed == 0
+      , menuOpen = False
+      , aspectRatio = Nothing
+      , undo = Nothing
+      , timeZone = Time.utc
+      , modalStack = ModalStack []
       }
     , cmds
     )
 
 
-update : Msg -> ModelWrapper -> ( ModelWrapper, Cmd Msg )
-update msg modelWrapper =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     let
-        model =
-            modelWrapper.model
+        pushModal : ModalStack -> ActiveModal -> ModalStack
+        pushModal (ModalStack modalStack) modal =
+            ModalStack (modal :: modalStack)
 
-        updateModel : Model -> ModelWrapper
-        updateModel newModel =
-            { modelWrapper | model = newModel }
+        popModal : ModalStack -> ( Maybe ActiveModal, ModalStack )
+        popModal (ModalStack modalStack) =
+            ( List.head modalStack
+            , ModalStack (Maybe.withDefault [] <| List.tail modalStack)
+            )
     in
     case msg of
         ScoreboardMsg scoreboardMsg ->
@@ -104,7 +104,7 @@ update msg modelWrapper =
                 ( scoreboardModel, scoreboardCmd ) =
                     Scoreboard.State.update scoreboardMsg model.scoreboard <| Dice.Model.faces model.dice
             in
-            ( updateModel { model | scoreboard = scoreboardModel }, Cmd.map ScoreboardMsg scoreboardCmd )
+            ( { model | scoreboard = scoreboardModel }, Cmd.map ScoreboardMsg scoreboardCmd )
 
         DiceMsg diceMsg ->
             let
@@ -123,18 +123,18 @@ update msg modelWrapper =
                             False
             in
             if persist then
-                ( updateModel { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
                     |> andThen update PersistState
 
             else
-                ( updateModel { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
 
         StatsMsg statsMsg ->
             let
                 ( statsModel, statsCmd ) =
                     Stats.State.update statsMsg model.stats
             in
-            ( updateModel { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
+            ( { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
 
         ImportExportMsg importExportMsg ->
             let
@@ -143,75 +143,68 @@ update msg modelWrapper =
             in
             case importExportMsg of
                 ImportExport.Msg.ImportHistorySuccess history ->
-                    ( updateModel { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
+                    ( { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
                         |> andThen update (StatsMsg (Stats.Msg.Init history))
 
                 _ ->
-                    ( updateModel { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
+                    ( { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
 
         Roll ->
-            ( updateModel { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
+            ( { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
                 |> andThen update (DiceMsg Dice.Msg.Roll)
 
         Score scoreKey ->
             let
-                ( newModelWrapper, newCmd ) =
-                    ( updateModel
-                        { model
-                            | roll = 1
-                            , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.scoreboard < 2
-                        }
+                ( newModel, newCmd ) =
+                    ( { model
+                        | roll = 1
+                        , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.scoreboard < 2
+                      }
                     , Cmd.none
                     )
                         |> andThen update (ScoreboardMsg (Scoreboard.Msg.Score scoreKey))
                         |> andThen update (DiceMsg Dice.Msg.Reset)
                         |> andThen update PersistState
                         |> andThen update TryPersistGame
-
-                newModel =
-                    newModelWrapper.model
             in
             if Scoreboard.Model.isComplete newModel.scoreboard then
-                ( newModelWrapper, newCmd )
+                ( newModel, newCmd )
 
             else
-                ( updateModel
-                    { newModel
-                        | undo =
-                            Just
-                                { scoreboard = model.scoreboard
-                                , dice = model.dice
-                                , roll = model.roll
-                                , lastScoreKey = scoreKey
-                                }
-                    }
+                ( { newModel
+                    | undo =
+                        Just
+                            { scoreboard = model.scoreboard
+                            , dice = model.dice
+                            , roll = model.roll
+                            , lastScoreKey = scoreKey
+                            }
+                  }
                 , newCmd
                 )
 
         Undo ->
             case model.undo of
                 Just u ->
-                    ( updateModel
-                        { model
-                            | scoreboard = u.scoreboard
-                            , dice = u.dice
-                            , roll = u.roll
-                            , undo = Nothing
-                        }
+                    ( { model
+                        | scoreboard = u.scoreboard
+                        , dice = u.dice
+                        , roll = u.roll
+                        , undo = Nothing
+                      }
                     , Cmd.none
                     )
                         |> andThen update PersistState
 
                 Nothing ->
-                    ( modelWrapper, Cmd.none )
+                    ( model, Cmd.none )
 
         NewGame ->
-            ( updateModel
-                { model
-                    | roll = 1
-                    , menuOpen = False
-                    , undo = Nothing
-                }
+            ( { model
+                | roll = 1
+                , menuOpen = False
+                , undo = Nothing
+              }
             , Cmd.none
             )
                 |> andThen update (ScoreboardMsg Scoreboard.Msg.Reset)
@@ -219,49 +212,50 @@ update msg modelWrapper =
                 |> andThen update PersistState
 
         ToggleMenu ->
-            ( updateModel { model | menuOpen = not model.menuOpen }, Cmd.none )
+            ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         ShowHelp helpKey ->
-            ( { modelWrapper
-                | modalStack = { modal = View.Modals.Help.help helpKey, onClose = NoOp } :: modelWrapper.modalStack
+            ( { model
+                | modalStack = pushModal model.modalStack { modal = View.Modals.Help.help helpKey, onClose = NoOp }
               }
             , Cmd.none
             )
 
         ShowStats ->
-            ( { modelWrapper
-                | modalStack = { modal = View.Modals.Stats.stats, onClose = NoOp } :: modelWrapper.modalStack
+            ( { model
+                | modalStack = pushModal model.modalStack { modal = View.Modals.Stats.stats, onClose = NoOp }
               }
             , Cmd.none
             )
 
         ShowCredits ->
-            ( { modelWrapper
-                | modalStack = { modal = View.Modals.Credits.credits, onClose = NoOp } :: modelWrapper.modalStack
+            ( { model
+                | modalStack = pushModal model.modalStack { modal = View.Modals.Credits.credits, onClose = NoOp }
               }
             , Cmd.none
             )
 
         ShowImportExport ->
-            ( { modelWrapper
+            ( { model
                 | modalStack =
-                    { modal = View.Modals.ImportExport.importExport, onClose = ImportExportMsg ImportExport.Msg.Clear }
-                        :: modelWrapper.modalStack
+                    pushModal
+                        model.modalStack
+                        { modal = View.Modals.ImportExport.importExport, onClose = ImportExportMsg ImportExport.Msg.Clear }
               }
             , Cmd.none
             )
 
         ShowCompletedGame game ->
-            ( { modelWrapper
-                | modalStack = { modal = View.Modals.CompletedGame.completedGame game, onClose = NoOp } :: modelWrapper.modalStack
+            ( { model
+                | modalStack = pushModal model.modalStack { modal = View.Modals.CompletedGame.completedGame game, onClose = NoOp }
               }
             , Cmd.none
             )
 
         CloseModal ->
             let
-                topModal =
-                    List.head modelWrapper.modalStack
+                ( topModal, remainingStack ) =
+                    popModal model.modalStack
 
                 onClose =
                     case topModal of
@@ -270,23 +264,20 @@ update msg modelWrapper =
 
                         Nothing ->
                             NoOp
-
-                remainingStack =
-                    Maybe.withDefault [] (List.tail modelWrapper.modalStack)
             in
-            ( { modelWrapper
+            ( { model
                 | modalStack = remainingStack
-                , model = { model | menuOpen = False }
+                , menuOpen = False
               }
             , Cmd.none
             )
                 |> andThen update onClose
 
         UpdateAspectRatio aspectRatio ->
-            ( updateModel { model | aspectRatio = Just aspectRatio }, Cmd.none )
+            ( { model | aspectRatio = Just aspectRatio }, Cmd.none )
 
         PersistState ->
-            ( modelWrapper
+            ( model
             , Ports.persistGameState
                 { scoreboard = Dict.toList model.scoreboard
                 , roll = model.roll
@@ -296,7 +287,7 @@ update msg modelWrapper =
             )
 
         TryPersistGame ->
-            ( modelWrapper
+            ( model
             , if Scoreboard.Model.isComplete model.scoreboard then
                 Task.perform (PersistGame model.scoreboard) Time.now
 
@@ -315,7 +306,7 @@ update msg modelWrapper =
                     }
 
                 ( newModel, newCmd ) =
-                    update (StatsMsg (Stats.Msg.Update game)) modelWrapper
+                    update (StatsMsg (Stats.Msg.Update game)) model
             in
             ( newModel
             , Cmd.batch
@@ -325,16 +316,16 @@ update msg modelWrapper =
             )
 
         InitTimeZone timeZone ->
-            ( updateModel { model | timeZone = timeZone }, Cmd.none )
+            ( { model | timeZone = timeZone }, Cmd.none )
 
         NoOp ->
-            ( modelWrapper, Cmd.none )
+            ( model, Cmd.none )
 
 
-subscriptions : ModelWrapper -> Sub Msg
-subscriptions modelWrapper =
+subscriptions : Model -> Sub Msg
+subscriptions model =
     Sub.batch
-        [ Sub.map DiceMsg (Dice.State.subscriptions modelWrapper.model.dice)
+        [ Sub.map DiceMsg (Dice.State.subscriptions model.dice)
         , Sub.map ImportExportMsg ImportExport.State.subscriptions
         , Browser.Events.onResize (\w h -> UpdateAspectRatio (toFloat w / toFloat h))
         ]

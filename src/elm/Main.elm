@@ -1,14 +1,14 @@
 module Main exposing (main)
 
 import Browser
-import ModelWrapper
+import Model
 import Msg
 import Ports
 import State
 import View
 
 
-main : Program (Maybe Ports.Flags) ModelWrapper.ModelWrapper Msg.Msg
+main : Program (Maybe Ports.Flags) Model.Model Msg.Msg
 main =
     Browser.element
         { init = State.init

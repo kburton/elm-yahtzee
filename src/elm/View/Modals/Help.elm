@@ -9,7 +9,7 @@ import Msg exposing (Msg)
 import View.Dice exposing (exampleDice)
 
 
-help : HelpKey -> Model -> Modal.Model.Model
+help : HelpKey -> Model -> Modal.Model.Model Msg
 help key _ =
     let
         t =
@@ -180,7 +180,7 @@ help key _ =
             }
 
 
-bonusUpper : Modal.Model.Section
+bonusUpper : Modal.Model.Section Msg
 bonusUpper =
     { header = "Upper section bonus"
     , content =
@@ -190,7 +190,7 @@ bonusUpper =
     }
 
 
-bonusYahtzee : Modal.Model.Section
+bonusYahtzee : Modal.Model.Section Msg
 bonusYahtzee =
     { header = "Yahtzee bonus"
     , content =
@@ -200,7 +200,7 @@ bonusYahtzee =
     }
 
 
-yahtzeeWildcard : Modal.Model.Section
+yahtzeeWildcard : Modal.Model.Section Msg
 yahtzeeWildcard =
     { header = "Yahtzee wildcard"
     , content =
@@ -211,7 +211,7 @@ yahtzeeWildcard =
     }
 
 
-yahtzeeWildcardPoints : Int -> Modal.Model.Section
+yahtzeeWildcardPoints : Int -> Modal.Model.Section Msg
 yahtzeeWildcardPoints points =
     { header = "Yahtzee wildcard"
     , content =
@@ -223,7 +223,7 @@ yahtzeeWildcardPoints points =
     }
 
 
-helpEntry : String -> String -> List ( List ( Int, Bool ), Int ) -> List Modal.Model.Section -> Modal.Model.Model
+helpEntry : String -> String -> List ( List ( Int, Bool ), Int ) -> List (Modal.Model.Section Msg) -> Modal.Model.Model Msg
 helpEntry header content exampleList extraSections =
     { title = "Help | " ++ header
     , body =
@@ -236,7 +236,7 @@ helpEntry header content exampleList extraSections =
     }
 
 
-examples : List ( List ( Int, Bool ), Int ) -> Modal.Model.Section
+examples : List ( List ( Int, Bool ), Int ) -> Modal.Model.Section Msg
 examples es =
     { header = "Examples"
     , content = div [] (List.map example es)

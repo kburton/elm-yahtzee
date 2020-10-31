@@ -4,9 +4,10 @@ import Html exposing (a, div, p, text)
 import Html.Attributes exposing (href, target)
 import Modal.Model
 import Model exposing (Model)
+import Msg exposing (Msg)
 
 
-credits : Model -> Modal.Model.Model
+credits : Model -> Modal.Model.Model Msg
 credits _ =
     { title = "Credits"
     , body =

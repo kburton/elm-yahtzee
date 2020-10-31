@@ -1,21 +1,20 @@
 module Modal.Model exposing (Body(..), Model, Section)
 
 import Html exposing (Html)
-import Msg exposing (Msg)
 
 
-type alias Model =
+type alias Model msg =
     { title : String
-    , body : Body
+    , body : Body msg
     }
 
 
-type Body
-    = Sections (List Section)
-    | Raw (Html Msg)
+type Body msg
+    = Sections (List (Section msg))
+    | Raw (Html msg)
 
 
-type alias Section =
+type alias Section msg =
     { header : String
-    , content : Html Msg
+    , content : Html msg
     }

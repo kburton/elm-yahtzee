@@ -9,7 +9,7 @@ import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
 
 
-modal : Model -> Html Msg
+modal : Model Msg -> Html Msg
 modal model =
     div
         [ class "modal" ]
@@ -18,7 +18,7 @@ modal model =
         ]
 
 
-header : Model -> Html Msg
+header : Model Msg -> Html Msg
 header model =
     div
         [ class "modal__header" ]
@@ -27,7 +27,7 @@ header model =
         ]
 
 
-body : Model -> Html Msg
+body : Model Msg -> Html Msg
 body model =
     div
         [ class "modal__body" ]
@@ -59,7 +59,7 @@ close =
         ]
 
 
-section : Section -> Html Msg
+section : Section Msg -> Html Msg
 section s =
     div
         [ class "modal__section" ]

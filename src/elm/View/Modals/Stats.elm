@@ -11,7 +11,7 @@ import Time
 import Utils.Date exposing (formatDate)
 
 
-stats : Model -> Modal.Model
+stats : Model -> Modal.Model Msg
 stats model =
     { title = "Stats"
     , body =
@@ -42,7 +42,7 @@ stat label value =
         ]
 
 
-highScoreGames : Time.Zone -> List Ports.GameModel -> List Modal.Section
+highScoreGames : Time.Zone -> List Ports.GameModel -> List (Modal.Section Msg)
 highScoreGames tz games =
     if List.isEmpty games then
         []

@@ -1,7 +1,9 @@
-module Model exposing (Model, UndoState)
+module Model exposing (ActiveModal, ModalStack(..), Model, UndoState)
 
 import Dice.Model
 import ImportExport.Model
+import Modal.Model
+import Msg
 import Scoreboard.Model
 import Stats.Model
 import Time
@@ -18,6 +20,17 @@ type alias Model =
     , aspectRatio : Maybe Float
     , undo : Maybe UndoState
     , timeZone : Time.Zone
+    , modalStack : ModalStack
+    }
+
+
+type ModalStack
+    = ModalStack (List ActiveModal)
+
+
+type alias ActiveModal =
+    { modal : Model -> Modal.Model.Model Msg.Msg
+    , onClose : Msg.Msg
     }
 
 

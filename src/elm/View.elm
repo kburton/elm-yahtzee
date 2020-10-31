@@ -3,8 +3,7 @@ module View exposing (view)
 import Dice.Model as Dice
 import Html exposing (Html, div, node, text)
 import Html.Attributes exposing (class)
-import Model exposing (Model)
-import ModelWrapper exposing (ModelWrapper)
+import Model exposing (ModalStack(..), Model)
 import Msg exposing (Msg)
 import Scoreboard.Model as Scoreboard
 import Scoreboard.Score
@@ -26,11 +25,11 @@ desktopAspectRatio =
     0.6
 
 
-view : ModelWrapper -> Html Msg
-view modelWrapper =
+view : Model -> Html Msg
+view model =
     let
         modeClass =
-            case mode modelWrapper.model of
+            case mode model of
                 Desktop ->
                     " container--desktop"
 
@@ -42,13 +41,13 @@ view modelWrapper =
     in
     div
         [ class <| "container" ++ modeClass ]
-        (htmlStyle modelWrapper.model
-            :: (case modelWrapper.modalStack of
-                    m :: _ ->
-                        [ View.Modal.modal (m.modal modelWrapper.model) ]
+        (htmlStyle model
+            :: (case model.modalStack of
+                    ModalStack (m :: _) ->
+                        [ View.Modal.modal (m.modal model) ]
 
                     _ ->
-                        menuGameWrapper modelWrapper.model
+                        menuGameWrapper model
                )
         )
 

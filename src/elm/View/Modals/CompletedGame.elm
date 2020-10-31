@@ -13,7 +13,7 @@ import Utils.Date exposing (formatDate)
 import View.Scoreboard
 
 
-completedGame : Ports.GameModel -> Model -> Modal.Model.Model
+completedGame : Ports.GameModel -> Model -> Modal.Model.Model Msg
 completedGame game model =
     { title = "Game Details"
     , body = Modal.Model.Raw <| div [ class "completed-game" ] [ summary game model, scoreboard game ]
