@@ -142,7 +142,7 @@ update msg model =
                 ( modalStackModel, modalStackCmd, modalStackCb ) =
                     ModalStack.State.update modalStackMsg <| extractModel model.modalStack
             in
-            ( { model | modalStack = ModalStack modalStackModel }, Cmd.map ModalStackMsg modalStackCmd )
+            ( { model | modalStack = ModalStack modalStackModel, menuOpen = False }, Cmd.map ModalStackMsg modalStackCmd )
                 |> andThen update modalStackCb
 
         StatsMsg statsMsg ->
