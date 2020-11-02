@@ -64,9 +64,6 @@ update msg model =
             , Cmd.none
             )
 
-        Reset ->
-            ( defaultModel, Cmd.none )
-
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

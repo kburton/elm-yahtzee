@@ -1,6 +1,6 @@
 module Scoreboard.State exposing (init, update)
 
-import Scoreboard.Model exposing (Model, ScoreKey(..), defaultModel, getScore, setScore)
+import Scoreboard.Model exposing (Model, ScoreKey(..), getScore, setScore)
 import Scoreboard.Msg exposing (Msg(..))
 import Scoreboard.Score
 import Scoreboard.Summary
@@ -39,6 +39,3 @@ update msg model dice =
                         modelWithScore
             in
             ( newModel, Cmd.none )
-
-        Reset ->
-            ( defaultModel, Cmd.none )

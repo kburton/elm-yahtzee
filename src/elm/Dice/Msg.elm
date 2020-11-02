@@ -9,4 +9,3 @@ type Msg
     | Flip Index
     | NewFace Index Face
     | ToggleLock Index
-    | Reset

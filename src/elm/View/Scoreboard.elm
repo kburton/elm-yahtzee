@@ -7,6 +7,7 @@ import Html.Events exposing (onClick)
 import ModalStack.Msg
 import Msg exposing (Msg)
 import Scoreboard.Model exposing (Model, ScoreKey(..), getScore)
+import Scoreboard.Msg
 import Scoreboard.Summary as Summary
 import Svg
 import Svg.Attributes as SvgAtt
@@ -95,7 +96,7 @@ scoreValue scoreKey model scoreOptions showUndo =
                 Just s ->
                     div
                         [ class "scoreboard__value scoreboard__value--clickable"
-                        , onClick <| Msg.Score scoreKey
+                        , onClick <| Msg.ScoreboardMsg <| Scoreboard.Msg.Score scoreKey
                         ]
                         [ div [ class "scoreboard__value-text" ] [ text <| String.fromInt s ] ]
 

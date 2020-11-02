@@ -83,9 +83,29 @@ update msg model =
                     Scoreboard.State.update scoreboardMsg model.game.scoreboard <| Dice.Model.faces model.game.dice
 
                 game =
-                    { scoreboard = scoreboardModel, dice = model.game.dice, roll = model.game.roll }
+                    { scoreboard = scoreboardModel, dice = Dice.Model.defaultModel, roll = 1 }
             in
-            ( { model | game = game }, Cmd.map ScoreboardMsg scoreboardCmd )
+            case scoreboardMsg of
+                Scoreboard.Msg.Score scoreKey ->
+                    ( if Scoreboard.Model.isComplete scoreboardModel then
+                        { model | game = game }
+
+                      else
+                        { model
+                            | game = game
+                            , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.game.scoreboard < 2
+                            , undo =
+                                Just
+                                    { scoreboard = model.game.scoreboard
+                                    , dice = model.game.dice
+                                    , roll = model.game.roll
+                                    , lastScoreKey = scoreKey
+                                    }
+                        }
+                    , Cmd.map ScoreboardMsg scoreboardCmd
+                    )
+                        |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
+                        |> andThen update (PersistenceMsg Persistence.Msg.TryPersistGame)
 
         DiceMsg diceMsg ->
             let
@@ -170,36 +190,6 @@ update msg model =
             , Cmd.none
             )
                 |> andThen update (DiceMsg Dice.Msg.Roll)
-
-        Score scoreKey ->
-            let
-                ( newModel, newCmd ) =
-                    ( { model
-                        | game = { scoreboard = model.game.scoreboard, dice = model.game.dice, roll = 1 }
-                        , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.game.scoreboard < 2
-                      }
-                    , Cmd.none
-                    )
-                        |> andThen update (ScoreboardMsg (Scoreboard.Msg.Score scoreKey))
-                        |> andThen update (DiceMsg Dice.Msg.Reset)
-                        |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
-                        |> andThen update (PersistenceMsg Persistence.Msg.TryPersistGame)
-            in
-            if Scoreboard.Model.isComplete newModel.game.scoreboard then
-                ( newModel, newCmd )
-
-            else
-                ( { newModel
-                    | undo =
-                        Just
-                            { scoreboard = model.game.scoreboard
-                            , dice = model.game.dice
-                            , roll = model.game.roll
-                            , lastScoreKey = scoreKey
-                            }
-                  }
-                , newCmd
-                )
 
         Undo ->
             case model.undo of
