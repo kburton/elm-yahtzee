@@ -7,7 +7,7 @@ import ModalStack.Model as Modal
 import ModalStack.Msg
 import Model exposing (Model)
 import Msg exposing (Msg)
-import Ports
+import Stats.Model exposing (Game)
 import Time
 import Utils.Date exposing (formatDate)
 
@@ -43,7 +43,7 @@ stat label value =
         ]
 
 
-highScoreGames : Time.Zone -> List Ports.GameModel -> List (Modal.Section Msg)
+highScoreGames : Time.Zone -> List Game -> List (Modal.Section Msg)
 highScoreGames tz games =
     if List.isEmpty games then
         []
@@ -55,10 +55,10 @@ highScoreGames tz games =
         ]
 
 
-highScoreGame : Time.Zone -> Ports.GameModel -> Html Msg
+highScoreGame : Time.Zone -> Game -> Html Msg
 highScoreGame tz game =
     div
         [ class "stats__high-score-game", onClick <| Msg.ModalStackMsg (ModalStack.Msg.ShowCompletedGame game) ]
-        [ div [ class "stats__label" ] [ text <| formatDate tz <| Time.millisToPosix game.t ]
-        , div [ class "stats__value" ] [ text <| String.fromInt game.g ++ " points" ]
+        [ div [ class "stats__label" ] [ text <| formatDate tz <| game.timestamp ]
+        , div [ class "stats__value" ] [ text <| String.fromInt game.score ++ " points" ]
         ]

@@ -1,7 +1,7 @@
 module ModalStack.Msg exposing (Msg(..))
 
 import Help.Model
-import Ports
+import Stats.Model
 
 
 type Msg
@@ -9,5 +9,5 @@ type Msg
     | ShowStats
     | ShowCredits
     | ShowImportExport
-    | ShowCompletedGame Ports.GameModel
+    | ShowCompletedGame Stats.Model.Game
     | Close

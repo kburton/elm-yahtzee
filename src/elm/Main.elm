@@ -1,14 +1,14 @@
 module Main exposing (main)
 
 import Browser
-import Model
-import Msg
-import Ports
+import Model exposing (Model)
+import Msg exposing (Msg)
+import Persistence.Flags exposing (Flags)
 import State
 import View
 
 
-main : Program (Maybe Ports.Flags) Model.Model Msg.Msg
+main : Program (Maybe Flags) Model Msg
 main =
     Browser.element
         { init = State.init

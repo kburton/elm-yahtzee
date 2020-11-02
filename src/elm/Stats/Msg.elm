@@ -1,8 +1,8 @@
 module Stats.Msg exposing (Msg(..))
 
-import Ports
+import Stats.Model exposing (Game)
 
 
 type Msg
-    = Init Ports.HistoryModel
-    | Update Ports.GameModel
+    = Init (List Game)
+    | Update Game

@@ -1,23 +1,22 @@
 module State exposing (init, subscriptions, update)
 
-import Array
 import Browser.Dom
 import Browser.Events
 import Dice.Model
 import Dice.Msg
 import Dice.State
-import Dict
-import ImportExport.Msg
-import ImportExport.State
 import ModalStack.Model
 import ModalStack.State
-import Model exposing (ModalStack(..), Model)
+import Model exposing (ModalStack(..), Model, defaultGameState)
 import Msg exposing (Msg(..))
-import Ports
+import Persistence.Flags
+import Persistence.Msg
+import Persistence.Serialization
+import Persistence.State
 import Scoreboard.Model
 import Scoreboard.Msg
 import Scoreboard.State
-import Scoreboard.Summary
+import Stats.Model
 import Stats.Msg
 import Stats.State
 import Task
@@ -25,39 +24,26 @@ import Time
 import Update.Extra exposing (andThen)
 
 
-init : Maybe Ports.Flags -> ( Model, Cmd Msg )
+init : Maybe Persistence.Flags.Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        ( gameStateModel, history ) =
-            case flags of
-                Just f ->
-                    ( f.gameState, Maybe.withDefault [] f.history )
+        persistenceInitResult =
+            Persistence.State.init flags
 
-                Nothing ->
-                    ( Nothing, [] )
-
-        ( persistedScoreboard, persistedDice, roll ) =
-            case gameStateModel of
-                Just m ->
-                    ( m.scoreboard, m.dice, m.roll )
-
-                Nothing ->
-                    ( [], [], 1 )
+        gameState =
+            Maybe.withDefault defaultGameState persistenceInitResult.gameState
 
         ( scoreboardModel, scoreboardCmd ) =
-            Scoreboard.State.init persistedScoreboard
+            Scoreboard.State.init gameState.scoreboard
 
         ( diceModel, diceCmd ) =
-            Dice.State.init persistedDice
+            Dice.State.init gameState.dice
 
         ( modalStackModel, modalStackCmd ) =
             ModalStack.State.init
 
         ( statsModel, statsCmd ) =
-            Stats.State.init history
-
-        ( importExportModel, importExportCmd ) =
-            ImportExport.State.init
+            Stats.State.init persistenceInitResult.history
 
         cmds =
             Cmd.batch
@@ -65,17 +51,19 @@ init flags =
                 , Cmd.map DiceMsg diceCmd
                 , Cmd.map ModalStackMsg modalStackCmd
                 , Cmd.map StatsMsg statsCmd
-                , Cmd.map ImportExportMsg importExportCmd
+                , Cmd.map PersistenceMsg persistenceInitResult.cmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
                 , Task.perform InitTimeZone Time.here
                 ]
     in
-    ( { scoreboard = scoreboardModel
-      , dice = diceModel
+    ( { game =
+            { scoreboard = scoreboardModel
+            , dice = diceModel
+            , roll = gameState.roll
+            }
       , stats = statsModel
       , modalStack = ModalStack modalStackModel
-      , importExport = importExportModel
-      , roll = roll
+      , persistence = persistenceInitResult.model
       , tutorialMode = statsModel.gamesPlayed == 0
       , menuOpen = False
       , aspectRatio = Nothing
@@ -92,14 +80,17 @@ update msg model =
         ScoreboardMsg scoreboardMsg ->
             let
                 ( scoreboardModel, scoreboardCmd ) =
-                    Scoreboard.State.update scoreboardMsg model.scoreboard <| Dice.Model.faces model.dice
+                    Scoreboard.State.update scoreboardMsg model.game.scoreboard <| Dice.Model.faces model.game.dice
+
+                game =
+                    { scoreboard = scoreboardModel, dice = model.game.dice, roll = model.game.roll }
             in
-            ( { model | scoreboard = scoreboardModel }, Cmd.map ScoreboardMsg scoreboardCmd )
+            ( { model | game = game }, Cmd.map ScoreboardMsg scoreboardCmd )
 
         DiceMsg diceMsg ->
             let
                 ( diceModel, diceCmd ) =
-                    Dice.State.update diceMsg model.dice
+                    Dice.State.update diceMsg model.game.dice
 
                 persist =
                     case diceMsg of
@@ -111,13 +102,16 @@ update msg model =
 
                         _ ->
                             False
+
+                game =
+                    { scoreboard = model.game.scoreboard, dice = diceModel, roll = model.game.roll }
             in
             if persist then
-                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
-                    |> andThen update PersistState
+                ( { model | game = game }, Cmd.map DiceMsg diceCmd )
+                    |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
 
             else
-                ( { model | dice = diceModel }, Cmd.map DiceMsg diceCmd )
+                ( { model | game = game }, Cmd.map DiceMsg diceCmd )
 
         ModalStackMsg modalStackMsg ->
             let
@@ -138,47 +132,69 @@ update msg model =
             in
             ( { model | stats = statsModel }, Cmd.map StatsMsg statsCmd )
 
-        ImportExportMsg importExportMsg ->
+        PersistenceMsg persistenceMsg ->
             let
-                ( importExportModel, importExportCmd ) =
-                    ImportExport.State.update importExportMsg model.importExport
+                ( persistenceModel, persistenceCmd ) =
+                    Persistence.State.update persistenceMsg model.persistence model.game
             in
-            case importExportMsg of
-                ImportExport.Msg.ImportHistorySuccess history ->
-                    ( { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
-                        |> andThen update (StatsMsg (Stats.Msg.Init history))
+            case persistenceMsg of
+                Persistence.Msg.PersistGame scoreboard time ->
+                    ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
+                        |> andThen update
+                            (StatsMsg <|
+                                Stats.Msg.Update <|
+                                    Stats.Model.makeGame scoreboard time
+                            )
+
+                Persistence.Msg.ImportHistorySuccess history ->
+                    ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
+                        |> andThen update
+                            (StatsMsg <|
+                                Stats.Msg.Init <|
+                                    Persistence.Serialization.deserializeGameHistory <|
+                                        Just history
+                            )
 
                 _ ->
-                    ( { model | importExport = importExportModel }, Cmd.map ImportExportMsg importExportCmd )
+                    ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
 
         Roll ->
-            ( { model | roll = model.roll + 1, undo = Nothing }, Cmd.none )
+            ( { model
+                | game =
+                    { scoreboard = model.game.scoreboard
+                    , dice = model.game.dice
+                    , roll = model.game.roll + 1
+                    }
+                , undo = Nothing
+              }
+            , Cmd.none
+            )
                 |> andThen update (DiceMsg Dice.Msg.Roll)
 
         Score scoreKey ->
             let
                 ( newModel, newCmd ) =
                     ( { model
-                        | roll = 1
-                        , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.scoreboard < 2
+                        | game = { scoreboard = model.game.scoreboard, dice = model.game.dice, roll = 1 }
+                        , tutorialMode = model.tutorialMode && Scoreboard.Model.turn model.game.scoreboard < 2
                       }
                     , Cmd.none
                     )
                         |> andThen update (ScoreboardMsg (Scoreboard.Msg.Score scoreKey))
                         |> andThen update (DiceMsg Dice.Msg.Reset)
-                        |> andThen update PersistState
-                        |> andThen update TryPersistGame
+                        |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
+                        |> andThen update (PersistenceMsg Persistence.Msg.TryPersistGame)
             in
-            if Scoreboard.Model.isComplete newModel.scoreboard then
+            if Scoreboard.Model.isComplete newModel.game.scoreboard then
                 ( newModel, newCmd )
 
             else
                 ( { newModel
                     | undo =
                         Just
-                            { scoreboard = model.scoreboard
-                            , dice = model.dice
-                            , roll = model.roll
+                            { scoreboard = model.game.scoreboard
+                            , dice = model.game.dice
+                            , roll = model.game.roll
                             , lastScoreKey = scoreKey
                             }
                   }
@@ -189,74 +205,34 @@ update msg model =
             case model.undo of
                 Just u ->
                     ( { model
-                        | scoreboard = u.scoreboard
-                        , dice = u.dice
-                        , roll = u.roll
-                        , undo = Nothing
+                        | game =
+                            { scoreboard = u.scoreboard
+                            , dice = u.dice
+                            , roll = u.roll
+                            }
                       }
                     , Cmd.none
                     )
-                        |> andThen update PersistState
+                        |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
 
                 Nothing ->
                     ( model, Cmd.none )
 
         NewGame ->
             ( { model
-                | roll = 1
+                | game = defaultGameState
                 , menuOpen = False
                 , undo = Nothing
               }
             , Cmd.none
             )
-                |> andThen update (ScoreboardMsg Scoreboard.Msg.Reset)
-                |> andThen update (DiceMsg Dice.Msg.Reset)
-                |> andThen update PersistState
+                |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
 
         ToggleMenu ->
             ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         UpdateAspectRatio aspectRatio ->
             ( { model | aspectRatio = Just aspectRatio }, Cmd.none )
-
-        PersistState ->
-            ( model
-            , Ports.persistGameState
-                { scoreboard = Dict.toList model.scoreboard
-                , roll = model.roll
-                , dice = Array.toList model.dice
-                , tutorialMode = model.tutorialMode
-                }
-            )
-
-        TryPersistGame ->
-            ( model
-            , if Scoreboard.Model.isComplete model.scoreboard then
-                Task.perform (PersistGame model.scoreboard) Time.now
-
-              else
-                Cmd.none
-            )
-
-        PersistGame scoreboard time ->
-            let
-                game : Ports.GameModel
-                game =
-                    { v = 1
-                    , t = Time.posixToMillis time
-                    , g = Scoreboard.Summary.grandTotal scoreboard
-                    , s = Dict.toList scoreboard
-                    }
-
-                ( newModel, newCmd ) =
-                    update (StatsMsg (Stats.Msg.Update game)) model
-            in
-            ( newModel
-            , Cmd.batch
-                [ newCmd
-                , Ports.persistCompletedGame game
-                ]
-            )
 
         InitTimeZone timeZone ->
             ( { model | timeZone = timeZone }, Cmd.none )
@@ -268,7 +244,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Sub.map DiceMsg (Dice.State.subscriptions model.dice)
-        , Sub.map ImportExportMsg ImportExport.State.subscriptions
+        [ Sub.map DiceMsg (Dice.State.subscriptions model.game.dice)
+        , Sub.map PersistenceMsg Persistence.State.subscriptions
         , Browser.Events.onResize (\w h -> UpdateAspectRatio (toFloat w / toFloat h))
         ]

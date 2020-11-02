@@ -1,10 +1,10 @@
 module ModalStack.State exposing (init, update)
 
-import ImportExport.Msg as ImportExportMsg
 import ModalStack.Model exposing (Model)
 import ModalStack.Msg exposing (Msg(..))
 import Model as RootModel
 import Msg as RootMsg
+import Persistence.Msg
 import View.Modals.CompletedGame
 import View.Modals.Credits
 import View.Modals.Help
@@ -39,7 +39,7 @@ update msg model =
             )
 
         ShowImportExport ->
-            ( { modal = View.Modals.ImportExport.importExport, onClose = RootMsg.ImportExportMsg ImportExportMsg.Clear } :: model
+            ( { modal = View.Modals.ImportExport.importExport, onClose = RootMsg.PersistenceMsg Persistence.Msg.ClearImport } :: model
             , Cmd.none
             , RootMsg.NoOp
             )

@@ -1,36 +1,34 @@
 module View.Modals.CompletedGame exposing (completedGame)
 
-import Dict
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import ModalStack.Model
 import Model exposing (Model)
 import Msg exposing (Msg)
-import Ports
 import Scoreboard.Model
-import Time
+import Stats.Model exposing (Game)
 import Utils.Date exposing (formatDate)
 import View.Scoreboard
 
 
-completedGame : Ports.GameModel -> Model -> ModalStack.Model.Modal Msg
+completedGame : Game -> Model -> ModalStack.Model.Modal Msg
 completedGame game model =
     { title = "Game Details"
     , body = ModalStack.Model.Raw <| div [ class "completed-game" ] [ summary game model, scoreboard game ]
     }
 
 
-summary : Ports.GameModel -> Model -> Html Msg
+summary : Game -> Model -> Html Msg
 summary game model =
     div
         [ class "completed-game__summary" ]
-        [ div [] [ text <| formatDate model.timeZone <| Time.millisToPosix game.t ]
-        , div [] [ text <| String.fromInt game.g ++ " points" ]
+        [ div [] [ text <| formatDate model.timeZone <| game.timestamp ]
+        , div [] [ text <| String.fromInt game.score ++ " points" ]
         ]
 
 
-scoreboard : Ports.GameModel -> Html Msg
+scoreboard : Game -> Html Msg
 scoreboard game =
     div
         [ class "completed-game__scoreboard" ]
-        [ View.Scoreboard.scoreboard (Dict.fromList game.s) Scoreboard.Model.defaultModel Nothing ]
+        [ View.Scoreboard.scoreboard game.scoreboard Scoreboard.Model.defaultModel Nothing ]

@@ -112,8 +112,8 @@ game model =
                 "action-pane"
 
         ( scoreOptions, isYahtzeeWildcard ) =
-            if model.roll > 1 && not (Dice.anyRolling model.dice) then
-                Scoreboard.Score.options (Dice.faces model.dice) model.scoreboard
+            if model.game.roll > 1 && not (Dice.anyRolling model.game.dice) then
+                Scoreboard.Score.options (Dice.faces model.game.dice) model.game.scoreboard
 
             else
                 ( Scoreboard.defaultModel, False )
@@ -123,10 +123,10 @@ game model =
     in
     [ div
         [ class "scoreboard-pane" ]
-        [ View.Scoreboard.scoreboard model.scoreboard scoreOptions lastScoreKey ]
+        [ View.Scoreboard.scoreboard model.game.scoreboard scoreOptions lastScoreKey ]
     , div
         [ class "dice-pane" ]
-        (View.Dice.dice model.dice <| model.roll > 1)
+        (View.Dice.dice model.game.dice <| model.game.roll > 1)
     , div
         [ class actionPaneClass ]
         [ View.ActionButton.actionButton model isYahtzeeWildcard ]

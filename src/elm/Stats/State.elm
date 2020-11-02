@@ -1,13 +1,12 @@
 module Stats.State exposing (init, update)
 
-import Dict
-import Ports
 import Scoreboard.Model as Scoreboard
-import Stats.Model exposing (Model, defaultModel)
+import Stats.Model exposing (Game, Model, defaultModel)
 import Stats.Msg exposing (Msg(..))
+import Time
 
 
-init : Ports.HistoryModel -> ( Model, Cmd Msg )
+init : List Game -> ( Model, Cmd Msg )
 init games =
     ( initStats games, Cmd.none )
 
@@ -22,27 +21,27 @@ update msg model =
             ( updateHighScores game <| updateStats game model, Cmd.none )
 
 
-cmpGames : Ports.GameModel -> Ports.GameModel -> Order
+cmpGames : Game -> Game -> Order
 cmpGames a b =
-    if a.g > b.g then
+    if a.score > b.score then
         GT
 
-    else if a.g < b.g then
+    else if a.score < b.score then
         LT
 
-    else if a.t > b.t then
+    else if Time.posixToMillis a.timestamp > Time.posixToMillis b.timestamp then
         LT
 
     else
         GT
 
 
-getHighScoreGames : List Ports.GameModel -> List Ports.GameModel
+getHighScoreGames : List Game -> List Game
 getHighScoreGames games =
     List.take 10 <| List.reverse <| List.sortWith cmpGames games
 
 
-initStats : Ports.HistoryModel -> Model
+initStats : List Game -> Model
 initStats games =
     let
         initModel =
@@ -51,37 +50,31 @@ initStats games =
     List.foldl updateStats initModel games
 
 
-updateStats : Ports.GameModel -> Model -> Model
+updateStats : Game -> Model -> Model
 updateStats game model =
     let
-        scoreboard =
-            Dict.fromList game.s
-
-        grandTotal =
-            game.g
-
         yahtzeeScored =
-            (Maybe.withDefault 0 <| Scoreboard.getScore Scoreboard.Yahtzee scoreboard) > 0
+            (Maybe.withDefault 0 <| Scoreboard.getScore Scoreboard.Yahtzee game.scoreboard) > 0
 
         yahtzeeBonuses =
-            Maybe.withDefault 0 <| Scoreboard.getScore Scoreboard.YahtzeeBonusCount scoreboard
+            Maybe.withDefault 0 <| Scoreboard.getScore Scoreboard.YahtzeeBonusCount game.scoreboard
     in
     { model
         | gamesPlayed = model.gamesPlayed + 1
         , games200 =
-            if grandTotal >= 200 then
+            if game.score >= 200 then
                 model.games200 + 1
 
             else
                 model.games200
         , games300 =
-            if grandTotal >= 300 then
+            if game.score >= 300 then
                 model.games300 + 1
 
             else
                 model.games300
         , games400 =
-            if grandTotal >= 400 then
+            if game.score >= 400 then
                 model.games400 + 1
 
             else
@@ -97,6 +90,6 @@ updateStats game model =
     }
 
 
-updateHighScores : Ports.GameModel -> Model -> Model
+updateHighScores : Game -> Model -> Model
 updateHighScores game model =
     { model | highScoreGames = getHighScoreGames <| game :: model.highScoreGames }

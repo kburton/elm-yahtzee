@@ -1,6 +1,8 @@
-module Stats.Model exposing (Model, defaultModel)
+module Stats.Model exposing (Game, Model, defaultModel, makeGame)
 
-import Ports
+import Scoreboard.Model
+import Scoreboard.Summary
+import Time
 
 
 type alias Model =
@@ -10,7 +12,14 @@ type alias Model =
     , games400 : Int
     , yahtzees : Int
     , yahtzeeBonuses : Int
-    , highScoreGames : List Ports.GameModel
+    , highScoreGames : List Game
+    }
+
+
+type alias Game =
+    { scoreboard : Scoreboard.Model.Model
+    , score : Int
+    , timestamp : Time.Posix
     }
 
 
@@ -23,4 +32,12 @@ defaultModel =
     , yahtzees = 0
     , yahtzeeBonuses = 0
     , highScoreGames = []
+    }
+
+
+makeGame : Scoreboard.Model.Model -> Time.Posix -> Game
+makeGame scoreboard timestamp =
+    { scoreboard = scoreboard
+    , score = Scoreboard.Summary.grandTotal scoreboard
+    , timestamp = timestamp
     }

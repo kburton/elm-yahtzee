@@ -1,22 +1,22 @@
 module Dice.State exposing (init, subscriptions, update)
 
 import Array
-import Dice.Model exposing (Die, Model, active, defaultModel, dieAt, rolling)
+import Dice.Model exposing (Model, active, defaultModel, dieAt, rolling)
 import Dice.Msg exposing (Msg(..))
 import Random
 import Time
 
 
-init : List Die -> ( Model, Cmd Msg )
+init : Model -> ( Model, Cmd Msg )
 init persistedDice =
     let
         validDice =
-            List.filter
+            Array.filter
                 (\d -> d.face >= 1 && d.face <= 6)
                 persistedDice
     in
-    if List.length validDice == 5 then
-        ( Array.fromList validDice, Cmd.none )
+    if Array.length validDice == 5 then
+        ( validDice, Cmd.none )
 
     else
         ( defaultModel, Cmd.none )

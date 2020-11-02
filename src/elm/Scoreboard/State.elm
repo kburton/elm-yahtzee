@@ -1,15 +1,14 @@
 module Scoreboard.State exposing (init, update)
 
-import Dict
 import Scoreboard.Model exposing (Model, ScoreKey(..), defaultModel, getScore, setScore)
 import Scoreboard.Msg exposing (Msg(..))
 import Scoreboard.Score
 import Scoreboard.Summary
 
 
-init : List ( Int, Int ) -> ( Model, Cmd Msg )
+init : Model -> ( Model, Cmd Msg )
 init persistedScoreboard =
-    ( Dict.fromList persistedScoreboard, Cmd.none )
+    ( persistedScoreboard, Cmd.none )
 
 
 update : Msg -> Model -> List Int -> ( Model, Cmd Msg )

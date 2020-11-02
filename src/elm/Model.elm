@@ -1,21 +1,19 @@
-module Model exposing (ModalStack(..), Model, UndoState)
+module Model exposing (GameState, ModalStack(..), Model, UndoState, defaultGameState)
 
 import Dice.Model
-import ImportExport.Model
 import ModalStack.Model
 import Msg
+import Persistence.Model
 import Scoreboard.Model
 import Stats.Model
 import Time
 
 
 type alias Model =
-    { scoreboard : Scoreboard.Model.Model
-    , dice : Dice.Model.Model
+    { game : GameState
     , modalStack : ModalStack
     , stats : Stats.Model.Model
-    , importExport : ImportExport.Model.Model
-    , roll : Int
+    , persistence : Persistence.Model.Model
     , tutorialMode : Bool
     , menuOpen : Bool
     , aspectRatio : Maybe Float
@@ -28,9 +26,24 @@ type ModalStack
     = ModalStack (ModalStack.Model.Model Model Msg.Msg)
 
 
+type alias GameState =
+    { scoreboard : Scoreboard.Model.Model
+    , dice : Dice.Model.Model
+    , roll : Int
+    }
+
+
 type alias UndoState =
     { scoreboard : Scoreboard.Model.Model
     , dice : Dice.Model.Model
     , roll : Int
     , lastScoreKey : Scoreboard.Model.ScoreKey
+    }
+
+
+defaultGameState : GameState
+defaultGameState =
+    { scoreboard = Scoreboard.Model.defaultModel
+    , dice = Dice.Model.defaultModel
+    , roll = 1
     }
