@@ -1,14 +1,23 @@
-module View.Menu exposing (menu)
+module View.Modals.Menu exposing (menu)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import ModalStack.Model
 import ModalStack.Msg
+import Model exposing (Model)
 import Msg exposing (Msg)
 
 
-menu : Html Msg
-menu =
+menu : Model -> ModalStack.Model.Modal Msg
+menu _ =
+    { title = "Menu"
+    , body = ModalStack.Model.Raw menuBody
+    }
+
+
+menuBody : Html Msg
+menuBody =
     div
         [ class "menu" ]
         [ menuItem "Stats" <| Msg.ModalStackMsg ModalStack.Msg.ShowStats

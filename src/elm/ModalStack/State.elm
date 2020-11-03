@@ -9,6 +9,7 @@ import View.Modals.CompletedGame
 import View.Modals.Credits
 import View.Modals.Help
 import View.Modals.ImportExport
+import View.Modals.Menu
 import View.Modals.Stats
 
 
@@ -20,6 +21,12 @@ init =
 update : Msg -> Model RootModel.Model RootMsg.Msg -> ( Model RootModel.Model RootMsg.Msg, Cmd Msg, RootMsg.Msg )
 update msg model =
     case msg of
+        ShowMenu ->
+            ( { modal = View.Modals.Menu.menu, onClose = RootMsg.NoOp } :: model
+            , Cmd.none
+            , RootMsg.NoOp
+            )
+
         ShowHelp helpKey ->
             ( { modal = View.Modals.Help.help helpKey, onClose = RootMsg.NoOp } :: model
             , Cmd.none
@@ -67,3 +74,6 @@ update msg model =
                     Maybe.withDefault [] <| List.tail model
             in
             ( remainingModals, Cmd.none, onClose )
+
+        Clear ->
+            ( [], Cmd.none, RootMsg.NoOp )

@@ -30,15 +30,18 @@ header model =
 
 body : Modal Msg -> Html Msg
 body model =
-    div
-        [ class "modal__body" ]
-        (case model.body of
-            Raw content ->
-                [ content ]
+    let
+        ( classModifier, bodyContent ) =
+            case model.body of
+                Raw content ->
+                    ( "raw", [ content ] )
 
-            Sections sections ->
-                List.map section sections
-        )
+                Sections sections ->
+                    ( "sections", List.map section sections )
+    in
+    div
+        [ class <| "modal__body modal__body--" ++ classModifier ]
+        bodyContent
 
 
 title : String -> Html Msg

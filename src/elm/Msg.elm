@@ -17,7 +17,6 @@ type Msg
     | Roll
     | Undo
     | NewGame
-    | ToggleMenu
     | UpdateAspectRatio Float
     | InitTimeZone Time.Zone
     | NoOp

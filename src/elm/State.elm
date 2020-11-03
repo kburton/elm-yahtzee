@@ -6,6 +6,7 @@ import Dice.Model
 import Dice.Msg
 import Dice.State
 import ModalStack.Model
+import ModalStack.Msg
 import ModalStack.State
 import Model exposing (ModalStack(..), Model, defaultGameState)
 import Msg exposing (Msg(..))
@@ -65,7 +66,6 @@ init flags =
       , modalStack = ModalStack modalStackModel
       , persistence = persistenceInitResult.model
       , tutorialMode = statsModel.gamesPlayed == 0
-      , menuOpen = False
       , aspectRatio = Nothing
       , undo = Nothing
       , timeZone = Time.utc
@@ -142,7 +142,7 @@ update msg model =
                 ( modalStackModel, modalStackCmd, modalStackCb ) =
                     ModalStack.State.update modalStackMsg <| extractModel model.modalStack
             in
-            ( { model | modalStack = ModalStack modalStackModel, menuOpen = False }, Cmd.map ModalStackMsg modalStackCmd )
+            ( { model | modalStack = ModalStack modalStackModel }, Cmd.map ModalStackMsg modalStackCmd )
                 |> andThen update modalStackCb
 
         StatsMsg statsMsg ->
@@ -211,15 +211,12 @@ update msg model =
         NewGame ->
             ( { model
                 | game = defaultGameState
-                , menuOpen = False
                 , undo = Nothing
               }
             , Cmd.none
             )
+                |> andThen update (ModalStackMsg ModalStack.Msg.Clear)
                 |> andThen update (PersistenceMsg Persistence.Msg.PersistState)
-
-        ToggleMenu ->
-            ( { model | menuOpen = not model.menuOpen }, Cmd.none )
 
         UpdateAspectRatio aspectRatio ->
             ( { model | aspectRatio = Just aspectRatio }, Cmd.none )

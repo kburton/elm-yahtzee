@@ -23,9 +23,12 @@
     position: relative;
     flex-grow: 1;
     line-height: 1.4;
-    padding: 1em 0.5em;
     background-color: #EEE;
     overflow-y: auto;
+
+    &--sections {
+      padding: 1em 0.5em;
+    }
   }
 
   &__section {

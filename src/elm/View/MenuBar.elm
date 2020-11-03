@@ -2,25 +2,18 @@ module View.MenuBar exposing (menuBar)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
+import ModalStack.Msg
 import Msg exposing (Msg)
 import Svg
 import Svg.Attributes as SvgAtt
 import Svg.Events as SvgEvt
 
 
-menuBar : Bool -> Html Msg
-menuBar menuIsOpen =
-    let
-        title =
-            if menuIsOpen then
-                "Menu"
-
-            else
-                "Elm Yahtzee"
-    in
+menuBar : Html Msg
+menuBar =
     div
         [ class "menu-bar" ]
-        [ div [] [ text title ]
+        [ div [] [ text "Elm Yahtzee" ]
         , button
         ]
 
@@ -30,7 +23,7 @@ button =
     Svg.svg
         [ SvgAtt.viewBox "0 0 32 24"
         , SvgAtt.class "menu-bar__button"
-        , SvgEvt.onClick Msg.ToggleMenu
+        , SvgEvt.onClick <| Msg.ModalStackMsg ModalStack.Msg.ShowMenu
         ]
         [ Svg.rect
             [ SvgAtt.x "0"

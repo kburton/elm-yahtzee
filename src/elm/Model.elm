@@ -15,7 +15,6 @@ type alias Model =
     , stats : Stats.Model.Model
     , persistence : Persistence.Model.Model
     , tutorialMode : Bool
-    , menuOpen : Bool
     , aspectRatio : Maybe Float
     , undo : Maybe UndoState
     , timeZone : Time.Zone

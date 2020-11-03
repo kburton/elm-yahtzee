@@ -9,7 +9,6 @@ import Scoreboard.Model as Scoreboard
 import Scoreboard.Score
 import View.ActionButton
 import View.Dice
-import View.Menu
 import View.MenuBar
 import View.Modal
 import View.Scoreboard
@@ -47,7 +46,7 @@ view model =
                         [ View.Modal.modal (m.modal model) ]
 
                     _ ->
-                        menuGameWrapper model
+                        View.MenuBar.menuBar :: game model
                )
         )
 
@@ -88,17 +87,6 @@ htmlStyle model =
                 Unknown ->
                     "html { display: none; }"
         ]
-
-
-menuGameWrapper : Model -> List (Html Msg)
-menuGameWrapper model =
-    View.MenuBar.menuBar model.menuOpen
-        :: (if model.menuOpen then
-                [ View.Menu.menu ]
-
-            else
-                game model
-           )
 
 
 game : Model -> List (Html Msg)
