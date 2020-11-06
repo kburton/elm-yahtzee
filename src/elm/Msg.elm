@@ -3,6 +3,7 @@ module Msg exposing (Msg(..))
 import Dice.Msg
 import ModalStack.Msg
 import Persistence.Msg
+import Router.Msg
 import Scoreboard.Msg
 import Stats.Msg
 import Time
@@ -14,6 +15,7 @@ type Msg
     | ModalStackMsg ModalStack.Msg.Msg
     | StatsMsg Stats.Msg.Msg
     | PersistenceMsg Persistence.Msg.Msg
+    | RouterMsg Router.Msg.Msg
     | Roll
     | Undo
     | NewGame

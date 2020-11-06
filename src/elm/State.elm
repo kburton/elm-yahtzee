@@ -2,18 +2,22 @@ module State exposing (init, subscriptions, update)
 
 import Browser.Dom
 import Browser.Events
+import Browser.Navigation
 import Dice.Model
 import Dice.Msg
 import Dice.State
 import ModalStack.Model
 import ModalStack.Msg
 import ModalStack.State
-import Model exposing (ModalStack(..), Model, defaultGameState)
+import Model exposing (ModalStack(..), Model, defaultGameState, extractModalStack)
 import Msg exposing (Msg(..))
 import Persistence.Flags
 import Persistence.Msg
 import Persistence.Serialization
 import Persistence.State
+import Router.Model
+import Router.Msg
+import Router.State
 import Scoreboard.Model
 import Scoreboard.Msg
 import Scoreboard.State
@@ -22,11 +26,12 @@ import Stats.Msg
 import Stats.State
 import Task
 import Time
-import Update.Extra exposing (andThen)
+import Update.Extra exposing (andThen, filter)
+import Url exposing (Url)
 
 
-init : Maybe Persistence.Flags.Flags -> ( Model, Cmd Msg )
-init flags =
+init : Maybe Persistence.Flags.Flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+init flags url navKey =
     let
         persistenceInitResult =
             Persistence.State.init flags
@@ -46,6 +51,9 @@ init flags =
         ( statsModel, statsCmd ) =
             Stats.State.init persistenceInitResult.history
 
+        ( routerModel, routerCmd ) =
+            Router.State.init url navKey
+
         cmds =
             Cmd.batch
                 [ Cmd.map ScoreboardMsg scoreboardCmd
@@ -53,6 +61,7 @@ init flags =
                 , Cmd.map ModalStackMsg modalStackCmd
                 , Cmd.map StatsMsg statsCmd
                 , Cmd.map PersistenceMsg persistenceInitResult.cmd
+                , Cmd.map RouterMsg routerCmd
                 , Task.perform (\vp -> UpdateAspectRatio (vp.viewport.width / vp.viewport.height)) Browser.Dom.getViewport
                 , Task.perform InitTimeZone Time.here
                 ]
@@ -65,6 +74,7 @@ init flags =
       , stats = statsModel
       , modalStack = ModalStack modalStackModel
       , persistence = persistenceInitResult.model
+      , router = routerModel
       , tutorialMode = statsModel.gamesPlayed == 0
       , aspectRatio = Nothing
       , undo = Nothing
@@ -135,15 +145,14 @@ update msg model =
 
         ModalStackMsg modalStackMsg ->
             let
-                extractModel : ModalStack -> ModalStack.Model.Model Model Msg
-                extractModel (ModalStack modalStack) =
-                    modalStack
-
                 ( modalStackModel, modalStackCmd, modalStackCb ) =
-                    ModalStack.State.update modalStackMsg <| extractModel model.modalStack
+                    ModalStack.State.update modalStackMsg <| extractModalStack model.modalStack
             in
-            ( { model | modalStack = ModalStack modalStackModel }, Cmd.map ModalStackMsg modalStackCmd )
+            ( { model | modalStack = ModalStack modalStackModel }
+            , Cmd.map ModalStackMsg modalStackCmd
+            )
                 |> andThen update modalStackCb
+                |> andThen update (RouterMsg <| Router.Msg.UpdateFragment <| ModalStack.Model.modalCount modalStackModel)
 
         StatsMsg statsMsg ->
             let
@@ -161,22 +170,38 @@ update msg model =
                 Persistence.Msg.PersistGame scoreboard time ->
                     ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
                         |> andThen update
-                            (StatsMsg <|
-                                Stats.Msg.Update <|
-                                    Stats.Model.makeGame scoreboard time
-                            )
+                            (StatsMsg <| Stats.Msg.Update <| Stats.Model.makeGame scoreboard time)
 
                 Persistence.Msg.ImportHistorySuccess history ->
                     ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
                         |> andThen update
-                            (StatsMsg <|
-                                Stats.Msg.Init <|
-                                    Persistence.Serialization.deserializeGameHistory <|
-                                        Just history
-                            )
+                            (StatsMsg <| Stats.Msg.Init <| Persistence.Serialization.deserializeGameHistory <| Just history)
 
                 _ ->
                     ( { model | persistence = persistenceModel }, Cmd.map PersistenceMsg persistenceCmd )
+
+        RouterMsg routerMsg ->
+            let
+                ( routerModel, routerCmd ) =
+                    Router.State.update routerMsg model.router
+
+                routerModalCount =
+                    Router.Model.modalCount routerModel
+
+                modalCount =
+                    ModalStack.Model.modalCount <| extractModalStack model.modalStack
+
+                isUrlChangedMsg =
+                    case routerMsg of
+                        Router.Msg.UrlChanged _ ->
+                            True
+
+                        _ ->
+                            False
+            in
+            ( { model | router = routerModel }, Cmd.map RouterMsg routerCmd )
+                |> filter (isUrlChangedMsg && routerModalCount < modalCount)
+                    (andThen update <| ModalStackMsg ModalStack.Msg.Close)
 
         Roll ->
             ( { model

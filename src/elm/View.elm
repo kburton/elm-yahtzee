@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Browser
 import Dice.Model as Dice
 import Html exposing (Html, div, node, text)
 import Html.Attributes exposing (class)
@@ -24,7 +25,7 @@ desktopAspectRatio =
     0.6
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         modeClass =
@@ -38,17 +39,21 @@ view model =
                 Unknown ->
                     ""
     in
-    div
-        [ class <| "container" ++ modeClass ]
-        (htmlStyle model
-            :: (case model.modalStack of
-                    ModalStack (m :: _) ->
-                        [ View.Modal.modal (m.modal model) ]
+    { title = "Elm Yahtzee"
+    , body =
+        [ div
+            [ class <| "container" ++ modeClass ]
+            (htmlStyle model
+                :: (case model.modalStack of
+                        ModalStack (m :: _) ->
+                            [ View.Modal.modal (m.modal model) ]
 
-                    _ ->
-                        View.MenuBar.menuBar :: game model
-               )
-        )
+                        _ ->
+                            View.MenuBar.menuBar :: game model
+                   )
+            )
+        ]
+    }
 
 
 type ViewMode

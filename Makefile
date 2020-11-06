@@ -8,7 +8,6 @@ build:
 	rm dist/temp.js
 	docker run --rm --volume=${CURDIR}/src/scss:/sass ubuntudesign/sassc /sass/main.scss > dist/main.css
 	sed -i '' -E 's/(main\.js|main\.css|favicon\.ico)/\1?t=$(shell date +%s)/g' dist/index.html
-	@echo View in browser - file://${CURDIR}/dist/index.html
 
 .PHONY: debug
 debug:
@@ -17,4 +16,7 @@ debug:
 	elm make --debug --output=debug/main.js src/elm/Main.elm
 	docker run --rm --volume=${CURDIR}/src/scss:/sass ubuntudesign/sassc /sass/main.scss > debug/main.css
 	sed -i '' -E 's/(main\.js|main\.css|favicon\.ico)/\1?t=$(shell date +%s)/g' debug/index.html
-	@echo View in browser - file://${CURDIR}/debug/index.html
+
+.PHONY: run
+run:
+	docker run -it --rm -p 8080:8080 -v $(PWD)/dist:/public/dist -v $(PWD)/debug:/public/debug danjellz/http-server

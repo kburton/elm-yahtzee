@@ -1,4 +1,4 @@
-module ModalStack.Model exposing (Body(..), Modal, Model, Section)
+module ModalStack.Model exposing (Body(..), Modal, Model, Section, modalCount)
 
 import Html exposing (Html)
 
@@ -28,3 +28,8 @@ type alias Section msg =
     { header : String
     , content : Html msg
     }
+
+
+modalCount : Model model msg -> Int
+modalCount =
+    List.length
